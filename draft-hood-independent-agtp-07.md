@@ -351,7 +351,7 @@ development paths. AGTP does not govern, modify, or supersede any AGMP.
 +-----------------------------------------------------+
 |  AGMP Layer: MCP / A2A / ACP / ANP  [optional]      |
 +-----------------------------------------------------+
-|   AGTP - Agent Transfer Protocol      [this spec]    |
+|   AGTP - Agent Transfer Protocol     [this spec]    |
 +-----------------------------------------------------+
 |            TLS 1.3+                  [mandatory]    |
 +-----------------------------------------------------+
