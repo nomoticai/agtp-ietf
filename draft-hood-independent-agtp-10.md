@@ -1001,8 +1001,9 @@ name (a friendly label or a domain-anchored alias) and an agent
 address (a URL or network address) are aliases for the Agent-ID
 rather than the identity itself. Work on agent discovery in the IETF
 DAWN effort is treated as adjacent in {{AGTP-DISCOVERY}}, which
-specifies the mapping between the AGTP Agent Manifest Document and
-the DAWN record shape.
+specifies the mapping between the AGTP Agent Identity Document
+({{AGTP-IDDOC}}) and the record shape the DAWN work describes agents
+with (the A2A AgentCard in its initial revision).
 
 ## AGTP Positioning: The Proposed Stack
 

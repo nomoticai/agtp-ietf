@@ -168,6 +168,16 @@ Identifiers uses Owner-ID; base and the matrix mapping use Principal-ID in place
 
 From AGTP-CONSISTENCY-REPORT.md (28 June 2026): 458 defined as Counterparty Unverified in core and merchant and as Insufficient Budget in commerce; 451 still used for Scope Violation in discovery and communication where core renumbered to 455; communication-00 marked Standards Track while every other draft is Informational. All three close in this cycle.
 
+### C7b. Identity vocabulary drift in discovery
+
+Discovery-01 uses "Agent Manifest Document" (nine times) and "Birth
+Certificates" (once), both retired in v07 for Agent Identity Document
+and Agent Genesis. Discovery-02 adopts the current terms, and the DAWN
+mapping appendix (September changelog D2) is stated as Agent Identity
+Document to AgentCard, since draft-jakab-dawn-agent-discovery-mdns-00
+borrows A2A's AgentCard rather than defining its own record. Verify
+the term the -01 uses before writing the appendix.
+
 ### C7a. Safe-method list drift
 
 Base-09's summary table marks DESCRIBE, INSPECT, SUMMARIZE, and PLAN
