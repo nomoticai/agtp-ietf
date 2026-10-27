@@ -296,7 +296,7 @@ Safe:
 : A method is safe when an invocation has no observable side effect
   on agent, server, or external state beyond logging and
   attribution. Safe methods retrieve, describe, or reason; they do
-  not change what is retrieved. Safe methods are idempotent by
+  leave what is retrieved unchanged. Safe methods are idempotent by
   construction.
 
 Idempotent:
@@ -392,7 +392,7 @@ baseline.
 
 AGTP-METHODS defines a curated catalog of approved methods maintained
 at `https://agtp.io/api/methods.json`. The catalog is the canonical
-source for what method names are recognized. Method names not
+source for what method names are recognized. Method names absent from
 appearing in the catalog are rejected with status 459 Method
 Violation.
 
@@ -446,8 +446,8 @@ vocabulary at the cadence of IETF process; AGTP-METHODS verbs need to
 evolve at the cadence of agent deployments. The IANA registries
 that AGTP-METHODS does request ({{iana-considerations}}) cover the
 structural status codes, the media types, and the response headers
-— all of which benefit from IANA's conservative cadence. The
-catalog itself does not.
+all of which benefit from IANA's conservative cadence. The
+catalog itself carries none.
 
 ## Method Rules {#verb-rules}
 
@@ -459,13 +459,13 @@ server's `policies.methods.legacy` opts into legacy verbs.
 The catalog is curated to contain only imperative-form action-intent
 verbs that:
 
-- Express a command or action, not a state, an attribute, or a noun
-  (RESERVE is valid; RESERVATION is not).
+- Express a command or action rather than a state, an attribute, or
+  a noun (RESERVE is valid; RESERVATION is invalid).
 - Carry a single intent (verbs with compound intent are decomposed
   into separate verbs).
-- Are not HTTP method names.
+- Are never HTTP method names.
 
-These are curatorial principles applied during verb addition, not
+These are curatorial principles applied during verb addition rather than
 runtime checks performed by AGTP servers. Servers validate verbs
 against the catalog membership and the lexical regex; semantic
 class adherence is the responsibility of the catalog maintainers.
@@ -474,21 +474,21 @@ class adherence is the responsibility of the catalog maintainers.
 
 Servers **MAY** accept additional methods beyond the catalog by
 listing them in the manifest's `policies.methods` block. Custom methods follow the same
-lexical rules in {{verb-rules}} but are server-specific and are not
+lexical rules in {{verb-rules}} but are server-specific and are never
 interoperable across organizations without explicit acceptance.
-Custom methods are not added to the catalog; they exist only within
+Custom methods stay out of the catalog; they exist only within
 the publishing server's surface.
 
 ## Catalog Evolution Overview
 
 The catalog evolves under semver discipline:
 
-- **Patch** (1.0.0 → 1.0.1) — description or category metadata
+- **Patch** (1.0.0 to 1.0.1): description or category metadata
   changes only.
-- **Minor** (1.0.0 → 1.1.0) — verbs added; existing verbs unchanged.
+- **Minor** (1.0.0 to 1.1.0): verbs added; existing verbs unchanged.
   Minor revisions **MAY** introduce new deprecation flags on
   existing verbs.
-- **Major** (1.0.0 → 2.0.0) — verbs removed or renamed.
+- **Major** (1.0.0 to 2.0.0): verbs removed or renamed.
 
 Per-verb deprecation uses three optional fields: `deprecated_in`
 (catalog version that flagged the verb), `removed_in` (version
@@ -539,12 +539,12 @@ servers and agents negotiate over catalog versions.
 
 The method catalog is versioned as semver `MAJOR.MINOR.PATCH`:
 
-- **PATCH** — editorial changes (clarifications, typo fixes,
+- **PATCH**: editorial changes (clarifications, typo fixes,
   description rewordings). No verb additions, removals, or
   deprecations.
-- **MINOR** — additions and deprecations. Verbs may be added; verbs
+- **MINOR**: additions and deprecations. Verbs may be added; verbs
   may be marked deprecated. No verbs are removed in a minor revision.
-- **MAJOR** — removals. Verbs marked deprecated in earlier minor
+- **MAJOR**: removals. Verbs marked deprecated in earlier minor
   revisions may be removed.
 
 Servers and agents using a given catalog MAJOR version are guaranteed
@@ -571,7 +571,7 @@ Each verb in the catalog **MAY** carry deprecation metadata:
 `removed_in`:
 : The anticipated catalog version at which the verb will be
   removed. **MAY** be absent if removal is anticipated but the
-  target version has not been chosen.
+  target version remains unchosen.
 
 `successor`:
 : A catalog verb name that callers should migrate to. **MAY** be
@@ -608,19 +608,19 @@ AGTP-Catalog-Warning: deprecated; successor=AUDIT; removed_in=2.0.0
 
 Header fields:
 
-- `deprecated` — keyword token indicating the warning class.
-- `successor=NAME` — the recommended replacement verb. Omitted if
-  the catalog metadata does not declare a successor.
-- `removed_in=VERSION` — the target removal version. Omitted if not
+- `deprecated`: keyword token indicating the warning class.
+- `successor=NAME`: the recommended replacement verb. Omitted if
+  the catalog metadata declares no successor.
+- `removed_in=VERSION`: the target removal version. Omitted while
   declared.
 
-The header is advisory, not a rejection. The request **MUST** still
+The header is advisory rather than a rejection. The request **MUST** still
 process. Agents and CLIs that surface the header to their users
 allow operators to schedule migration before forced removal.
 
 A server that receives a request whose method is in the catalog at
-all (deprecated or not) **MUST NOT** return 459 Method Violation.
-459 is reserved for verbs that are not in the catalog at all.
+all (deprecated or current) **MUST NOT** return 459 Method Violation.
+459 is reserved for verbs absent from the catalog altogether.
 Deprecated verbs are still in the catalog.
 
 ## Removal Behavior
@@ -654,7 +654,7 @@ the agent's own preferred version, the agent **SHOULD**:
 1. Read `catalog_versions_supported` from the manifest.
 2. If the agent's preferred version is in the list, use it; the
    server will validate against that version.
-3. If not, downgrade to the highest mutually-supported version.
+3. Otherwise, downgrade to the highest mutually-supported version.
 4. If no overlap exists, abandon the connection or escalate to the
    principal.
 
@@ -729,7 +729,7 @@ and is out of scope for this specification.
 
 # Path Grammar {#path-grammar}
 
-AGTP path grammar prevents method-name leakage — the situation
+AGTP path grammar prevents method-name leakage, the situation
 where a method token ends up in a path segment instead of on the
 request line. The grammar enforces that one rule plus structural
 minimums; everything else is operator judgment.
@@ -777,7 +777,7 @@ registration time.
 ## Permissiveness
 
 Mixed case, underscores, hyphens, and any segment depth are valid.
-The protocol does not impose style preferences. Casing conventions,
+The protocol imposes no style preferences. Casing conventions,
 kebab-vs-snake-case, and parameter-naming style are operator
 decisions.
 
@@ -800,7 +800,7 @@ the template grammar.
 
 Template parameters **MUST** be declared in the endpoint's
 `input_schema` as JSON Schema properties of the same name. A
-template parameter that is not declared in `input_schema` **MUST**
+template parameter that is undeclared in `input_schema` **MUST**
 cause registration to fail. Parameter values arrive at the handler
 as part of the validated input alongside body parameters.
 
@@ -864,7 +864,7 @@ containing `#`.
 
 AGTP reserves no path prefixes. There is no `/.well-known/`
 discovery surface and no `/_agtp/` namespace. AGTP is its own
-protocol; HTTP-style discovery conventions do not apply.
+protocol; HTTP-style discovery conventions are inapplicable.
 
 ## Server Metadata via AGTP Methods {#builtin-endpoints}
 
@@ -909,7 +909,7 @@ The `DISCOVER /methods` response is a lightweight inventory; agents
 that need full endpoint definitions (semantic blocks, schemas,
 deprecation metadata, handler types) **MUST** retrieve the full
 server manifest via target-less DISCOVER ({{manifest}}). The built-in
-exists as a cheap, low-bandwidth probe for endpoint shape — useful
+exists as a cheap, low-bandwidth probe for endpoint shape, useful
 for clients that need to know what to ask for without loading the
 full manifest.
 
@@ -1006,13 +1006,13 @@ them.
 | Field | Required | Description |
 |---|---|---|
 | `agent_id` | **MUST** | Canonical Agent-ID (64 lowercase hex characters). |
-| `name` | **MUST** | Operator-assigned short name; not unique across servers. |
+| `name` | **MUST** | Operator-assigned short name; unique only within a server. |
 | `skills_summary` | **SHOULD** | Short human-readable description of the agent's capabilities. |
 | `methods_count` | **SHOULD** | Number of registered endpoints exposed by this agent. |
 | `trust_tier` | **MUST** | Resolved trust tier (1, 2, or 3) per the precedence rule in {{AGTP-TRUST}}. |
 | `verification_path` | **MUST** | Resolved verification path (`dns-anchored`, `log-anchored`, `hybrid`, or `org-asserted`) per the precedence rule in {{AGTP-TRUST}}. |
 | `trust_warning` | **CONDITIONAL** | Present when the resolved `trust_tier` is `2` or when an operator-set warning is recorded. Value is a short token (e.g., `verification-incomplete`). |
-| `owner_id` | **SHOULD** | Resolved owner identifier per the precedence rule in {{AGTP-TRUST}}. Omitted when no Agent Genesis is loaded and the operator did not set an explicit value. |
+| `owner_id` | **SHOULD** | Resolved owner identifier per the precedence rule in {{AGTP-TRUST}}. Omitted when no Agent Genesis is loaded and the operator set no explicit value. |
 {: title="DISCOVER /agents Entry Fields"}
 
 The `trust_tier`, `verification_path`, `trust_warning`, and
@@ -1061,7 +1061,7 @@ the value `"A"` (per the tier classification in
 {{endpoint-tiers}}). Servers **MAY** include
 operator-authored DISCOVER paths in the directory at their
 discretion; operator-authored entries **MUST** carry
-`tier: "B"` and do not have the protection afforded to
+`tier: "B"` and lack the protection afforded to
 reserved built-ins ({{reserved-discover-paths}}).
 
 `DISCOVER /` is the cheapest probe a client can issue against
@@ -1107,7 +1107,7 @@ regardless of additional segments (e.g.,
 `/methods/v2`, `/agents-extended`, `/toolset`,
 `/patterns-v2`, `/contracts/history`). Servers **MUST**
 refuse a registration that would shadow a reserved path;
-the refusal is a configuration-time error, not a runtime
+the refusal is a configuration-time error rather than a runtime
 status code.
 
 The reservation applies only to DISCOVER. The same paths
@@ -1149,22 +1149,22 @@ the other.
 
 Future revisions of this specification **MAY** define additional
 built-in endpoints (e.g., `QUERY /catalog-version` for catalog
-version negotiation). Built-ins are protocol-level conventions, not
+version negotiation). Built-ins are protocol-level conventions rather than
 deployment-level extensions.
 
 # The Endpoint Primitive {#the-endpoint-primitive}
 
 ## Endpoint Tiers {#endpoint-tiers}
 
-Every `(method, path)` pair an AGTP server exposes — or could
-expose — falls into one of four tiers. The tier classification
+Every `(method, path)` pair an AGTP server exposes, or could
+expose, falls into one of four tiers. The tier classification
 is informational at the wire level but constrains how the
 server treats invocations against the pair: Tier A endpoints
 are guaranteed by the protocol, Tier B endpoints are guaranteed
 by the operator, Tier C endpoints are negotiated at runtime,
 and unregistered endpoints are refused.
 
-Tier A — Protocol-native:
+Tier A, Protocol-native:
 : Endpoints reserved by AGTP and its companion specifications.
   Servers **MUST** support Tier A endpoints with their
   documented response contracts. Examples: every cell of
@@ -1175,7 +1175,7 @@ Tier A — Protocol-native:
   `/apis`); any future reserved path under the
   reservations specified in {{reserved-discover-paths}}.
 
-Tier B — Application-registered:
+Tier B, Application-registered:
 : Endpoints declared in the operator's manifest. Servers
   **MUST** support every Tier B endpoint as declared and
   **MUST** refuse any operator-authored endpoint that
@@ -1184,10 +1184,10 @@ Tier B — Application-registered:
   semantic block, handler binding, and policy fields
   documented in this section apply to Tier B endpoints.
 
-Tier C — Runtime-negotiated:
+Tier C, Runtime-negotiated:
 : Endpoints synthesized at runtime via RCNS (Runtime Contract
   Negotiation Substrate). A caller addresses a `(method,
-  path)` pair that is not in the registered Tier A or Tier B
+  path)` pair that is absent from the registered Tier A or Tier B
   set; the server **MAY**, subject to policy, synthesize a
   contract for the requested pair from registered primitives
   and deliver it in either of two modes: a 461 RCNS Contract
@@ -1197,7 +1197,7 @@ Tier C — Runtime-negotiated:
   specified in {{AGTP-RCNS}}.
 
 Unregistered:
-: A `(method, path)` pair that does not match any Tier A,
+: A `(method, path)` pair that matches no Tier A,
   Tier B, or Tier C endpoint. Servers **MUST** refuse
   unregistered invocations with `404 Not Found` (when the
   path is unknown) or `405 Method Not Allowed` (when the
@@ -1336,7 +1336,7 @@ are optional.
   these as 422 Unprocessable Entity responses with structured
   bodies identifying the condition. The error name is the
   protocol-level identifier; status-code mapping is a
-  response-construction concern, not part of the contract. The
+  response-construction concern outside the contract. The
   list **MAY** be empty for endpoints with no business-level
   errors. Composition handlers **MUST** include
   `"composition_failed"`; external-service handlers **MUST**
@@ -1355,8 +1355,11 @@ are optional.
 : An array of scope identifiers the invoking agent **MUST**
   declare in its Authority-Scope. Empty or omitted means no scope
   check; the endpoint inherits the server's default authority
-  requirement. Insufficient scope returns 455 Scope Violation per
-  {{AGTP}}.
+  requirement. A request whose identity document grants a required
+  scope but whose claimed Authority-Scope omits it returns 262
+  Authorization Required with reason `scope-required`; a request
+  whose document omits the scope returns 455 Scope Violation with
+  reason `scope-exceeded`, per the obtainability rule of {{AGTP}}.
 
 `deprecated`:
 : Optional per-endpoint deprecation metadata. See
@@ -1384,7 +1387,7 @@ Field semantics:
 `removed_in`:
 : Optional. The version at which the endpoint will be removed.
   **MAY** be absent if removal is anticipated but the target
-  version has not been chosen.
+  version remains unchosen.
 
 `successor`:
 : Optional. An object with `method` and/or `path` indicating the
@@ -1411,7 +1414,7 @@ when both apply; both are advisory and the request still processes.
 The `successor` token renders as `METHOD /path` when both fields
 are present; just one is emitted bare. `removed_in` and `successor`
 are omitted from the header when the endpoint's `deprecated` block
-does not declare them. The header fires on success and failure
+declares none. The header fires on success and failure
 responses alike so callers always see the warning regardless of
 how the invocation resolves.
 
@@ -1419,7 +1422,7 @@ how the invocation resolves.
 
 The semantic block is the part of the endpoint definition that
 encodes machine-readable intent. Agents reason about whether an
-endpoint matches their goal by interpreting the semantic block, not
+endpoint matches their goal by interpreting the semantic block rather than
 by parsing the verb and path alone. The empirical evidence for
 intent-expressing semantic metadata is documented in {{HOOD2026}}.
 
@@ -1433,7 +1436,7 @@ intent-expressing semantic metadata is documented in {{HOOD2026}}.
 `actor`:
 : A short identifier of the agent class that should invoke this
   endpoint. Freeform string; servers **MUST NOT** reject endpoints
-  whose `actor` is not in a fixed enum. Suggested values for
+  whose `actor` is outside any fixed enum. Suggested values for
   interoperable authoring include `agent`, `human`, `system`,
   `customer`, `staff`, `admin`; domain-specific values (e.g.,
   `merchant`, `auditor`, `patient`) are equally valid. The field
@@ -1463,7 +1466,7 @@ intent-expressing semantic metadata is documented in {{HOOD2026}}.
   endpoints that involve nondeterministic resources or partial
   failures score lower. Agents **MAY** use the value to decide
   whether to ESCALATE for clarification before invoking. The scale
-  is advisory and not normatively defined beyond the endpoint
+  is advisory and undefined normatively beyond the endpoint
   bounds.
 
 `impact`:
@@ -1565,7 +1568,7 @@ level:
 : List of catalog versions the server can validate against. The
   current `catalog_version` **MUST** appear in this list.
   Multi-version support is anticipated in a future revision but is
-  not normatively specified in v00.
+  left unspecified normatively in v00.
 
 ## Server Block
 
@@ -1591,7 +1594,7 @@ The `server` block carries operator-facing identity and timestamps:
 : A non-normative array of feature tokens describing optional
   capabilities the server exposes (e.g., `"endpoint-registry"`,
   `"synthesis"`, `"openapi-export"`). Agents and operators **MAY**
-  use these tokens for capability negotiation. AGTP-METHODS does not
+  use these tokens for capability negotiation. AGTP-METHODS leaves
   define a canonical feature-token registry; tokens are
   operator-defined.
 
@@ -1627,7 +1630,7 @@ hosts and how they are exposed:
   means the `hosted_agents` array is populated and visible to all
   callers. `"authenticated"` means the array is populated only for
   callers presenting a verified identity. `"private"` means the
-  array is empty in this manifest; the server does not disclose
+  array is empty in this manifest; the server withholds
   what agents it hosts.
 
 `hosted_agents`:
@@ -1757,7 +1760,7 @@ The type-specific reference field (`function`, `recipe`, or `url`)
 and any other binding-specific implementation fields are
 server-internal and **MUST NOT** appear in the manifest projection.
 Agents need to know the binding kind to reason about expected
-latency, retry behavior, and attribution; agents do not need to
+latency, retry behavior, and attribution; agents have no need to
 know which specific function, recipe, or upstream realizes the
 binding.
 
@@ -1850,7 +1853,7 @@ fields:
   what the dispatcher matches against the endpoint catalog
   and against the `allow`/`disallow` lists. Aliases **MUST
   NOT** chain (an alias **MUST** resolve to a canonical
-  method, not to another alias); chained or circular alias
+  method, never to another alias); chained or circular alias
   declarations are configuration errors and the server
   **MUST** refuse to start. The original wire method is
   preserved on the Attribution-Record as `requested_method`
@@ -1951,9 +1954,9 @@ are specified in {{AGTP-RCNS}}.
 
 | Code | Name | Returned When |
 |---|---|---|
-| 262 | Authorization Required | Request requires credential establishment, additional Authority-Scope, wildcards consent, or authenticated identity that is absent |
-| 404 | Not Found | The path does not exist on this server |
-| 405 | Method Not Allowed | Method and path are valid but server policy does not expose this combination |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, wildcards consent, authenticated identity, or an Authority-Scope the agent's identity document grants but the request left unclaimed (`scope-required`). A request that exceeds the authority the document grants is 455 Scope Violation per {{AGTP}}, never 262. |
+| 404 | Not Found | The path is absent from this server |
+| 405 | Method Not Allowed | Method and path are valid but server policy leaves this combination unexposed |
 | 459 | Method Violation | The method is in neither the floor nor the AGTP-METHODS catalog nor the server's custom methods |
 | 460 | Endpoint Violation | The path violates AGTP-METHODS path grammar (method-name leakage) |
 {: title="AGTP-METHODS Status Codes"}
@@ -1962,23 +1965,23 @@ The four structural rejection codes 404, 405, 459, 460 form the
 contract-level failure surface. Each code is independently
 actionable and addresses a distinct failure mode:
 
-- **404** -- the path does not exist. The agent has the wrong
+- **404**: the path is absent. The agent has the wrong
   resource locator.
 
-- **405** -- the method and path are individually valid but the
-  server does not expose this combination. The agent **MAY** try a
+- **405**: the method and path are individually valid but the
+  server leaves this combination unexposed. The agent **MAY** try a
   different method on the same path, or **MAY** PROPOSE the
-  combination per {{AGTP-RCNS}} if it is not a policy refusal.
+  combination per {{AGTP-RCNS}} unless it is a policy refusal.
 
-- **459** -- the method itself is the problem. The agent **MUST**
+- **459**: the method itself is the problem. The agent **MUST**
   pick a different method from the AGTP-METHODS catalog. PROPOSE
-  cannot succeed because the method name is not legal.
+  cannot succeed because the method name is illegal.
 
-- **460** -- the path violates path grammar. The agent **MUST**
+- **460**: the path violates path grammar. The agent **MUST**
   restructure the path so that no path segment matches an
   approved method name.
 
-These codes are not interchangeable. A 405 is a policy decision; a
+These codes are never interchangeable. A 405 is a policy decision; a
 459 is a vocabulary violation; a 460 is a structural violation.
 Servers **MUST** return the most specific code that applies.
 
@@ -2026,10 +2029,10 @@ The `recipe` value is the name of a recipe defined in the server's
 recipe registry (typically in an `agtp-recipes.toml` file loaded at
 server startup). Recipes are reusable units of composition logic;
 one recipe **MAY** back multiple endpoints. Inline composition
-steps are not supported in v00; every composition endpoint **MUST**
+steps are unsupported in v00; every composition endpoint **MUST**
 reference a registered recipe by name.
 
-A composition handler whose `recipe` value does not resolve to a
+A composition handler whose `recipe` value fails to resolve to a
 recipe registered at the server **MUST** cause registration to fail.
 
 Composition endpoints **MUST** include `composition_failed` in
@@ -2065,7 +2068,7 @@ The endpoint binds to a Python function loaded by the server.
 The `function` value is a dotted path identifying the module and
 the callable within it; the server imports the module at registration
 time and resolves the function attribute. Single dotted-path form
-is normative; separate `module` and `function` fields are not
+is normative; separate `module` and `function` fields are
 supported in v00.
 
 The function receives the validated input and returns the response
@@ -2103,7 +2106,7 @@ composition can express.
 The endpoint binds to an HTTPS-reachable external service. The
 server proxies the request to the external endpoint and returns the
 response. Useful for AGTP frontends to existing HTTP-based services.
-The external service is not part of the AGTP contract; the AGTP
+The external service sits outside the AGTP contract; the AGTP
 server presents a contract-compliant facade.
 
 External service fields:
@@ -2126,14 +2129,14 @@ External service fields:
 `input_transform`:
 : Optional map renaming AGTP request fields to the upstream's
   expected field names. Maps AGTP-side name to upstream-side name.
-  Fields not in the map pass through unchanged. v00 supports
+  Fields absent from the map pass through unchanged. v00 supports
   key-rename only; value transformation is anticipated in a future
   revision.
 
 `output_transform`:
 : Optional map renaming upstream response fields to AGTP-side names.
   The map is inverted at response time: the upstream-side name is
-  the source, the AGTP-side name is the target. Fields not in the
+  the source, the AGTP-side name is the target. Fields absent from the
   map pass through unchanged.
 
 `error_map`:
@@ -2156,11 +2159,11 @@ any business-level errors:
 
 | Error Code | Returned When |
 |---|---|
-| `upstream_timeout` | Upstream did not respond within `timeout_seconds` |
+| `upstream_timeout` | Upstream failed to respond within `timeout_seconds` |
 | `upstream_connection_error` | DNS, connection, or TLS failure reaching the upstream |
-| `upstream_malformed_response` | Upstream returned a 2xx response whose body is not valid JSON |
-| `upstream_authentication_failed` | Upstream returned 401 or 403 not covered by `error_map` |
-| `upstream_error` | Upstream returned 4xx or 5xx not covered by `error_map` |
+| `upstream_malformed_response` | Upstream returned a 2xx response whose body is invalid JSON |
+| `upstream_authentication_failed` | Upstream returned 401 or 403 outside `error_map` |
+| `upstream_error` | Upstream returned 4xx or 5xx outside `error_map` |
 {: title="Mandatory External Service Error Codes"}
 
 Without these declarations, transport-level upstream failures would
@@ -2198,7 +2201,7 @@ A conforming AGTP server implements:
    `catalog_versions_supported` per {{manifest}}.
 
 6. The endpoint projection of {{endpoint-projection}}: manifest
-   responses expose `handler.type` only, not the full handler
+   responses expose `handler.type` only, never the full handler
    binding.
 
 7. PROPOSE handling per {{AGTP-RCNS}} when
@@ -2225,7 +2228,7 @@ A conforming AGTP server implements:
     server's registered endpoints.
 
 There is no halfway tier. Servers that implement only method
-dispatch without endpoints are not AGTP-conformant; they are
+dispatch without endpoints are nonconformant; they are
 something else, perhaps a method-based RPC layer that happens to
 use AGTP framing.
 
@@ -2271,23 +2274,23 @@ before invoking the handler:
   structural rejection code (404, 405, 459, or 460).
 
 Validation **MUST** complete before handler invocation. Servers
-**MUST NOT** invoke the handler with input that has not satisfied
+**MUST NOT** invoke the handler with input that has yet to satisfy
 schema validation; this guarantee is what allows handler authors
 to assume their context structure is well-formed.
 
-The startup-vs-runtime split is a recommendation, not a strict
+The startup-vs-runtime split is a recommendation rather than a strict
 requirement. Servers **MAY** defer startup validation if their
 endpoint catalog is dynamic (e.g., a PROPOSE-driven server that
 only synthesizes endpoints on demand). Such servers **MUST** still
 validate at the moment an endpoint is registered or synthesized,
-just not at process start.
+just later than process start.
 
 ## Schema Strictness {#schema-strictness}
 
 Schema validation is asymmetric between inputs and outputs.
 
 Input schemas **MUST** be validated with `additionalProperties:
-false`. Fields not declared in the schema **MUST** cause validation
+false`. Fields undeclared in the schema **MUST** cause validation
 to fail with 422. This catches typos and version mismatches early
 and prevents agents from sending unrecognized fields under the
 mistaken assumption that the server will silently ignore them.
@@ -2325,7 +2328,7 @@ OpenAPI and AGTP-METHODS perform similar work for different consumers.
 OpenAPI describes HTTP APIs for human developers and code generators.
 AGTP-METHODS describes agent-grade endpoints for AI agents. The
 two formats overlap substantially: both have method, path, request
-schema, response schema, errors, and descriptions. AGTP-METHODS does not
+schema, response schema, errors, and descriptions. AGTP-METHODS leaves
 compete with OpenAPI; the two formats are complementary, and AGTP-METHODS
 deployments commonly interoperate with OpenAPI-described HTTP services
 in three distinct ways.
@@ -2358,13 +2361,13 @@ semantics; that is judgment work.
 ## OpenAPI as an Export Target
 
 AGTP servers **MAY** render their endpoint catalog as an OpenAPI
-document for HTTP consumers that do not yet speak AGTP. The reverse
+document for HTTP consumers that have yet to speak AGTP. The reverse
 translation: AGTP verb to HTTP method (mappings are imperfect; some
 AGTP verbs have no clean HTTP analog and are best exposed via the
 legacy verb compatibility mode of {{legacy-verb-support}}); path
 remains; schemas pass through unchanged.
 
-The exported OpenAPI document is a compatibility surface, not the
+The exported OpenAPI document is a compatibility surface rather than the
 authoritative description of the service. Servers exporting OpenAPI
 **SHOULD** mark the export as derived from the AGTP-METHODS manifest and
 **SHOULD** publish a link to the manifest in the OpenAPI `info`
@@ -2375,7 +2378,7 @@ section.
 A server **MAY** run AGTP and HTTP side by side. The AGTP endpoint's
 handler is the same code that the HTTP endpoint invokes. OpenAPI
 documents the HTTP face; the AGTP-METHODS manifest documents the agent
-face. The handler does not know which protocol invoked it. This
+face. The handler is unaware which protocol invoked it. This
 deployment posture is signaled in the manifest by populating the
 `apis` array ({{manifest}}) with descriptors pointing at the
 server's OpenAPI documents.
@@ -2411,7 +2414,7 @@ operations.
 A malicious server could declare endpoints whose semantic blocks
 misrepresent the actual behavior. Agents that rely on semantic
 blocks for authorization decisions **MUST** also enforce
-Authority-Scope checks against actual outcomes, not declared
+Authority-Scope checks against actual outcomes rather than declared
 outcomes.
 
 ## Method Policy Tampering
@@ -2503,7 +2506,7 @@ list is intentionally maintained as an open living artifact at
 registry, so that the catalog can evolve at the cadence of agent
 deployment rather than the cadence of IETF process. The structural
 status codes, the media types, and the response headers below are
-appropriate for IANA registration; the method catalog is not.
+appropriate for IANA registration; the method catalog is the exception.
 
 ## AGTP-METHODS Response Headers
 
@@ -2559,7 +2562,7 @@ and are anticipated in future revisions:
 - Multi-version concurrent catalog support. v00 specifies
   `catalog_versions_supported` as a list, but the runtime semantics
   for a server processing a request against a non-default catalog
-  version are not specified. Most servers list a single version.
+  version are unspecified. Most servers list a single version.
 
 - Conformance test suite specification (currently described by
   reference to the agtp.io implementation).
@@ -2579,11 +2582,11 @@ and are anticipated in future revisions:
   for unsatisfied consent. The default behavior in
   v00 is refuse: ad-hoc method invocations against undeclared
   endpoints are rejected as 459 Method Violation when the method is
-  not in the AGTP-METHODS catalog, or as 405 Method Not Allowed when the
+  absent from the AGTP-METHODS catalog, or as 405 Method Not Allowed when the
   method is in the catalog but no endpoint exists for the
   method-and-path combination. The opt-in path that activates 262
   with `wildcards-required` (when an agent or server has consented
-  to wildcards but the other side has not) is anticipated as an
+  to wildcards but the other side has withheld it) is anticipated as an
   implementation extension in a future revision.
 
 # Changes from AGTP-METHODS v01
@@ -2639,7 +2642,7 @@ evidence for the action-intent semantic class is documented in
 
 This appendix is non-normative. It describes how a typical AGTP-METHODS
 server is built and operated, in support of the normative spec.
-Implementations are not required to follow these patterns; they are
+Implementations are free to depart from these patterns; they are
 documented here to give developers a starting point and to make the
 intended deployment posture concrete.
 
@@ -2690,7 +2693,7 @@ A typical request lifecycle in a conforming server:
 7. The dispatcher translates the result into an AGTP response.
 
 This pattern keeps contract enforcement in the dispatcher and
-business logic in the handler. Handlers do not perform schema
+business logic in the handler. Handlers perform no schema
 validation, authority checks, or status code translation; the
 dispatcher does those uniformly across all endpoints.
 
@@ -2725,7 +2728,7 @@ the server validates incoming method names against. Operators
 upgrading the on-disk verb catalog (typically by regenerating
 `methods.json` from a new catalog release) **SHOULD** restart the
 server to pick up the new version. Long-running servers that have
-not been restarted after a catalog upgrade may continue validating
+yet to be restarted after a catalog upgrade may continue validating
 against the previous version they loaded at startup.
 
 The reference `agtp-catalog-diff` tool is the recommended way to
@@ -2767,12 +2770,12 @@ that need the underlying HTTP documentation can locate it.
 A medium-effort path. The organization reimplements its HTTP API as
 native AGTP-METHODS endpoints, moving the handler logic into the AGTP-METHODS
 server's implementation language directly. The HTTP layer goes away,
-or is retained only for legacy clients that have not migrated.
+or is retained only for legacy clients that have yet to migrate.
 
 The conversion tool generates endpoint declarations and handler
 stubs from the existing OpenAPI specification, leaving the
 organization to fill in the business logic. The work is conversion,
-not greenfield development.
+rather than greenfield development.
 
 Translate-and-rehost deployments leave the `apis` array empty once
 the HTTP layer retires; during transition, the array continues to
@@ -2787,7 +2790,7 @@ unaffected. Two interfaces, one backend, indefinite coexistence.
 
 This is the path most large enterprises will take when regulatory,
 contractual, or customer-relationship commitments make a forced
-migration impractical. AGTP-METHODS is additive in this posture, not
+migration impractical. AGTP-METHODS is additive in this posture rather than
 replacing.
 
 Coexist-permanently deployments populate `apis` with HTTP API
@@ -2796,7 +2799,7 @@ HTTP-side OpenAPI specifications.
 
 ## Path Selection
 
-The right path depends on organizational constraints, not protocol
+The right path depends on organizational constraints rather than protocol
 preferences. Wrap-and-expose is the path that scales: it is the one
 that can move millions of existing APIs to AGTP-METHODS discoverability
 at low cost. Translate-and-rehost is the right target for

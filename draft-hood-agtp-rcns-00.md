@@ -191,7 +191,7 @@ The Runtime Contract Negotiation Substrate (RCNS) is the
 machinery by which a server delivers Tier C endpoints
 (the tier taxonomy in {{AGTP-METHODS}}): endpoints synthesized at runtime from
 registered primitives when a caller addresses a `(method,
-path)` pair that is not in the Tier A or Tier B set.
+path)` pair that is absent from the Tier A or Tier B set.
 
 PROPOSE is the AGTP method that explicitly invokes RCNS.
 RCNS also operates implicitly when a server is configured
@@ -227,7 +227,7 @@ between the tier classification (the tier taxonomy in {{AGTP-METHODS}}) and
 the synthesis machinery: an unregistered `(method, path)`
 pair that resolves to an active contract is classified Tier C
 and dispatched to the synthesized handler; a pair that does
-not resolve is dispatched per the unregistered-pair rules in
+fails to resolve is dispatched per the unregistered-pair rules in
 the tier taxonomy in {{AGTP-METHODS}}.
 
 The resolver **MUST** scope each lookup by the requesting
@@ -269,15 +269,15 @@ can unilaterally activate RCNS.
    operator opts in explicitly.
 
 2. **Caller opt-in header.** The request carries
-   `Allow-RCNS: true`. Clients that have not consented to
-   runtime negotiation do not get it; a missing or
+   `Allow-RCNS: true`. Clients that have withheld consent to
+   runtime negotiation never get it; a missing or
    non-`true` value means the unregistered request is
    refused per the standard Tier classification rules
    (the tier taxonomy in {{AGTP-METHODS}}).
 
 3. **Caller scope.** The requesting agent's
    `Authority-Scope` includes the `rcns:negotiate` token.
-   Agents that do not carry this token cannot trigger
+   Agents lacking this token cannot trigger
    synthesis even with the header set.
 
 4. **Minimum trust tier.** The requesting agent's resolved
@@ -294,15 +294,15 @@ closed:
 | Lock closed | Server response |
 |---|---|
 | Server policy disabled | `464 RCNS No Contract` reason: `rcns-disabled` |
-| Caller opt-in absent | Standard unregistered-pair refusal (`404` or `405`) — RCNS is not signaled |
-| Caller scope absent | `262 Authorization Required` body type: `scope-required scope: rcns:negotiate` |
+| Caller opt-in absent | Standard unregistered-pair refusal (`404` or `405`); RCNS goes unsignaled |
+| Caller scope absent | `262 Authorization Required` reason `scope-required scope: rcns:negotiate` when the agent's identity document grants the token but the request left it unclaimed; `455 Scope Violation` reason `scope-exceeded` when the document omits it (obtainability rule of {{AGTP}}) |
 | Trust tier insufficient | `464 RCNS No Contract` reason: `trust-tier-insufficient` |
 {: title="Four-Lock Gate Refusal Mapping"}
 
 The asymmetry between locks 1 and 2 (`rcns-disabled` 464 vs
 opaque 404) is deliberate: the server policy lock surfaces
 RCNS posture to interested callers; the opt-in lock is a
-no-surprise gate for callers that did not ask.
+no-surprise gate for callers that never asked.
 
 A request that holds the Synthesis-Id header (presenting an
 already-issued contract) **MUST NOT** trigger a new
@@ -400,7 +400,7 @@ Contracts have three release paths:
 When an operator edits a recipe that has active contracts
 synthesized under earlier versions ({{recipe-versioning}}),
 those contracts continue to execute under their captured
-version — the spec guarantees in-flight contract stability
+version; the spec guarantees in-flight contract stability
 across recipe edits. Operators that need to flush stale
 contracts (typically after a security-relevant recipe
 change) invoke `REVOKE target=stale-contracts`:
@@ -434,7 +434,7 @@ per contract:
   in {{AGTP}}). Subsequent presentations of the evicted
   `synthesis_id` return `404 Not Found`.
 
-Passthrough contracts (those without a recipe lineage —
+Passthrough contracts (those without a recipe lineage,
 synthesized without a recipe) are skipped: the sweep has
 no version to compare against. Contracts whose recipe has
 been entirely removed from policy (the recipe name no
@@ -449,7 +449,7 @@ contract examined with its disposition (`unchanged`,
 `inspect:all` scope token; agents cannot fire the sweep on
 behalf of others.
 
-The sweep is operator-fired by design. AGTP servers do not
+The sweep is operator-fired by design. AGTP servers lack
 support hot configuration reload; the operator explicitly
 invokes the sweep when they know they have edited a
 recipe and want the resulting drift to be either reported
@@ -479,17 +479,17 @@ implementations **SHOULD** default to a conservative value
 (e.g., 10 evaluations per minute) and operators **MAY**
 raise it.
 
-Rate limiting applies to gate evaluations, not to
+Rate limiting applies to gate evaluations rather than to
 invocations served under an already-issued contract.
 Repeated `Contract-Synthesized`-bearing requests against a
 synthesized contract are rate-limited like any other
-endpoint, not under the RCNS rate limit.
+endpoint rather than under the RCNS rate limit.
 
 ### Attribution-Record Extension Fields {#rcns-attribution-fields}
 
-Every action dispatched under a synthesized contract —
+Every action dispatched under a synthesized contract,
 whether RCNS-spawned, PROPOSE-spawned, or future-mechanism-
-spawned — **MUST** carry the following extension fields on
+spawned, **MUST** carry the following extension fields on
 its Attribution-Record payload, in addition to the base
 identifier-chain fields specified in {{AGTP-IDENTIFIERS}}:
 
@@ -514,11 +514,11 @@ entirely; their absence is itself diagnostic information.
 
 The full set of operator-controlled RCNS knobs is
 specified in this section. The configuration is operator-
-authored and is not visible to callers on the wire; what is
+authored and is invisible to callers on the wire; what is
 visible is the *result* of the configuration (whether the
 gate fires, which mode it delivers in, what the rate ceiling
 is). The block name (`[policies.rcns]` in the recommended
-TOML form) is conventional but not normative; servers using
+TOML form) is conventional rather than normative; servers using
 different configuration formats apply equivalent semantics.
 
 | Knob | Default | Purpose |
@@ -541,7 +541,7 @@ matures.
 ## Purpose
 
 PROPOSE is the AGTP method that triggers runtime contract negotiation.
-An agent that needs an endpoint the server does not advertise
+An agent that needs an endpoint the server has yet to advertise
 submits a PROPOSE request carrying an endpoint definition conformant to {{AGTP-METHODS}}
 specification; the server evaluates the proposal against the
 contract layer and either instantiates the endpoint as a
@@ -556,7 +556,7 @@ synthesis semantics that govern server-side evaluation.
 ~~~
 Step 1:  Agent retrieves the server manifest (which carries the
          method policy as `policies.methods`)
-Step 2:  Agent determines the needed endpoint is not declared
+Step 2:  Agent determines the needed endpoint is undeclared
 Step 3:  Agent constructs a conformant endpoint definition
 Step 4:  Agent sends PROPOSE with the endpoint definition in body
 Step 5a: Server accepts and synthesizes
@@ -677,7 +677,7 @@ in effect at the moment the contract was produced.
 The `version` field is operator-defined; servers **MUST** treat
 the value opaquely. The recommended convention is a monotonically
 increasing string (semver, integer counter, or timestamp); the
-specific format does not affect wire interoperability.
+specific format leaves wire interoperability unaffected.
 
 When a server synthesizes a contract from a recipe:
 
@@ -698,7 +698,7 @@ When a server synthesizes a contract from a recipe:
    captured version until released or revoked.
 
 The recipe-version capture rule decouples contract stability
-from recipe evolution. Operators who edit a recipe do not
+from recipe evolution. Operators who edit a recipe never
 disturb in-flight callers; callers who need the updated
 behavior reproduce the proposal under the new recipe version.
 Operators that want to force callers off an old recipe version
@@ -712,30 +712,33 @@ On receipt of a PROPOSE request, the server **MUST** evaluate:
 
 1. **Method conformance.** Is the proposed method in the AGTP-METHODS
    approved method catalog, or is it a custom method declared in
-   the server's `policies.methods` ({{AGTP-METHODS}})? If not,
+   the server's `policies.methods` ({{AGTP-METHODS}})? Otherwise,
    return 459 Method Violation.
 
 2. **Path conformance.** Does the proposed path satisfy
-   the path grammar in {{AGTP-METHODS}}? If not, return 460 Endpoint Violation.
+   the path grammar in {{AGTP-METHODS}}? Otherwise, return 460 Endpoint Violation.
 
 3. **Semantic block conformance.** Does the proposed semantic
-   block carry all required fields with valid values? If not,
+   block carry all required fields with valid values? Otherwise,
    return 400 Bad Request.
 
 4. **Schema conformance.** Are the input and output schemas valid
-   JSON Schema documents? If not, return 400 Bad Request.
+   JSON Schema documents? Otherwise, return 400 Bad Request.
 
 5. **Authority sufficiency.** Does the proposing agent's
    declared Authority-Scope cover the proposed authority
-   requirements? If not, return 262 Authorization Required with
-   body type `scope-required`.
+   requirements? If the agent's identity document grants them but
+   the request left them unclaimed, return 262 Authorization
+   Required with reason `scope-required`; if the document omits
+   them, return 455 Scope Violation with reason `scope-exceeded`
+   ({{AGTP}}).
 
 6. **Capability envelope.** Can the server actually synthesize
-   the proposed endpoint from its existing capabilities? If not,
+   the proposed endpoint from its existing capabilities? Otherwise,
    return 463 Proposal Rejected with `reason: composition-impossible`.
 
 7. **Policy acceptance.** Does the server's policy permit the
-   proposed method-and-path combination? If not, return 463 with
+   proposed method-and-path combination? Otherwise, return 463 with
    `reason: policy-refused`.
 
 If all evaluations pass, the server synthesizes the endpoint and
@@ -752,7 +755,7 @@ endpoints to fulfill the request.
 Authority **MUST** be preserved through the composition. The agent's
 Authority-Scope **MUST** be sufficient for every underlying endpoint
 the synthesis invokes. If a composed step would require authority
-the agent does not hold, the synthesis **MUST** fail at evaluation
+the agent lacks, the synthesis **MUST** fail at evaluation
 time (step 5) rather than at execution time.
 
 ## Session-Scoped vs Persistent Synthesis
@@ -777,7 +780,7 @@ below.
 
 Servers **SHOULD** expose `DISCOVER /patterns`. The endpoint
 returns the inventory of synthesis patterns the server will
-negotiate against under RCNS — the operator-authored
+negotiate against under RCNS: the operator-authored
 recipes ({{recipe-versioning}}) and the `(method, path)`
 shapes those recipes match. The endpoint is reachable even
 when RCNS is disabled ({{rcns-config}}); when RCNS is
@@ -866,10 +869,10 @@ returns it.
 | Code | Name | Returned When |
 |---|---|---|
 | 261 | Negotiation In Progress | Server has accepted PROPOSE for evaluation; agent polls via `QUERY /proposals/{proposal_id}` for terminal status |
-| 262 | Authorization Required | Caller scope lock closed: body type `scope-required scope: rcns:negotiate` (see {{AGTP-METHODS}} for the general semantics) |
+| 262 | Authorization Required | Caller scope lock closed with the token granted but unclaimed: reason `scope-required scope: rcns:negotiate`. When the identity document omits the token the lock returns 455 Scope Violation per {{AGTP}} (see {{AGTP-METHODS}} for the general semantics) |
 | 263 | Proposal Approved | Server has synthesized and instantiated the proposed endpoint. Response body carries top-level `method` and `path` fields naming the synthesized endpoint, plus the full endpoint definition |
 | 461 | RCNS Contract Available | Synthesis preview returned in confirm-first mode. Response body carries a contract preview with `synthesis_id`, resolved `(method, path)`, and the recipe lineage. Caller accepts by re-issuing with the `Contract-Synthesized` header |
-| 463 | Proposal Rejected | Server cannot or will not synthesize the proposed endpoint |
+| 463 | Proposal Rejected | Server cannot or declines to synthesize the proposed endpoint |
 | 464 | RCNS No Contract | Synthesis attempted but no contract could be delivered. Response body carries one of the reasons in the RCNS vocabulary per {{AGTP}} |
 {: title="RCNS Status Codes"}
 
@@ -887,8 +890,8 @@ apply. This section adds the synthesis-specific consideration.
 The synthesis evaluation step (step 5 in {{server-side-synthesis-evaluation}})
 **MUST** verify that authority is preserved through composition. A
 synthesis that elevates authority by composing endpoints with
-sufficient individual scopes into a behavior the agent should not
-be permitted is a known threat. Servers **MUST** reject syntheses
+sufficient individual scopes into a behavior the agent is barred
+from is a known threat. Servers **MUST** reject syntheses
 where the composed behavior exceeds what the agent's Authority-Scope
 permits, regardless of whether the individual steps are within
 scope.
