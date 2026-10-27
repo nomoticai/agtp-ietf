@@ -100,6 +100,34 @@ Priority: high. Effort: extraction plus a new front matter, abstract, and securi
 
 draft-hood-agtp-web3-bridge-00 stays expired; no revival. standard-methods-01 and agis-01 stay expired per B1. Nothing else in the family is retired.
 
+### B4. Slim the core to the transfer protocol
+
+Base-10 should read the way RFC 9110 and RFC 5321 read: the protocol, and only the protocol. Companions are the modules and extensions. The HTTP split is the model: RFC 9110 carries semantics (methods, status codes, header fields) and RFC 9112 and 9113 carry wire bindings. AGTP already has the second half in bindings-00.
+
+Base-09 is 6,152 lines. The transfer-protocol core (connection model, header format, status codes, wire format, floor methods, security, IANA, Authority-Scope format, wire examples) is roughly 2,000 of them. Candidates to move out, with line counts from base-09:
+
+| Section | Lines | Goes to |
+|---|---|---|
+| Agent Identity Document and .agtp format | 408 | new companion, working title draft-hood-agtp-identity-document-00 |
+| Agent Namespace Document | 68 | same companion |
+| Agent Registration Process | 257 | discovery-02 (ANS) or the identity-document companion; decide |
+| Browser and Human-Facing Interaction Model | 85 | informative, out to the identity-document companion or the website |
+| Changes from v06, v07, v08 | ~680 | collapse to a one-page summary; full history stays in the repo archive |
+| Extended Method Vocabulary and Industry Profiles | 242 | methods-00 (B1) |
+| Dynamic Endpoint Negotiation | 142 | rcns-00 (B2) |
+| RCNS section | 68 | rcns-00 kernel pointer stays, text moves (B2) |
+| Composition section plus AGMP appendix | ~190 | composition-02; base keeps the substrate model and precedence rule as a few paragraphs |
+| Merchant Identity summary | 86 | merchant-identity-03; base keeps one pointer paragraph and the 458 registry row |
+| Glossary | 177 | merge into Terminology; keep one |
+
+Core Methods (707 lines for the eighteen-method floor) stays and tightens. Problem Statement and Related Work stay but shorten; an independent submission needs the motivation, and the Vienna comparison document carries the long form.
+
+Expected size after the move: near 2,800 lines.
+
+One design question the SMTP analogy raises: ESMTP extensions are advertised at EHLO. The server manifest already plays that role for AGTP. Base-10 can state the manifest as the extension-advertisement mechanism, and each companion then registers what it advertises (a manifest block or capability token), which gives the module model a wire-visible shape rather than a documentary one.
+
+Priority: high; it is the frame the rest of Part B fits into. Effort: section moves plus new front matter for the identity-document companion; the text exists.
+
 ---
 
 ## C. Base v10 substantive changes
@@ -177,6 +205,10 @@ Earmark stays a separate venue; base-10 adds nothing unless a usage-preference h
 ### D6. RECALL
 
 Placeholder for other integration items (ai-control, SAMP, federated resolution).
+
+### D7. Charter alignment and landscape refresh (reading task)
+
+Before base-10 text is final: read the current charters and charter proposals for agentproto, DAWN, WIMSE, and any new agent-related BoF or list since July, and record in one table what each charter scopes, which AGTP document answers it, and the sentence base-10 should carry. Second pass over the drafts posted since July to separate replication of existing work from ideas AGTP already holds and should state more cleanly. Output: a short addendum to the landscape catalog in agent-standards plus the D-section sentences here.
 
 ---
 
