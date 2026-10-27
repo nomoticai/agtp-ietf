@@ -226,6 +226,28 @@ Placeholder for other integration items (ai-control, SAMP, federated resolution)
 
 ### D7. Charter alignment and landscape refresh (reading task)
 
+Venue facts from the 27 October mailbox review:
+
+- agentproto (chartered 8 Oct; chairs Steele, Daigle; AD Eckel):
+  "neither replaces application-layer agent protocols nor defines a
+  new transport"; audit out of scope. AGTP fits Topics 3 and 4
+  (requirements, transports and bindings) as a binding target, which
+  decides H9 in favor of an H3/WebTransport binding. Topic 2
+  (terminology) is live; Session-ID, Agent-ID, Authority-Scope absent.
+- DAWN (chartered 22 Oct; chairs Liu, Brockners; AD Vyncke): local
+  network, organization, or cooperating-party discovery on DNS or
+  mDNS; identity, capability catalogs, Internet-wide search, trust
+  evaluation out. Drafts in scope rename to -dawn-. Discovery-02's
+  mapping targets the in-scope case only.
+- AUDIT: chartering on audit@ietf.org, BoF at 127. Venue for AGTP-LOG,
+  the identifier chain, and tamper evidence (D4), with IPR scrutinized.
+- WIMSE: AIMS adopted; the sub/client_id/act chain convention (H5),
+  Hulea's mandate, Reece's R10, Lee's tool-call proof, Thaha's
+  evidence binding are the drafts to read.
+- dmsc: no WG, no 127 session. SAMP -04 posted 27 Oct and may state
+  the SAMP/AGTP relationship; read first.
+- ATA list: awaiting Bishop since 14 Oct; chase.
+
 Before base-10 text is final: read the current charters and charter proposals for agentproto, DAWN, WIMSE, and any new agent-related BoF or list since July, and record in one table what each charter scopes, which AGTP document answers it, and the sentence base-10 should carry. Second pass over the drafts posted since July to separate replication of existing work from ideas AGTP already holds and should state more cleanly. Output: a short addendum to the landscape catalog in agent-standards plus the D-section sentences here.
 
 ---
