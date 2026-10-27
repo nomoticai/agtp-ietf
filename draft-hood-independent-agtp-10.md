@@ -312,7 +312,7 @@ to agentic systems at scale:
   isolated request/response cycles. Agent workflows are inherently stateful
   sequences.
 
-## Why Not Evolve HTTP?
+## Why Not Evolve HTTP? {#why-not-http}
 
 A natural question is whether these limitations could be addressed by
 extending HTTP rather than defining a new protocol. There are three
@@ -373,13 +373,15 @@ semantics, status code vocabulary, security considerations, and IANA
 considerations.
 
 The Agent Certificate extension for cryptographic binding of agent
-identity to AGTP header fields is described at a high level in Section 7.2.
+identity to AGTP header fields is described at a high level in
+{{verification-levels}}.
 Full specification is provided in a separate companion document:
 {{AGTP-CERT}}. That extension may be subject to pending intellectual
-property claims; see Section 7.7 and the IPR Notice preceding the Abstract.
+property claims; see {{ipr}} and the IPR Notice preceding the Abstract.
 
 Merchant-side identity verification for PURCHASE counterparties is
-described at a high level in Section 8 of this document and specified
+described at a high level in the Merchant Identity section of this
+document and specified
 in full in a separate companion: {{AGTP-MERCHANT}}. This document
 registers the merchant-related request headers, the 458 Counterparty
 Unverified status code, and the `merchant` and `intent` Authority-Scope
@@ -506,7 +508,7 @@ Agent Package (.agent):
   `.agent` suffix is a file format designator and **MUST NOT** appear as
   a hostname component or top-level label in `agtp://` URIs. Note: the
   `.agent` file format specification may be subject to pending patent
-  claims by the author; see Section 7.7.
+  claims by the author; see {{ipr}}.
 
 Governed Agent Package (.nomo):
 : A deployment artifact in the `.nomo` format, which extends the `.agent`
@@ -514,7 +516,7 @@ Governed Agent Package (.nomo):
   verified governance zone and issuing principal. The `.nomo` format is
   to `.agent` as HTTPS is to HTTP: the same structural foundation with
   an added layer of cryptographic trust. A `.nomo` package is required
-  for agents operating at Trust Tier 1 (see Section 5.2). The `.nomo`
+  for agents operating at Trust Tier 1 (see {{verification-paths}}). The `.nomo`
   suffix is a file format designator and **MUST NOT** appear as a
   hostname component in `agtp://` URIs.
 
@@ -524,12 +526,12 @@ Governed Agent Package (.nomo):
   literally an agent operating under law: its behavior is bounded by a
   cryptographically enforced governance context at the packaging layer.
   Note: the `.nomo` file format specification may be subject to pending
-  patent claims by the author; see Section 7.7.
+  patent claims by the author; see {{ipr}}.
 
 Agent Transfer Document (.agtp):
 : The wire-level manifest document format defined by this specification.
   An `.agtp` document is a signed JSON structure containing the fields
-  defined in Section 5.5 (Agent Identity Document). It is the output
+  defined in {{AGTP-IDDOC}} (Agent Identity Document). It is the output
   format returned by all AGTP URI resolution requests. Both `.agent` and
   `.nomo` packages produce `.agtp` documents when queried; the `.agtp`
   format is the protocol's canonical representation of agent identity
@@ -542,7 +544,7 @@ URI (AGTP):
 : An `agtp://` scheme URI that identifies an agent or agent namespace.
   AGTP URIs are addresses rather than filenames. File extensions (`.agent`,
   `.nomo`, `.agtp`) **MUST NOT** appear in canonical AGTP URIs. See
-  Section 5.1 for the canonical URI forms and resolution semantics.
+  {{uri-forms}} for the canonical URI forms and resolution semantics.
 
 Agent Namespace Document:
 : The signed `application/vnd.agtp.identity+json` document returned in
@@ -573,7 +575,7 @@ Agent Genesis:
   issued through the Agent Genesis; it is never self-assumed.
 
   The Agent Genesis is the source document from which the Agent
-  Identity Document (Section 6.4) is derived when an AGTP URI is
+  Identity Document ({{AGTP-IDDOC}}) is derived when an AGTP URI is
   resolved. The canonical Agent-ID is computed as the 256-bit
   SHA-256 hash of the Agent Genesis in its canonical-form
   serialization with the signature field excluded; the canonical
@@ -589,7 +591,7 @@ Agent Genesis:
   referenced by `Agent-ID` (never a separate header); `scope` is the
   Authority-Scope set declared in the agent identity document,
   optionally narrowed per-request via the `Authority-Scope` header.
-  See Section 5.7.
+  See {{agent-genesis-contents}}.
 
   Anonymous agents are ungovernable. Without an Agent Genesis, there
   is no mechanism to trace decisions to a responsible principal,
@@ -601,7 +603,7 @@ Agent Genesis:
   **Agent Certificate** (an optional X.509 v3 credential for TLS
   mutual authentication; specified in {{AGTP-CERT}}). Note: the
   Agent Genesis mechanism may be subject to pending patent claims
-  by the author; see Section 7.7.
+  by the author; see {{ipr}}.
 
 Governance Token:
 : A signed, time-limited JWT artifact issued by a governance runtime
@@ -622,7 +624,7 @@ Trust Tier:
   governed package. Tier 2 (Org-Asserted): org label is present but
   DNS ownership is unverified; `.agent` package acceptable. Tier 3
   (Experimental): X- prefix required; undiscoverable through the
-  public AGTP registry. See Section 5.2.
+  public AGTP registry. See {{verification-paths}}.
 
 AGMP (Agent Group Messaging Protocol):
 : The collective term for higher-layer AI agent messaging standards
@@ -645,7 +647,7 @@ SUSPEND (method):
 : An AGTP mechanics floor method that places a specific active session
   workflow into a recoverable paused state, issuing a resumption
   nonce for re-entry. Distinguished from the lifecycle SUSPEND event
-  (Section 6.7.6): method-level SUSPEND is session-scoped and does
+  ({{registration-lifecycle}}): method-level SUSPEND is session-scoped and does
   leave the agent's registry lifecycle state and Agent Genesis unchanged
   validity. Category: ORCHESTRATE.
 
@@ -980,7 +982,7 @@ cryptographic verification.
 HTTP remains the universal transport for all agent traffic currently
 deployed. REST conventions layered on HTTP provide a degree of semantic
 structure, but REST remains a resource-manipulation paradigm. As described
-in Section 1.3, evolving HTTP to address agent-specific needs is
+in {{why-not-http}}, evolving HTTP to address agent-specific needs is
 constrained by the frozen method registry, backward-compatibility
 requirements, and the impossibility of achieving infrastructure-level
 traffic differentiation through HTTP extensions alone.
@@ -1418,7 +1420,7 @@ requests that carry them:
 AGTP defines its own status code space. Codes 261 through 263,
 455 through 465, and 550 through 555 are AGTP-specific with no HTTP
 equivalent and are registered in the IANA AGTP Status Code Registry
-(see Section 9.3). AGTP-specific code numbers are deliberately
+(see {{iana-status}}). AGTP-specific code numbers are deliberately
 chosen from ranges unassigned in the IANA HTTP Status Code Registry
 to avoid semantic collision with HTTP status codes that may appear
 in payloads carried by AGTP method invocations.
@@ -1439,13 +1441,13 @@ curated method catalog are specified in {{AGTP-METHODS}}.
 | 202 | Accepted | Method accepted; execution is asynchronous |
 | 204 | No Content | Method executed; no response body |
 | 261 | Negotiation In Progress | PROPOSE evaluation in progress; agent **MAY** poll for terminal status. See {{AGTP-RCNS}}. |
-| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or a scope the endpoint requires that the agent holds in its identity document but left unclaimed. Never returned when the request exceeds the authority the agent holds; that is 455. Covers PROPOSE-time authorization, unclaimed scope at endpoint dispatch, ad-hoc method invocation requiring wildcards consent, and discovery requests blocked by anonymous-discovery policy. See {{AGTP-RCNS}}. |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or a scope the endpoint requires that the agent holds in its identity document but left unclaimed. Never returned when the request exceeds the authority the agent holds; that is 455. Covers PROPOSE-time authorization, unclaimed scope at endpoint dispatch, ad-hoc method invocation requiring wildcards consent, and discovery requests blocked by anonymous-discovery policy. See {{AGTP-METHODS}}; the RCNS gate case is in {{AGTP-RCNS}}. |
 | 263 | Proposal Approved | PROPOSE accepted; the proposed endpoint has been synthesized and instantiated. Response body carries the synthesized endpoint contract. See {{AGTP-RCNS}}. |
 | 400 | Bad Request | Malformed AGTP request |
 | 401 | Unauthorized | Authentication failure. Covers an unrecognized or unauthenticated Agent-ID, INSPECT read-access ACL failure for unauthenticated callers, lifecycle-method invocation without a verified client certificate when `genesis_issuer` mode is in effect, and external-credential failures (e.g., missing `Authorization` header on a method that requires one, or an `Authorization` header that fails validation). The response body **SHOULD** carry a structured `reason` from the vocabulary `agent-unauthenticated`, `oauth-required`, `oauth-invalid`, `acl-anonymous-blocked`, or `genesis-issuer-cert-required` to disambiguate the failure mode. See {{AGTP-COMPOSITION}} for the External Identity Provider composition profile and the OAuth-specific reasons. |
 | 403 | Forbidden | Agent lacks authority for requested action per Authority-Scope |
 | 404 | Not Found | The path is absent from this server. No endpoints are registered under it. |
-| 405 | Method Not Allowed | The method is recognized and the path is valid, but the server's policy or registry leaves this combination unexposed. The response body **MUST** list allowed methods for the path and any redirects from the manifest's `policies.methods` sub-block. The agent **MAY** PROPOSE the combination when policy leaves it unexposed. AGTP-specific. See {{AGTP-RCNS}}. |
+| 405 | Method Not Allowed | The method is recognized and the path is valid, but the server's policy or registry leaves this combination unexposed. The response body **MUST** list allowed methods for the path and any redirects from the manifest's `policies.methods` sub-block. The agent **MAY** PROPOSE the combination when policy leaves it unexposed. AGTP-specific. See {{AGTP-METHODS}}; PROPOSE per {{AGTP-RCNS}}. |
 | 408 | Timeout | TTL exceeded before method could execute. AGTP-specific semantics; see below. |
 | 409 | Conflict | Method conflicts with current state |
 | 410 | Gone | Agent has been REVOKEd; canonical Agent-ID is permanently retired (status `retired`). A Deprecated agent (status `deprecated`) does **NOT** return 410 and continues to serve traffic; deprecation signals planned end-of-life rather than immediate retirement. AGTP-specific semantics; see below. |
@@ -1713,7 +1715,7 @@ or `.nomo` as agent-native hierarchical TLDs; this revision removes
 that admission. Hostnames in AGTP URIs are standard DNS hostnames
 per RFC 3986.
 
-### Canonical URI Forms
+### Canonical URI Forms {#uri-forms}
 
 AGTP is identity-first. Agent-IDs are canonical and content-addressed;
 hosting is incidental. Form 1 (`agtp://[Agent-ID]`) is the canonical
@@ -2001,7 +2003,7 @@ When an AGTP resolver receives a URI of the form
 2. Query the agent's governance platform registry for the record
    associated with the canonical Agent-ID. If the resolver fails to
    know which governance platform holds the record, it **MAY** query
-   a transparency log per Section 5.2 to locate the record.
+   a transparency log per {{verification-paths}} to locate the record.
 
 3. Verify the registry record lifecycle state. If `suspended`,
    return `503 Service Unavailable` with lifecycle state in the
@@ -2129,7 +2131,7 @@ agtp://acme.tld/agents/customer-service
 The path prefix `/agents/` is reserved in all `agtp://` URIs for
 agent namespace operations. Implementations **MUST** support this
 prefix. The registry root at `/agents` (no trailing label) resolves
-to the Agent Namespace Document (see Section 5.4).
+to the Agent Namespace Document ({{AGTP-IDDOC}}).
 
 ### Collision Prevention
 
@@ -2153,7 +2155,7 @@ different from the one carried in the `Agent-ID` header on a request
 **MUST** cause the request to be rejected with `401 Unauthorized`
 and **MUST** be logged.
 
-### IANA Considerations for the agtp:// URI Scheme
+### IANA Considerations for the agtp:// URI Scheme {#uri-scheme-template}
 
 The `agtp://` URI scheme is registered with IANA per {{RFC7595}}.
 Registration template:
@@ -2395,7 +2397,7 @@ Agent Genesis.
 The complete tier-specific packaging, evidence, and validation
 requirements are specified in {{AGTP-TRUST}}.
 
-### Registration Lifecycle
+### Registration Lifecycle {#registration-lifecycle}
 
 ~~~~
 1. PACKAGE
@@ -2715,7 +2717,7 @@ end-to-end. Cognitive.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
-| target | **MUST** | Target family. One of `audit`, `chain_head`, or `lifecycle`. |
+| target | **MUST** | Target family. One of `audit`, `chain_head`, `lifecycle`, `contract`, or `rcns-attempt`; the last two are the RCNS extensions whose semantics are in {{AGTP-RCNS}}. |
 | audit_id | **CONDITIONAL** | Required when `target` is `audit`. The 64-character lowercase hex Audit-ID of the record to retrieve. |
 | agent_id | **CONDITIONAL** | Required when `target` is `chain_head` or `lifecycle`. The canonical Agent-ID whose chain head or lifecycle stream is being retrieved. |
 | limit | **MAY** | When `target` is `lifecycle`, the maximum number of entries to return. Servers **MAY** cap the value. |
@@ -2862,7 +2864,7 @@ the AGTP-METHODS endpoint definition, `synthesis_id`, and `expires_at`.
 On refuse, 463 Proposal Rejected with a structured `reason`. On
 async evaluation, 261 Negotiation In Progress with a `proposal_id`
 the agent can poll via `QUERY /proposals/{proposal_id}` (see
-{{AGTP-METHODS}}). Idempotent: No. Primary error codes: 261, 262, 263,
+{{AGTP-RCNS}}). Idempotent: No. Primary error codes: 261, 262, 263,
 400, 459, 460, 463.
 
 ### EXECUTE {#methods-execute}
@@ -2959,7 +2961,7 @@ Purpose: Pause a specific active session workflow in a recoverable state.
 Issues a resumption nonce the requesting agent uses to resume the session.
 Method-level SUSPEND is session-scoped and leaves registry
 lifecycle state or Agent Genesis validity. The distinction between
-method-level SUSPEND and lifecycle SUSPEND (Section 6.7.6) is
+method-level SUSPEND and lifecycle SUSPEND ({{registration-lifecycle}}) is
 architectural: method-level SUSPEND is a workflow primitive; lifecycle
 SUSPEND is an administrative action on the agent's registry record.
 Mechanics.
@@ -3014,7 +3016,7 @@ server **MUST** return `403 Forbidden`. Operator-initiated
 contract eviction uses `REVOKE target=contract`
 ({{methods-revoke-contract}}) and produces an `rcns_revoke`
 event instead. The release leaves the
-originating agent's lifecycle state. See {{AGTP-METHODS}} for
+originating agent's lifecycle state. See {{AGTP-RCNS}} for
 the RCNS contract concept.
 
 ### NOTIFY
@@ -3348,9 +3350,9 @@ log lifecycle authorization failures.
 | DEPRECATE | Lifecycle | Signal planned end-of-life; agent continues serving | Yes | No | 400, 401, 403, 404, 422 |
 {: title="AGTP Core Method Summary"}
 
-## Method Registry and Extensibility
+## Method Registry and Extensibility {#method-registry}
 
-AGTP defines a formal Method Registry maintained by IANA (see Section 8.2).
+AGTP defines a formal Method Registry maintained by IANA (see {{iana-methods}}).
 Any party may submit a new method for registration. The registration
 procedure is Expert Review, and registration **MUST** be accompanied by a
 published specification, at minimum an IETF Internet-Draft or equivalent
@@ -3394,7 +3396,7 @@ returns a Supported-Methods header listing the methods it implements.
 Clients **SHOULD** check this list before invoking non-core methods.
 
 The `Negotiation-ID` header is used to correlate turns within a dynamic
-endpoint negotiation sequence (see Section 6.5). It **MUST** be a
+endpoint negotiation sequence (see {{dynamic-negotiation}}). It **MUST** be a
 UUID generated by the service upon receiving a PROPOSE request and
 **MUST** be echoed in all subsequent turns of the same negotiation.
 Maximum three turns before the agent **MUST** ESCALATE.
@@ -3824,7 +3826,7 @@ that require line-rate scope enforcement at infrastructure layers
 
 > Note: The Agent Certificate extension and the Agent Genesis
 > mechanism may be subject to pending intellectual property claims.
-> See Section 7.7 and the IPR Notice preceding the Abstract for details.
+> See {{ipr}} and the IPR Notice preceding the Abstract for details.
 > The licensor is prepared to grant a royalty-free license to implementers.
 
 Every AGTP server **MUST** log the `Agent-ID` value from every
@@ -3946,7 +3948,7 @@ Threat: A malicious actor fabricates an Agent Genesis to claim a
 legitimate agent's identity or construct a false identity with elevated
 trust. Mitigation: Agent Genesis documents are issued only by governance
 platforms that have completed one of the three Tier 1 verification
-paths (Section 5.2). For `dns-anchored` registrations, the governance
+paths ({{verification-paths}}). For `dns-anchored` registrations, the governance
 platform **MUST** verify DNS ownership of the claimed `org_domain`
 before issuance. For `log-anchored` registrations, the governance
 platform **MUST** submit the Agent Genesis to a transparency log
@@ -3968,7 +3970,7 @@ registry and trust history of prior registrants. Mitigation applies
 to `dns-anchored` and `hybrid` Tier 1 agents: agents under an expired
 domain are automatically Suspended within 24 hours of domain expiry
 detection. A new owner of the domain **MUST NOT** inherit prior agent
-registrations. See Section 9.6 for the full domain expiry policy.
+registrations. See {{retention}} for the full domain expiry policy.
 `log-anchored` Tier 1 agents are unaffected by this threat because
 their verification evidence is the transparency log inclusion proof
 rather than DNS ownership.
@@ -4043,7 +4045,7 @@ class once the `Priority` header is normatively specified (reserved
 for v01+ per {{header-format}}); and circuit breaker patterns for
 ESCALATE request floods.
 
-## Intellectual Property Considerations
+## Intellectual Property Considerations {#ipr}
 
 The core AGTP specification, including all base methods, header fields,
 status codes, connection model, and IANA registrations defined in this
@@ -4057,7 +4059,7 @@ patent applications by the author, specifically:
   header fields.
 - The ACTIVATE method, which provides AGTP-native transmission and
   activation of governed agent packages.
-- The Agent Genesis mechanism (Section 5.7), which provides
+- The Agent Genesis mechanism ({{agent-genesis-contents}}), which provides
   the genesis identity record and canonical Agent-ID derivation
   process for AGTP-registered agents.
 - The `.agent` file format specification, an open packaging format
@@ -4103,7 +4105,7 @@ Contact:
 Reference:
 : This document
 
-## AGTP Method Registry
+## AGTP Method Registry {#iana-methods}
 
 Establishment of an IANA registry: Agent Transfer Protocol Methods.
 
@@ -4152,7 +4154,7 @@ v06 core set, are demoted in v07 to Tier 2 standard extended methods
 and are registered through the AGTP-METHODS method catalog ({{AGTP-METHODS}})
 rather than through this document.
 
-## AGTP Status Code Registry
+## AGTP Status Code Registry {#iana-status}
 
 Establishment of an IANA registry: Agent Transfer Protocol Status Codes.
 
@@ -4176,9 +4178,9 @@ The following AGTP status codes are registered with full definitions:
 | Code | Name | Definition | Reference |
 |------|------|------------|-----------|
 | 261 | Negotiation In Progress | The service has received a PROPOSE request and is evaluating it asynchronously. The response body **MUST** include a `proposal_id` and an estimated evaluation duration. The agent retrieves the terminal status by invoking `QUERY /proposals/{proposal_id}` until a 263 (Proposal Approved) or 463 (Proposal Rejected) response is returned. Server policy controls whether async evaluation is offered. | {{AGTP-RCNS}} |
-| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or an unclaimed scope its identity document grants. Never used when the request exceeds held authority (455). The response body **MUST** specify which authorization condition applies: `scope-required` (the endpoint requires Authority-Scope the agent has yet to declare), `wildcards-required` (the request is an ad-hoc method invocation and the wildcards consent on either the agent identity document or the server policy is absent), `credentials-missing` (the server requires credentials such as AGTP-CERT or OAuth-scoped token before evaluating the request), or `anonymous-discovery-disabled` (the server requires authenticated identity for manifest retrieval and the request is unauthenticated). Returned for PROPOSE-time authorization, endpoint-dispatch scope checks, ad-hoc invocation wildcards refusal, and discovery requests blocked by policy. | {{AGTP-RCNS}} |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or an unclaimed scope its identity document grants. Never used when the request exceeds held authority (455). The response body **MUST** specify which authorization condition applies: `scope-required` (the endpoint requires Authority-Scope the agent has yet to declare), `wildcards-required` (the request is an ad-hoc method invocation and the wildcards consent on either the agent identity document or the server policy is absent), `credentials-missing` (the server requires credentials such as AGTP-CERT or OAuth-scoped token before evaluating the request), or `anonymous-discovery-disabled` (the server requires authenticated identity for manifest retrieval and the request is unauthenticated). Returned for PROPOSE-time authorization, endpoint-dispatch scope checks, ad-hoc invocation wildcards refusal, and discovery requests blocked by policy. | {{AGTP-METHODS}} |
 | 263 | Proposal Approved | The service has accepted the PROPOSE request and instantiated the proposed endpoint. The response body **MUST** contain a complete AGTP-METHODS endpoint definition for the instantiated endpoint, a `synthesis_id` identifying the synthesized endpoint for follow-on invocation, and `expires_at` indicating when the synthesis expires. **MAY** include a `persistent` boolean and `granted_duration` indicating the actual duration the server granted (which may be less than the agent requested, bounded by server policy). | {{AGTP-RCNS}} |
-| 405 | Method Not Allowed | The method is recognized and the path is valid, but the server's policy or registry leaves this combination unexposed. The response body **MUST** list allowed methods for the path and any redirects from the manifest's `policies.methods` sub-block. The agent **MAY** PROPOSE the combination when policy leaves it unexposed. | {{AGTP-RCNS}} |
+| 405 | Method Not Allowed | The method is recognized and the path is valid, but the server's policy or registry leaves this combination unexposed. The response body **MUST** list allowed methods for the path and any redirects from the manifest's `policies.methods` sub-block. The agent **MAY** PROPOSE the combination when policy leaves it unexposed. | {{AGTP-METHODS}} |
 | 408 | Timeout | The method's declared TTL expired before execution completed. AGTP-specific semantics distinct from HTTP's request-timeout: applies to AGTP method TTL rather than transport request timeout. **MUST** be logged. | {{status-codes}} |
 | 410 | Gone | The Agent-ID is permanently retired through REVOKE of the underlying Agent Genesis. AGTP-specific semantics distinct from HTTP's resource-removed: applies to permanent identity retirement. A Deprecated agent does **NOT** return 410 and continues to serve traffic; deprecation signals planned end-of-life rather than retirement. The canonical Agent-ID of a retired agent **MUST NOT** be retried. | {{status-codes}} |
 | 455 | Scope Violation | The request exceeds the authority the agent holds (Authority-Scope claim beyond grant, endpoint scope ungranted, delegation beyond parent) or an operator-defined scope dimension other than rate-limit, budget, or zone (dedicated codes 429, 456, 457). Typical applications include token-based scope violations and query-based scope violations where the operator defines a scope dimension outside the standard set. The server **MUST** log this event. The agent **MUST NOT** retry the same request without modifying its scope declaration. Governance signal rather than a protocol error. | {{status-codes}} |
@@ -4270,8 +4272,7 @@ registered concurrently with that document.
 ## URI Scheme Registration
 
 The `agtp://` URI scheme is registered per {{RFC7595}}. Full
-registration template is documented in Section 5.1.8 of this
-document.
+registration template is documented in {{uri-scheme-template}}.
 
 ## AGTP Budget Unit Registry
 
@@ -4306,7 +4307,7 @@ Initial registrations:
 | calls | Downstream API call count | Integer | No |
 {: title="Initial AGTP Budget Unit Registry Entries"}
 
-## Agent Registry Retention Policy
+## Agent Registry Retention Policy {#retention}
 
 The AGTP registry **MUST** retain records for all registered agents
 regardless of lifecycle state. The following minimum retention periods apply:

@@ -63,6 +63,13 @@ informative:
     seriesinfo:
       Internet-Draft: draft-hood-agtp-rcns-00
     date: 2026
+  AGTP-COMPOSITION:
+    title: "AGTP Composition Profiles: Agent Group Messaging Protocols, External Identity Providers, and HTTP Gateways"
+    author:
+      fullname: Chris Hood
+    seriesinfo:
+      Internet-Draft: draft-hood-agtp-composition-01
+    date: 2026
   AGTP-BINDINGS:
     title: "AGTP Transport Bindings: TCP/TLS and QUIC"
     author:
@@ -221,7 +228,7 @@ semantics, and the proposed Standard Extended Method Vocabulary
 as the catalog. Both are expired and replaced by this document. The
 previously proposed AMG (Agent Method Grammar) draft never reached
 publication. This document assumes the reader understands AGTP
-{{AGTP}} v09 or later.
+{{AGTP}} v10 or later.
 
 ## Requirements Language
 
@@ -1085,7 +1092,7 @@ shape with the framework in use.
 ### `DISCOVER /apis` {#builtin-apis}
 
 Servers that expose one or more REST-style APIs via the
-HTTP-translation gateway defined in {{AGTP}} **MAY** expose
+HTTP gateway profile of {{AGTP-COMPOSITION}} **MAY** expose
 `DISCOVER /apis`. The endpoint returns an inventory of the
 APIs the server presents, each carrying a `name`, an
 optional `description`, and an optional `base_url`. The
@@ -1610,7 +1617,8 @@ The `server` block carries operator-facing identity and timestamps:
 ## Methods Inventory
 
 The `embedded_methods` array carries the eighteen protocol-floor
-methods every AGTP server supports (see {{AGTP}} §6). The
+methods every AGTP server supports (the method definitions of
+{{AGTP}}). The
 `custom_methods` array carries any server-specific methods declared
 in `policies.methods` ({{custom-verbs}}). The `custom_methods`
 field **MAY** be omitted when empty.
@@ -2450,7 +2458,7 @@ explicit operator approval.
 
 This document defines the following AGTP-METHODS-specific allocations.
 The corresponding AGTP IANA registry entries are recorded in
-{{AGTP}} Section 9.
+the IANA Considerations of {{AGTP}}.
 
 ## AGTP-METHODS Status Code Assignments
 
