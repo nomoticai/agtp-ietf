@@ -168,6 +168,14 @@ Identifiers uses Owner-ID; base and the matrix mapping use Principal-ID in place
 
 From AGTP-CONSISTENCY-REPORT.md (28 June 2026): 458 defined as Counterparty Unverified in core and merchant and as Insufficient Budget in commerce; 451 still used for Scope Violation in discovery and communication where core renumbered to 455; communication-00 marked Standards Track while every other draft is Informational. All three close in this cycle.
 
+### C7a. Safe-method list drift
+
+Base-09's summary table marks DESCRIBE, INSPECT, SUMMARIZE, and PLAN
+as non-state-modifying and idempotent; bindings-00 admits only QUERY
+and DISCOVER to early data. Either bindings-01 states the list is
+deliberately conservative or it matches base. Methods-00 defers to
+bindings for now.
+
 ### C8. Method floor drift
 
 The reference server's embedded floor and base-08/api-01 agreed on eighteen; the September build plan found the server at the v07 twelve in one path. Reconcile before the ANS registration hook (fires on ACTIVATE) is documented in discovery-02.
@@ -236,6 +244,33 @@ Before base-10 text is final: read the current charters and charter proposals fo
 Expired by design, no action: web3-bridge-00, standard-methods-01, independent-agis-01.
 
 ---
+
+## F. agtp.io alignment
+
+The site is the first thing a reviewer reads after the datatracker.
+Hits from the 27 October source:
+
+- `https://agtp.io/api/methods.json` returns 404. The drafts cite it
+  as the canonical catalog location; the file lives at
+  `core/methods.json` in nomoticai/agtp. Publish at the cited path or
+  change the citation. Blocks methods-00 submission.
+- Footer: "A dedicated transport protocol and interface definition
+  language for AI agent systems." A1 applies; the second half is
+  AGIS-era framing and goes.
+- Hero capability list names "agentic grammar." Remove; AGIS is
+  expired and replaced.
+- Badge row "Agentic API" becomes Methods when methods-00 posts.
+- DOCS registry: replace the api-01 entry with methods-00 and
+  rcns-00; session-00 to -01; decide whether web3-bridge stays
+  listed as expired or is removed; ard-00 is listed but absent from
+  the repo. Each revision needs its compiled HTML dropped at the site
+  root, since the viewer loads `draft-hood-*.html` from there.
+- Core description "transport-neutral; bindings specified separately"
+  is correct as written (transport there means TCP and QUIC).
+- No Delegation-Chain or Principal-ID claims on the site; the public
+  summaries that assert cascading revocation and cycle bounding draw
+  on composition-01 and published articles, which get the same
+  treatment as the drafts (sweep A2e).
 
 ## Sequencing
 
