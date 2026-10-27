@@ -33,12 +33,21 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-independent-agtp-09
+      Internet-Draft: draft-hood-independent-agtp-10
     date: 2026
+  RFC7515:
+  RFC8785:
 
 informative:
   RFC9000:
   RFC9001:
+  AGTP-IDDOC:
+    title: "AGTP Agent Identity Document"
+    author:
+      fullname: Chris Hood
+    seriesinfo:
+      Internet-Draft: draft-hood-agtp-identity-document-00
+    date: 2026
   AGTP-CERT:
     title: "AGTP Agent Certificate Extension"
     author:
@@ -75,8 +84,12 @@ companion to {{AGTP}} that defines session semantics for agent-to-agent
 and agent-to-API communication. AGTP-SESSION addresses two distinct
 session models: bounded sessions for time-limited transactional flows,
 and persistent sessions for long-lived agent contexts. Both inherit
-identity, authority, and attribution from base AGTP. This is an early
-working draft; many design decisions remain open.
+identity, authority, and attribution from base AGTP. This revision
+specifies the session identifier format, the ESTABLISH, RESUME, and
+TERMINATE methods and their wire format, and resumption after
+transport loss, in which a session is bound to its participants by a
+signed session token and to the live sender by the per-request
+signature of base AGTP rather than to any transport connection.
 
 --- middle
 
@@ -134,9 +147,25 @@ Persistent Session:
   agents, and other contexts where the agent retains continuity.
 
 Session Identifier:
-: A unique identifier assigned at session establishment that is
-  carried in every method invocation within the session. Format and
-  scope of session identifiers are TBD.
+: A 256-bit cryptographically random identifier assigned by the
+  responder at session establishment, encoded as 64 lowercase
+  hexadecimal characters, carried in the `Session-ID` header of every
+  method invocation within the session. Unique per responder; never
+  derived from either participant's Agent-ID. See
+  {{session-identifier}}.
+
+Session Token:
+: The signed record of a session's establishment: a compact JWS
+  {{RFC7515}} issued by the responder over the session identifier,
+  the two participant Agent-IDs, the session model, the expiry, the
+  resume window, and the session-scoped Authority-Scope grants. The
+  token is what binds a session to its participants. See
+  {{session-token}}.
+
+Initiator, Responder:
+: The agent that sends ESTABLISH and the agent that accepts it. The
+  roles persist for the session's lifetime: only the initiator may
+  RESUME, and either may TERMINATE.
 
 Session Context:
 : The shared state associated with a session, including at minimum
@@ -168,10 +197,12 @@ session are correlated under a single transactional context.
 
 ## Persistent Sessions
 
-Persistent sessions exist for extended periods and are designed to
-survive transport disconnection, network instability, and platform
-restarts. The session identifier remains stable; the underlying
-transport may reconnect multiple times during the session lifetime.
+Persistent sessions exist for extended periods and survive transport
+disconnection, network instability, and platform restarts through
+the resumption procedure of {{resumption}}. The session identifier
+remains stable; the underlying transport may reconnect any number of
+times during the session lifetime, and each reconnection is
+re-bound to the session by the initiator's RESUME.
 
 Persistent sessions match the semantics of long-lived agent contexts:
 a chatbot maintaining conversation continuity, a research agent
@@ -201,29 +232,213 @@ primary mechanism. Explicit establishment provides:
   Scope-Enforcement Points, which can recognize session establishment
   as a distinct event rather than inferring it from method context
 
-The full wire format and parameter set for `ESTABLISH` remains
-unspecified in this version. At minimum, the method **MUST** carry:
+## ESTABLISH Wire Format {#establish}
 
-- The proposed session model (`bounded` or `persistent`)
-- A proposed session lifetime (`session_ttl`) for bounded sessions
-- Any session-scoped Authority-Scope grants the establishing agent
-  proposes for the session context
-- Standard AGTP request fields (Agent-ID, Authority-Scope,
-  signature); Owner-ID is resolved from the agent identity document
-  referenced by Agent-ID per {{AGTP}}
+ESTABLISH is invoked on the path `/session` with no `Session-ID`
+header and carries the standard AGTP request headers of {{AGTP}},
+including `Request-Signature`. The request body is a JSON object:
 
-A successful `ESTABLISH` response **MUST** carry:
+~~~~
+AGTP/1.0 ESTABLISH /session
+Agent-ID: <initiator Agent-ID>
+Authority-Scope: documents:query, knowledge:query
+Request-Signature: <JWS per AGTP>
+Content-Type: application/json
+Content-Length: ...
 
-- A session identifier (format TBD; see Open Questions)
-- The accepted session model and lifetime
-- The accepted Authority-Scope grants for the session
-- A governance platform signature binding the session identifier to
-  the participating Agent-IDs
+{
+  "model": "persistent",
+  "session_ttl": 86400,
+  "scopes": ["documents:query", "knowledge:query"],
+  "resume_window": 3600,
+  "initiator_nonce": "<base64url, at least 96 bits>"
+}
+~~~~
 
-Rejection of an `ESTABLISH` request follows base AGTP status code
-semantics. Implementations **MUST NOT** establish a session by side
+`model`:
+: `bounded` or `persistent`. **REQUIRED**.
+
+`session_ttl`:
+: Proposed lifetime in seconds from establishment. **REQUIRED** for
+  `bounded`; **OPTIONAL** for `persistent`, where absence means the
+  responder's default.
+
+`scopes`:
+: The session-scoped Authority-Scope grants the initiator proposes,
+  in the grammar of {{AGTP}}. **MUST** be a subset of the initiator's
+  claimed or inherited Authority-Scope. **OPTIONAL**; absence means
+  the session carries no scope narrower than the request's.
+
+`resume_window`:
+: Proposed seconds after transport loss during which the responder
+  retains session state for RESUME. **OPTIONAL**; the responder
+  **MAY** shorten it.
+
+`initiator_nonce`:
+: Random value echoed into the session token so the initiator can
+  bind the token to this request. **REQUIRED**.
+
+A successful response is `200 OK` with the `Session-ID` response
+header carrying the new session identifier and a JSON body:
+
+~~~~
+{
+  "session_id": "<64 lowercase hex>",
+  "model": "persistent",
+  "expires_at": "2026-10-28T22:00:00Z",
+  "resume_window": 3600,
+  "scopes": ["documents:query", "knowledge:query"],
+  "session_token": "<compact JWS>"
+}
+~~~~
+
+The responder **MUST** verify the initiator at Level 2 or Level 3
+per {{AGTP}} before issuing a token, and the ESTABLISH invocation's
+Attribution-Record is the first record under the session.
+
+Rejection: `455 Scope Violation` with reason `scope-exceeds-parent`
+when `scopes` exceeds the initiator's Authority-Scope; `422` when the
+requested `model` is unsupported by the responder; `503` when the
+responder's governance platform cannot be reached to record the
+session. Implementations **MUST NOT** establish a session by side
 effect of any other method invocation; the absence of a successful
-`ESTABLISH` response means no session exists.
+ESTABLISH response means no session exists.
+
+## Session Identifier {#session-identifier}
+
+The responder generates the session identifier as 256 bits from a
+cryptographically secure random source, encoded as 64 lowercase
+hexadecimal characters. It **MUST NOT** be derived from, or
+correlate with, either participant's Agent-ID or any prior session
+identifier. It is carried in the `Session-ID` header on every
+subsequent invocation within the session, in both directions.
+Base AGTP assigns `Session-ID` no semantics; this document assigns
+it the binding below.
+
+## Session Token {#session-token}
+
+The session token is a compact JWS {{RFC7515}}, algorithm `EdDSA`,
+`kid` equal to the responder's Agent-ID, signed with the responder's
+`agent_public_key` as published in its Identity Document
+({{AGTP-IDDOC}}), over the {{RFC8785}} canonical form of:
+
+~~~~
+{
+  "sid":        "<session identifier>",
+  "initiator":  "<initiator Agent-ID>",
+  "responder":  "<responder Agent-ID>",
+  "model":      "bounded" | "persistent",
+  "iat":        <seconds since epoch>,
+  "exp":        <seconds since epoch>,
+  "resume":     <resume window, seconds>,
+  "scopes":     [ ... ],
+  "nonce":      "<initiator_nonce>"
+}
+~~~~
+
+The token is the binding between a session identifier and its two
+participants. A responder's governance platform **MAY** countersign
+the token (a second JWS over the same payload, carried in a
+`governance_token` body field) where deployment policy requires a
+platform record of the session; the responder's signature is what the
+protocol depends on.
+
+The initiator retains the token and presents it on RESUME. The
+responder **MAY** retain only the session identifier and verify the
+presented token by signature, which lets a responder that restarted
+recover the session's binding from the token itself.
+
+## Binding to the Live Sender
+
+A session identifier and token establish which two agents a session
+belongs to. They never establish that the sender of a given request
+is one of them. That proof is the `Request-Signature` of {{AGTP}},
+present on every invocation and verified under the sender's current
+key. Within a session the responder **MUST** additionally check that
+the request's `Agent-ID` is one of the two participants in the
+token for that `Session-ID`, and **MUST** reject with `401` and
+reason `session-participant-mismatch` otherwise. A session is
+therefore bound to its participants by signature at establishment
+and to the live sender by signature on every request, and to no
+transport connection. A responder **MAY** also bind each live
+connection to the session with a TLS exporter or QUIC connection
+identifier as defense in depth; that binding is per connection,
+re-established at every RESUME, and never the session's identity.
+
+## Resumption After Transport Loss {#resumption}
+
+When the transport carrying a session is lost (connection reset,
+network change, responder restart), the session persists in the
+`Suspended-by-transport` state for `resume_window` seconds from the
+last successful exchange. Within that window the initiator opens a
+new transport, re-establishing identity at Level 2 or Level 3 as for
+any new connection, and sends:
+
+~~~~
+AGTP/1.0 RESUME /session
+Agent-ID: <initiator Agent-ID>
+Session-ID: <session identifier>
+Request-Signature: <JWS per AGTP>
+Content-Type: application/json
+Content-Length: ...
+
+{
+  "session_token": "<compact JWS from ESTABLISH>",
+  "last_response_id": "<Response-ID of last response seen, or null>"
+}
+~~~~
+
+The responder **MUST** verify, in order: the `Request-Signature`;
+that the token's signature verifies under its own key and its `sid`
+equals the `Session-ID` header; that the request's `Agent-ID` equals
+the token's `initiator`; that `exp` is in the future and the resume
+window is still open; and that the session is in
+`Suspended-by-transport` rather than terminated. On success the
+responder returns `200 OK` with the `Session-ID` header and a body
+carrying `last_response_id` as seen on its side, so the initiator can
+detect a response lost in transit and re-request it, and the session
+returns to `Active`. On failure the responder returns `410 Gone` with
+reason `session-expired` (window or `exp` passed), `session-terminated`
+(a TERMINATE was processed), or `session-unknown`; a token that fails
+verification is `401` with reason `session-token-invalid`.
+
+If a RESUME arrives while an earlier connection for the same session
+is still open, the responder **MUST** treat the newer connection as
+authoritative, release the earlier connection's binding, and log the
+event; two live connections never share a session.
+
+RESUME is an action method for the purposes of {{AGTP-BINDINGS}} and
+**MUST NOT** be sent as QUIC early data.
+
+## Termination
+
+Either participant ends a session with:
+
+~~~~
+AGTP/1.0 TERMINATE /session
+Session-ID: <session identifier>
+Request-Signature: <JWS per AGTP>
+
+{ "reason": "<token>" }
+~~~~
+
+`reason` is one of `completed`, `ttl-expired`, `scope-violation`,
+`revoked`, `operator`, or `initiator-request`. The response is
+`200 OK` and its Attribution-Record is the session's final record,
+signed by the terminating party and naming the reason. A terminated
+session identifier **MUST NOT** be reused and RESUME against it
+returns `410 Gone` with reason `session-terminated`. Expiry of a
+bounded session's `session_ttl` is enforced against the responder's
+clock and produces the same final record with reason `ttl-expired`
+without a TERMINATE invocation.
+
+## Method Registration
+
+ESTABLISH, RESUME, and TERMINATE are registered in the AGTP Method
+Registry by this document ({{iana}}). They are session-management
+methods: none is safe, none is idempotent, and all three are action
+methods under the properties defined in {{AGTP}} and its methods
+companion.
 
 # Inheritance from Base AGTP
 
@@ -257,7 +472,10 @@ its connection migration capability {{RFC9000}}, which allows a
 logical connection to survive IP address changes and network path
 changes without renegotiation. AGTP-SESSION over QUIC can leverage
 QUIC's connection migration to maintain a persistent session across
-network transitions transparently.
+network transitions transparently. Connection migration is an
+optimization: when it succeeds no RESUME is needed, and when the QUIC
+connection is lost outright the resumption procedure of
+{{resumption}} applies as over TCP.
 
 # Relationship to MOQT and Real-Time Media
 
@@ -318,12 +536,12 @@ specification.
 The following are deliberately out of scope for this version:
 
 - Real-time voice and barge-time interruption semantics
+  ({{AGTP-COMMUNICATION}})
 - Pub/sub and relay-based session patterns (MOQT-style multicast)
 - Session migration across organizations or governance platforms
 - Session state synchronization across multiple agents in a chain
-- Detailed protocol specification for ESTABLISH/OPEN methods
+- Multi-party sessions (more than two participants)
 - Session encryption beyond what TLS 1.3 or QUIC already provides
-- Wire format for session metadata
 
 These are flagged as future work or as open questions to be resolved
 through community input.
@@ -341,16 +559,19 @@ Threat: An attacker who obtains a session identifier may attempt to
 inject method invocations into an active session by replaying or
 forging requests carrying the identifier.
 
-Mitigation: Session identifiers **MUST** be bound at establishment
-time to the participating Agent-IDs and to a transport channel
-binding (TLS exporter or QUIC connection ID, depending on transport).
-Session identifiers in isolation **MUST NOT** be sufficient to
-authorize method invocations. Every invocation within a session
-**MUST** continue to satisfy base AGTP identity verification (per
-the three-level identity verification model in {{AGTP}}), and the
-receiving party **MUST** reject
-invocations whose identity cannot be reverified against the
-participants bound to the session at establishment.
+Mitigation: Session identifiers are bound at establishment to the
+participating Agent-IDs by the session token ({{session-token}}),
+and every invocation within a session is bound to its live sender by
+`Request-Signature` ({{AGTP}}). A session identifier in isolation
+**MUST NOT** be sufficient to authorize a method invocation: an
+attacker holding the identifier and the token still lacks the
+initiator's signing key, and an attacker holding a captured request
+is stopped by the signature's timestamp and nonce. The receiving
+party **MUST** reject invocations whose `Agent-ID` is outside the
+token's two participants or whose signature fails. Transport channel
+binding is permitted as an additional per-connection check and is
+never what a session's continuity depends on, since the transport is
+what resumption survives.
 
 ## Persistent Session Compromise
 
@@ -409,8 +630,9 @@ processed before full handshake completion. Replay of 0-RTT data is
 a known QUIC consideration.
 
 Mitigation: Method invocations transmitted in 0-RTT data **MUST NOT**
-be permitted to ESTABLISH a new session. Session establishment
-**MUST** occur after the QUIC handshake has completed. Invocations
+be permitted to ESTABLISH, RESUME, or TERMINATE a session; all three
+are action methods. Session establishment and resumption **MUST**
+occur after the QUIC handshake has completed. Invocations
 within an existing session **MAY** use 0-RTT only for methods on the
 early-data eligibility list in the replay-safety profile of
 {{AGTP-BINDINGS}}; action methods are excluded there and that
@@ -425,26 +647,36 @@ revocation, scope violation, time expiry, or governance policy
 changes. Improper termination handling can leave participants in
 inconsistent state.
 
-Mitigation: Implementations **MUST** define termination semantics
-that produce a final Attribution-Record signed by the terminating
-party identifying the termination reason. Mid-session revocation of
+Mitigation: TERMINATE ({{establish}} and following) produces a final
+Attribution-Record signed by the terminating party identifying the
+termination reason. Mid-session revocation of
 either participant's Agent Genesis or Agent Certificate **MUST**
 result in session termination. Time-based expiry of bounded sessions
 **MUST** be enforced against the establishing governance platform's
 authoritative time rather than participant-local clocks.
 
-# IANA Considerations
+# IANA Considerations {#iana}
 
-TBD.
+This document requests registration of three methods in the AGTP
+Method Registry maintained per {{AGTP}}, with this document as the
+reference:
+
+| Method | Group | Safe | Idempotent | Section |
+|---|---|---|---|---|
+| ESTABLISH | Mechanics | No | No | {{establish}} |
+| RESUME | Mechanics | No | No | {{resumption}} |
+| TERMINATE | Mechanics | No | No | {{establish}} |
+{: title="Session Methods"}
+
+It also registers the reason tokens `session-participant-mismatch`,
+`session-token-invalid`, `session-expired`, `session-terminated`, and
+`session-unknown` in the AGTP reason vocabulary for status codes 401
+and 410.
 
 --- back
 
 # Open Questions
 
-- Should sessions be established explicitly via an ESTABLISH method,
-  or implicitly via an extended-context flag on a standard method?
-- What is the canonical format and scope for session identifiers?
-  (256-bit similar to Agent-ID, or shorter for performance?)
 - How does session attribution interact with the base AGTP
   Attribution-Record? Are session-level attribution rollups defined?
 - How are persistent sessions migrated across governance platform
@@ -454,13 +686,31 @@ TBD.
 - What is the right composition story with MOQT for real-time agent
   media use cases?
 - Should multi-party sessions (more than two participants) be in
-  scope for this draft, or deferred to a separate companion?
+  scope for a later revision, or deferred to a separate companion?
+- Should a responder be permitted to initiate RESUME toward an
+  initiator that has a reachable attachment, for responder-side
+  transport loss?
 
 # Changes from v00
 
-This revision refreshes references and aligns terminology with the
-current base specification. Wire format compatibility: session-00
-specified no wire format, so nothing shipped changes.
+This revision closes the three gaps conceded on the agentproto list
+in August and refreshes references and terminology. Wire format
+compatibility: session-00 specified no wire format, so nothing
+shipped changes.
+
+- Session identifier specified: 256-bit random, 64 lowercase hex,
+  responder-assigned, uncorrelated with Agent-IDs
+  ({{session-identifier}}).
+- ESTABLISH wire format specified, with RESUME and TERMINATE added
+  and all three registered ({{establish}}, {{resumption}}, {{iana}}).
+- Re-binding after transport loss specified: the session is bound to
+  its participants by a responder-signed session token and to the
+  live sender by the base per-request signature; transport channel
+  binding is demoted to an optional per-connection check, since the
+  transport is what resumption survives ({{session-token}},
+  {{resumption}}).
+- Base reference moved to draft-hood-independent-agtp-10, which
+  supplies `Request-Signature` and `agent_public_key`.
 
 - References updated: base AGTP to draft-hood-independent-agtp-09,
   AGTP-CERT to -03, AGTP-LOG to -02. Informative references added
