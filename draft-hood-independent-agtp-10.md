@@ -530,22 +530,24 @@ URI (AGTP):
   Section 5.1 for the canonical URI forms and resolution semantics.
 
 Agent Namespace Document:
-: A cryptographically signed `application/vnd.agtp+json` document returned
-  in response to a request targeting an organization's agent registry
-  root (e.g., `agtp://acme.tld/agents`). Lists all Active agents
-  registered under the organization's governance zone. The document is
-  generated and re-signed by the governance platform on any registry
-  change. It is not a manually editable file. See Section 5.4.
+: The signed `application/vnd.agtp.identity+json` document returned in
+  response to a request targeting an organization's agent registry
+  root (for example `agtp://acme.tld/agents`). Lists every Active agent
+  registered under the organization's governance zone. Generated and
+  re-signed by the governance platform on any registry change; never a
+  manually edited file. Specified in {{AGTP-IDDOC}}; see
+  {{document-taxonomy}}.
 
 Agent Identity Document:
-: A cryptographically signed `application/vnd.agtp+json` document returned
-  in response to a request targeting a specific agent
-  (e.g., `agtp://acme.tld/agents/customer-service`). Contains the
-  agent's Agent Genesis fields, lifecycle state, behavioral trust
-  score, authority scope categories, supported methods, and governance
-  zone. Derived directly from the agent's `.agent` or `.nomo` package;
-  the package integrity hash is verified before the manifest is served.
-  See Section 5.5.
+: The signed `application/vnd.agtp.identity+json` document a canonical
+  Agent-ID resolves to, returned in response to a request targeting a
+  specific agent (for example `agtp://acme.tld/agents/customer-service`).
+  Carries the Agent Genesis fields, lifecycle state, behavioral trust
+  score, authority scope set, supported methods, and governance zone.
+  Derived from the agent's `.agent` or `.nomo` package, whose integrity
+  hash is verified before the document is served, and verified by the
+  recipient before any field is trusted. Mutable: re-signed on every
+  change. Specified in {{AGTP-IDDOC}}; see {{document-taxonomy}}.
 
 Agent Genesis:
 : A cryptographically signed origin document issued to an agent at
@@ -666,6 +668,34 @@ Scope-Enforcement Point (SEP):
   proxy) that enforces Authority-Scope compliance on AGTP requests
   without application-layer access. Line-rate enforcement requires
   {{AGTP-CERT}}.
+
+## Document Taxonomy {#document-taxonomy}
+
+AGTP identity rests on three objects with one join key. The
+canonical Agent-ID is the SHA-256 of the Agent Genesis, so the
+Genesis is the root; the Agent Identity Document is what the Agent-ID
+resolves to; the Attribution-Record chain is what the agent did,
+anchored back to the Genesis through the Audit-ID of
+{{AGTP-IDENTIFIERS}}.
+
+| Object | Answers | Signed by | Changes | Specified in |
+|---|---|---|---|---|
+| Agent Genesis | who this agent is, permanently | issuing registrar | never; a change is a new agent | this document |
+| Agent Identity Document | what this agent is now | the agent's issuer | re-signed on each change | {{AGTP-IDDOC}} |
+| Agent Namespace Document | which agents a namespace hosts | namespace operator | re-signed on each registry change | {{AGTP-IDDOC}} |
+| Attribution-Record and Audit-ID chain | what this agent did | the acting agent, per action | append-only | this document, {{AGTP-IDENTIFIERS}} |
+{: title="AGTP Identity Objects"}
+
+Two terms outside this taxonomy appear in related work. "Agent Birth
+Certificate" is the retired name for the Agent Genesis; the object is
+unchanged. "Agent Card" names the A2A self-description served at a
+well-known HTTPS path and trusted through its domain; it is
+self-asserted, unsigned, and carries no lifecycle state or enforced
+scope. An Agent Identity Document maps to an Agent Card for
+interchange with a loss of those properties ({{AGTP-DISCOVERY}}
+specifies the mapping); an Agent Card maps to an Identity Document
+only at Level 1, with no issuer. The two are different objects and
+this family uses neither name for the other.
 
 # Architectural Principles {#architectural-principles}
 

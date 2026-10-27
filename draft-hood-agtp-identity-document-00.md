@@ -106,6 +106,18 @@ Document the Agent-ID resolves to. The base specification states what
 the protocol depends on in that document; this document specifies the
 document itself.
 
+The Agent Identity Document is a credential, and the distinction from
+a description matters. A description of an agent, of the kind the A2A
+Agent Card provides at a well-known HTTPS path, is self-asserted,
+unsigned, and trusted through the domain that serves it. The Agent
+Identity Document is derived from a signed Agent Genesis, carries an
+issuer binding, holds the lifecycle state and the scope set the
+protocol enforces on every request, and is refused by a conformant
+recipient unless its signature verifies. A description can be mapped
+out of an Identity Document for interchange; an Identity Document
+cannot be constructed from a description without an issuer. The
+document taxonomy in {{AGTP}} places the two.
+
 The split follows the HTTP precedent. HTTP specifies the exchange
 and names the media types it carries; HTML is specified elsewhere.
 AGTP specifies the exchange and names
