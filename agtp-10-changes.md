@@ -282,6 +282,28 @@ Hits from the 27 October source:
   on composition-01 and published articles, which get the same
   treatment as the drafts (sweep A2e).
 
+## G. Companion-specific items
+
+### G1. lei-01
+
+- Owner-ID carriage drift: lei-00 writes `Owner-ID: lei:...` as a
+  request header (lines 250, 270). Owner-ID lives in the Agent Genesis
+  and Identity Document and is resolved, never transmitted. Restate
+  the binding as a document field and rewrite the examples.
+- AUTH credential as Delegation Sequence origin: the origin hop's
+  delegation token ({{delegation}} in base-10) MAY carry or reference
+  the vLEI AUTH credential, so a sequence traces to a human signatory
+  with a verifiable role. This is the signed-mandate model Ivan
+  Voloshyn (Gleipnir, Vienna) described and the pre-execution human
+  approval row of the agentproto template. New section.
+- Verification ladder stated explicitly: out-of-band KYB (inherited,
+  by the relying institution), LEI in the owner field (resolvable
+  through GLEIF), vLEI binding (verifiable through KERI), each with
+  what it proves and its failure behavior. Add the
+  GLEIF-resolution-unavailable case to Security Considerations.
+- AGTP-MERCHANT reference to -02; add AGTP-IDDOC; write the Changes
+  section; expires 30 Dec 2026.
+
 ## Sequencing
 
 1. session-01 submitted this week.
