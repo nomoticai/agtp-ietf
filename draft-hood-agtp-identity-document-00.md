@@ -146,7 +146,7 @@ agtp://acme.tld/agents
 agtp://agtp.acme.tld/agents
 ~~~~
 
-The Agent Namespace Document is not a manually editable file. It is
+The Agent Namespace Document is never a manually edited file. It is
 generated and cryptographically signed by the governance platform each
 time the registry changes. Any Namespace Document that fails signature
 verification **MUST** be rejected by the requesting party.
@@ -222,7 +222,7 @@ agtp://acme.tld/agents/customer-service?format=json
 ~~~~
 
 The Identity Document is derived from the embedded manifest inside the
-agent's `.agent` or `.nomo` package. It is not a separate file that can
+agent's `.agent` or `.nomo` package. It is never a separate file that can
 be independently modified. The governance platform **MUST** verify the
 package integrity hash before extracting and serving the Identity
 Document.
@@ -251,7 +251,7 @@ Document.
 
 The `.agtp` format is the protocol's own document type. It is what
 gets transmitted over the wire. The `.agent` and `.nomo` formats are
-what get deployed. An AGTP implementation is not required to understand
+what get deployed. An AGTP implementation has no need to understand
 `.agent` or `.nomo` packaging internals; it is only required to
 produce and consume `.agtp` Identity Documents.
 
@@ -259,7 +259,7 @@ Additional packaging formats **MAY** be defined by third parties,
 provided they can produce conformant `.agtp` Identity Documents when
 queried. Such formats **MUST** implement the integrity verification
 requirement: the Identity Document **MUST** be derived from a verified
-package, not from an independently stored or editable file.
+package rather than from an independently stored or editable file.
 
 ## Agent Identity Document Schema
 
@@ -376,10 +376,10 @@ Field semantics:
   a `suspended` agent to `active`, REVOKE sets `retired`
   (permanent), DEPRECATE sets `deprecated`. Semantics:
   
-  - `active` — accepts AGTP traffic normally.
-  - `suspended` — refuses AGTP traffic with `503 Service Unavailable`; recoverable via REINSTATE.
-  - `retired` — refuses AGTP traffic with `410 Gone`; permanent; canonical Agent-ID is never reissued.
-  - `deprecated` — continues to accept AGTP traffic but signals planned end-of-life; clients **SHOULD** migrate.
+  - `active`: accepts AGTP traffic normally.
+  - `suspended`: refuses AGTP traffic with `503 Service Unavailable`; recoverable via REINSTATE.
+  - `retired`: refuses AGTP traffic with `410 Gone`; permanent; canonical Agent-ID is never reissued.
+  - `deprecated`: continues to accept AGTP traffic but signals planned end-of-life; clients **SHOULD** migrate.
 
 `methods`:
 : The set of AGTP methods the agent's server speaks. **MUST** include
@@ -454,7 +454,7 @@ The following fields are **RECOMMENDED**:
   accountable for this agent. Resolved per the precedence
   rule in {{AGTP-TRUST}}: explicit declaration beats
   Genesis-derived fallback. Omitted when no Agent Genesis
-  is loaded and the operator did not set an explicit value.
+  is loaded and the operator set no explicit value.
   Semantics specified in {{AGTP-IDENTIFIERS}}; stamped on
   responses as the `Owner-ID` response header per
   the response headers in {{AGTP}}.
@@ -466,7 +466,7 @@ The following fields are **RECOMMENDED**:
   PURCHASE and verified per {{AGTP-MERCHANT}}; `agent` is
   the default capability posture for all other agents.
   `role` is a capability attribute carried on the Agent
-  Identity Document, not on the Agent Genesis: capability
+  Identity Document rather than on the Agent Genesis: capability
   may change over an agent's lifetime without changing
   identity. Operators **MAY** add or remove the `merchant`
   role without re-issuing the Agent Genesis or rotating
@@ -639,14 +639,14 @@ agtp:// session initiated by an agent or AGTP client
   │
   └─→ Establishes authenticated AGTP session
         Method invocations (QUERY, EXECUTE, ESCALATE, etc.)
-        Full protocol operation - not visible to browsers
+        Full protocol operation, invisible to browsers
 ~~~~
 {: #browser-separation title="AGTP URI Use by Audience"}
 
 The analogy to existing protocol conventions is direct. A `mailto:`
 URI surfaces an address and hands off to a mail client; SMTP carries
 the actual messages. Similarly, an `agtp://` URI surfaces identity
-and status; AGTP carries agent traffic. Browsers do not become AGTP
+and status; AGTP carries agent traffic. Browsers never become AGTP
 clients by following an `agtp://` link.
 
 ## Browser Behavior for agtp:// URIs

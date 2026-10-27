@@ -261,15 +261,15 @@ and the failure behavior are specified.
 
 **Note Regarding Intellectual Property:**  Implementers should be
 aware that extensions and certain mechanisms referenced in this
-document -- including the Agent Certificate extension (Section 7.2),
-the ACTIVATE method, the Agent Genesis mechanism
-(Section 5.7), and the `.agent` and `.nomo` file format
-specifications (Section 2) -- may be subject to pending patent
-applications by the author.  The core AGTP specification is intended
-for open implementation without royalty obligation.  The licensor is
-prepared to grant a royalty-free license to implementers consistent
-with {{RFC8179}}.  IPR disclosures:
-https://datatracker.ietf.org/ipr/ -- see also Section 7.7.
+document (the Agent Certificate extension of {{AGTP-CERT}}, the
+ACTIVATE method, the Agent Genesis mechanism, and the `.agent` and
+`.nomo` file format specifications of {{AGTP-IDDOC}}) may be subject
+to pending patent applications by the author. The core AGTP
+specification is intended for open implementation without royalty
+obligation. The licensor is prepared to grant a royalty-free license
+to implementers consistent with {{RFC8179}}. IPR disclosures:
+https://datatracker.ietf.org/ipr/; see also the Intellectual
+Property Considerations subsection of the Security Considerations.
 
 
 ## Background
