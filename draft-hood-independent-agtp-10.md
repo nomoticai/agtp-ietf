@@ -113,6 +113,13 @@ informative:
     date: 2026
     seriesinfo:
       Working Paper: "Available by request. March 2026."
+  AGTP-COMMUNICATION:
+    title: "AGTP Communication Protocol"
+    author:
+      fullname: Chris Hood
+    seriesinfo:
+      Internet-Draft: draft-hood-agtp-communication-00
+    date: 2026
   AGTP-SESSION:
     title: "AGTP Session Protocol"
     author:
@@ -1196,7 +1203,9 @@ semantics described in {{methods-suspend}}.
 
 Chunked transfer encoding is not used in AGTP. Streaming method
 responses are framed by repeated `Content-Length`-delimited messages
-within a single AGTP session.
+within a single AGTP session. Real-time media streams between agents
+(voice, video, sensor data) are specified in {{AGTP-COMMUNICATION}},
+which builds on the session establishment of {{AGTP-SESSION}}.
 
 ## Header Format {#header-format}
 
