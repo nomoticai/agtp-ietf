@@ -254,28 +254,35 @@ Before base-10 text is final: read the current charters and charter proposals fo
 
 ## E. Companion revisions in this cycle
 
-| Draft | From | To | Driver | Expires |
+Published 27 October (v10 set): independent-agtp-10, methods-00,
+rcns-00, identity-document-00, session-01. Every remaining companion
+needs the mechanical set: base reference to -10, AGTP-API citations
+split to AGTP-METHODS or AGTP-RCNS by subject, transfer-protocol
+wording (TLS-layer where the subject is TLS), house style sweep,
+Changes section. The table carries what each needs beyond that, from
+the 27 October survey.
+
+| Draft | To | Expires | Forced by v10 | Substantive |
 |---|---|---|---|---|
-| agtp-session | 00 | 01 | rev bump now; v10 items in 02 | 1 Nov 2026 |
-| independent-agtp | 09 | 10 | Parts A, C, D | 30 Dec 2026 |
-| agtp-api | 01 | methods-00 | B1 | 27 Nov 2026 |
-| (new) agtp-rcns | | 00 | B2 | |
-| agtp-identifiers | 02 | 03 | C1 split, C6, D4 | 3 Dec 2026 |
-| agtp-agent-cert | 03 | 04 | A1, D2 | 30 Dec 2026 |
-| agtp-trust | 02 | 03 | C5 trust score normatives | 30 Dec 2026 |
-| agtp-log | 02 | 03 | D4, A1 | 27 Nov 2026 |
-| agtp-merchant-identity | 02 | 03 | A1, C7 | 27 Nov 2026 |
-| agtp-commerce | 00 | 01 | C7 (458) | 30 Dec 2026 |
-| agtp-discovery | 01 | 02 | September changelog, C7 (455) | 30 Dec 2026 |
-| agtp-presence | 00 | 01 | September changelog | 30 Dec 2026 |
-| agtp-communication | 00 | 01 | C7 (455, track), A1 | 19 Nov 2026 |
-| agtp-composition | 01 | 02 | A1, A2, C4 | 30 Dec 2026 |
-| agtp-bindings, agtp-lei, agtp-ard | 00 | 01 | rev bump, A1 | Dec 2026 |
-| aipref-earmark | 00 | | no change | 14 Feb 2027 |
+| agtp-communication | 01 | 19 Nov 2026 | cites base-07; Standards Track where the family is Informational (C7); 451 to 455 twice | align media session setup to session-01's ESTABLISH wire format |
+| agtp-log | 03 | 27 Nov 2026 | cites base-08; 32 style hits | state tamper evidence against a distrusted holder as the mechanism base-10 and identifiers-03 point to (D4); audit venue note |
+| agtp-composition | 02 | 30 Dec 2026 | 5 AGTP-API cites; 6 Delegation-Chain MUSTs restating what base-10 now specifies; 4 Content-Schema (reserved in base); `Owner-ID:` as a request header in 6 examples; 2 Principal-ID | becomes the home of the composition profiles base-10 summarized; AGMP appendix moves here; A2A provenance maps to Delegation Sequence and prior_actions |
+| agtp-discovery | 02 | 30 Dec 2026 | 9 "Agent Manifest Document", 1 "Birth Certificate" (C7b); `Owner-ID:` header in 2 examples | September changelog D1 to D11; DAWN mapping as Identity Document to AgentCard within DAWN's local and organizational scope |
+| agtp-agent-cert | 04 | 30 Dec 2026 | 3 AGTP-API cites; 7 transport-layer (TLS subject, say TLS-layer); 3 Birth Certificate | relation to Request-Signature: Level 3 accelerates possession proof to the handshake; cert key versus agent_public_key |
+| agtp-bindings | 01 | 30 Dec 2026 | 3 AGTP-API cites | C7a eligibility list versus base's safe methods; Request-Signature inside 0-RTT requests; RESUME excluded from early data; H9 H3/WebTransport binding if chosen |
+| agtp-trust | 03 | 30 Dec 2026 | cites base-08 | C5: trust score range and computed_at coupling normative |
+| agtp-lei | 01 | 30 Dec 2026 | 4 `Owner-ID:` header examples | G1 |
+| agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | none beyond the fix |
+| agtp-presence | 01 | 30 Dec 2026 | base unpinned; 25 style hits | September changelog P1 to P6 |
+| agtp-identifiers | 03 | 3 Dec 2026 | cites base-09 | C1 split stated; C6; D4 tamper evidence subsection |
+| agtp-merchant-identity | 03 | 27 Nov 2026 | A1; C7 458 is the core and merchant value | none beyond the fix |
+| agtp-ard | 01 | 20 Dec 2026 | rev bump; not in the repo | obtain the source |
+| aipref-earmark | 00 | 14 Feb 2027 | no change | H10 later |
 
-Expired by design, no action: web3-bridge-00, standard-methods-01, independent-agis-01.
-
----
+Expired by design, no action: web3-bridge-00, standard-methods-01,
+independent-agis-01. Batches: communication-01 and log-03 by their
+November dates; identifiers-03 and merchant-03 with them; the Dec 30
+group together.
 
 ## F. agtp.io alignment
 
