@@ -304,8 +304,111 @@ Hits from the 27 October source:
 - AGTP-MERCHANT reference to -02; add AGTP-IDDOC; write the Changes
   section; expires 30 Dec 2026.
 
+## H. Review-driven items (27 Oct mailbox analysis)
+
+Source: the AGTP feedback and ideas summary of 27 October covering
+seven critics, two private reviewers, three implementers, and nine
+open questions. Items conceded on list on 17 August are marked.
+
+### H1. Per-request proof of possession at Level 2 (conceded)
+
+Base-10 has none: Level 2 verifies the signed identity document and
+never proves the live sender holds the key. Four independent readers
+(Sirkkavaara via Sammartano, Williams, He, Bu); verifier matrix marks
+C-001 AMBIGUOUS. Specify a `Request-Signature` header: compact JWS
+over the request line, Agent-ID, Authority-Scope, Delegation-Chain if
+present, a body digest, and a timestamp, signed with the key the
+identity document publishes (the same key material the delegation
+tokens use). Level 2 then means document verified plus possession
+proved; Level 3 accelerates it. Highest-value item in the cycle.
+
+### H2. Session-01 TBDs (conceded)
+
+Today's session-01 is a rev bump and still binds the session
+identifier to the TLS exporter or QUIC connection ID (Section 10.1),
+leaves the identifier format TBD, and leaves ESTABLISH unspecified.
+Before submission: stable session identifier format (256-bit random,
+bound to the two Agent-IDs by signature), ESTABLISH wire format and
+parameters, and re-binding on resumption through proof of possession
+(H1) rather than channel binding. Cutoff 2 Nov for agentproto on
+16 Nov.
+
+### H3. 262 versus 455 rule
+
+Base-10 inherits the split (header table 262 scope-claim-invalid;
+status section 455 generic; IANA table 455 for dimensions other than
+Authority-Scope; delegation mint failures 262 per the DELEGATE note).
+Rule: 262 when authorization is obtainable (missing credential,
+consent, or a scope the agent could acquire); 455 when the request
+exceeds authority the agent holds. A failed subset check is 455.
+Apply in base-10, methods-00, rcns-00, session-01; reply to He and Bu.
+
+### H4. Drop the HTTP registry argument
+
+Lines 311 to 313, 4605, 4622 to 4624 of base-10 say IETF Review
+freezes the method registry and requires backward compatibility.
+Wrong on the record (RFC 9110 is extensible); being checked. Rest the
+case on the distinct wire image (own scheme, own port) and the
+demonstrated failure cases. Comparison table row rewritten.
+
+### H5. WIMSE chain convention mapping and staleness bound
+
+Subsection in Delegated Authority mapping Agent-ID, Authority-Scope,
+Governance-Token, and the Delegation Sequence onto `sub` (principal at
+every hop), `client_id` (current actor), `act` (prior-actor history),
+and stating AGTP's staleness bound S+L (max age of authorization state
+at admission, max permit lifetime without re-validation), with one
+test vector on each limit. Cite Sweeney for narrowing as a key-by-key
+subset over typed constraints and Hulea for the root-authority check
+the origin hop performs.
+
+### H6. Refusal versus incomplete check
+
+One more structured failure field: `evaluation` with values
+`refused` (an evaluated decision) and `incomplete` (a check that could
+not run, with `missing_input` naming the input). Forwarders carry an
+incomplete result unchanged. Kroehl, Konda, Alygn.
+
+### H7. Token-to-EXECUTE binding
+
+Governance Token carries a JCS action digest over EXECUTE's action,
+parameters, payload_type, and payload hash; the verifier compares at
+dispatch. Answers He's third question; Lee's local-tool-call-proof is
+the model.
+
+### H8. Positioning and replies
+
+- Abstract: one sentence that the base is the transfer protocol and
+  the companions are the modules, answering "too broad."
+- Agent Owner stated against the user-agent versus service-agent
+  distinction (Knodel).
+- Linkable IPR paragraph on the site (two provisionals, open licenses,
+  declared on datatracker); Part F.
+- Replies owed, in order of what a reply changes elsewhere: Voloshyn
+  (G1), Foroughi (ask which fields), He and Bu (H1, H3, H7, matrix
+  envelope), Li (mandate lifecycle in Governance Token), Lear (H9),
+  Roberts.
+- agentproto Topic 2: short, draft-anchored posts carrying Session-ID,
+  Agent-ID, Authority-Scope into the terminology thread.
+
+### H9. DECISION: H3 and WebTransport binding
+
+Lear, Kuehlewind, and Sammartano converge on whether WebTransport or
+H3 could carry the session goal. An H3/WebTransport binding in
+bindings-01, as a third binding beside TCP/TLS and QUIC, costs nothing
+architecturally and answers the incrementalism objection. Decide
+before replying to Lear.
+
+### H10. Earmark and C2PA
+
+Rosenthol: C2PA 2.4 binds manifests to HTML and text with an IANA Link
+header. Earmark-01 needs a stated reason to exist beyond C2PA or
+should profile it. Out of this cycle unless decided otherwise.
+
 ## Sequencing
 
+0. Nov 2 package: H1 in base-10, H2 in session-01, H3 across the
+   family. Then the rest of this list.
 1. session-01 submitted this week.
 2. B1 and B2 decided (names, what moves), since every reference depends on them.
 3. A1 and A2 sweeps run against base-09 to produce the hit lists.
