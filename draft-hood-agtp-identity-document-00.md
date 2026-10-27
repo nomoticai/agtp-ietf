@@ -283,6 +283,7 @@ The following fields are **REQUIRED** in all Agent Identity Documents:
   "principal": "Acme Corporation",
   "principal_id": "acme.tld",
   "issuer": "https://ca.acme.tld",
+  "agent_public_key": "<base64url-encoded 32 bytes, Ed25519>",
   "issued_at": "2026-01-15T09:00:00Z",
   "updated_at": "2026-03-01T11:30:00Z",
   "status": "Active",
@@ -340,6 +341,17 @@ Field semantics:
 : A stable, machine-readable identifier for the principal (typically
   the principal's primary DNS domain, or a canonical organization
   identifier).
+
+`agent_public_key`:
+: The agent's current Ed25519 signing key, 32 raw bytes base64url
+  encoded. Every non-anonymous request the agent sends carries a
+  `Request-Signature` verifiable under this key, and every delegation
+  token the agent mints is signed with it ({{AGTP}}). The private half
+  is held by the agent and never by the issuer. Rotation is a
+  re-issuance of this document with a new value; the Agent-ID is
+  unchanged. REQUIRED for documents issued under AGTP version 10 or
+  later; a document without it is verifiable at Level 1 only, and
+  requests from its agent are recorded as possession-unproven.
 
 `issuer`:
 : The URL of the issuer that signed the Identity Document. The
@@ -719,8 +731,10 @@ This document is the authoritative reference for the
 
 # Changes from AGTP v09
 
-First revision under this name. The text is extracted from
-draft-hood-independent-agtp-09, sections Agent Namespace Document,
+First revision under this name. The `agent_public_key` field is
+new, carrying the key that the base specification's per-request proof
+of possession and delegation tokens verify against. The text is
+otherwise extracted from draft-hood-independent-agtp-09, sections Agent Namespace Document,
 Agent Identity Document and the .agtp Format, and Browser and
 Human-Facing Interaction Model, with these edits: cross-references
 into the base document are expressed as citations; the tamper-proof

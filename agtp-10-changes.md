@@ -332,7 +332,7 @@ Source: the AGTP feedback and ideas summary of 27 October covering
 seven critics, two private reviewers, three implementers, and nine
 open questions. Items conceded on list on 17 August are marked.
 
-### H1. Per-request proof of possession at Level 2 (conceded)
+### H1. Per-request proof of possession at Level 2 (conceded) : LANDED 27 Oct
 
 Base-10 has none: Level 2 verifies the signed identity document and
 never proves the live sender holds the key. Four independent readers
@@ -355,7 +355,7 @@ parameters, and re-binding on resumption through proof of possession
 (H1) rather than channel binding. Cutoff 2 Nov for agentproto on
 16 Nov.
 
-### H3. 262 versus 455 rule
+### H3. 262 versus 455 rule : LANDED in base-10; methods-00, rcns-00, session-01 still to apply
 
 Base-10 inherits the split (header table 262 scope-claim-invalid;
 status section 455 generic; IANA table 455 for dimensions other than
@@ -365,7 +365,7 @@ consent, or a scope the agent could acquire); 455 when the request
 exceeds authority the agent holds. A failed subset check is 455.
 Apply in base-10, methods-00, rcns-00, session-01; reply to He and Bu.
 
-### H4. Drop the HTTP registry argument
+### H4. Drop the HTTP registry argument : LANDED
 
 Lines 311 to 313, 4605, 4622 to 4624 of base-10 say IETF Review
 freezes the method registry and requires backward compatibility.
@@ -373,7 +373,7 @@ Wrong on the record (RFC 9110 is extensible); being checked. Rest the
 case on the distinct wire image (own scheme, own port) and the
 demonstrated failure cases. Comparison table row rewritten.
 
-### H5. WIMSE chain convention mapping and staleness bound
+### H5. WIMSE chain convention mapping and staleness bound : LANDED
 
 Subsection in Delegated Authority mapping Agent-ID, Authority-Scope,
 Governance-Token, and the Delegation Sequence onto `sub` (principal at
@@ -384,14 +384,14 @@ test vector on each limit. Cite Sweeney for narrowing as a key-by-key
 subset over typed constraints and Hulea for the root-authority check
 the origin hop performs.
 
-### H6. Refusal versus incomplete check
+### H6. Refusal versus incomplete check : LANDED
 
 One more structured failure field: `evaluation` with values
 `refused` (an evaluated decision) and `incomplete` (a check that could
 not run, with `missing_input` naming the input). Forwarders carry an
 incomplete result unchanged. Kroehl, Konda, Alygn.
 
-### H7. Token-to-EXECUTE binding
+### H7. Token-to-EXECUTE binding : LANDED
 
 Governance Token carries a JCS action digest over EXECUTE's action,
 parameters, payload_type, and payload hash; the verifier compares at

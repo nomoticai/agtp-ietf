@@ -41,6 +41,7 @@ normative:
   RFC8126:
   RFC8179:
   RFC9334:
+  RFC8785:
   AGTP-METHODS:
     title: "AGTP Methods (AGTP Verbs): Method Vocabulary, Path Grammar, and Endpoints"
     author:
@@ -201,11 +202,14 @@ scheme. The method vocabulary beyond the floor, the path grammar, and
 the endpoint contract are specified in {{AGTP-METHODS}}; runtime
 negotiation of endpoints is specified in {{AGTP-RCNS}}; the agent
 identity document in {{AGTP-IDDOC}}; transport bindings in
-{{AGTP-BINDINGS}}. Version 10 specifies the Delegation-Chain header
-with pre-authorization semantics (per-hop scope attenuation checked
-at mint and at verify, parent re-verification at each hop, depth and
-cycle limits, and defined failure behavior), adds structured failure
-fields to the status code model, states the protocol's position in
+{{AGTP-BINDINGS}}. Version 10 adds per-request proof of possession, so that a verified
+identity document and a live sender are bound by signature; specifies
+the Delegation-Chain header with pre-authorization semantics (per-hop
+scope attenuation checked at mint and at verify, parent
+re-verification at each hop, depth and cycle limits, and defined
+failure behavior); maps the delegation model onto the WIMSE chain
+convention; resolves the 262 and 455 status codes by obtainability;
+adds structured failure fields to the status code model, states the protocol's position in
 the transfer-protocol vocabulary throughout, and moves module
 material to companion specifications so that this document carries
 the protocol and only the protocol. AGTP is designed to compose with
@@ -307,14 +311,18 @@ A natural question is whether these limitations could be addressed by
 extending HTTP rather than defining a new protocol. There are three
 specific reasons why HTTP extension is not the preferred path.
 
-First, the HTTP method registry is effectively frozen for new semantics.
-{{RFC9110}} defines the HTTP method registry with IETF Review as the
-registration procedure, meaning new methods require a full IETF consensus
-process and must be backward-compatible with existing HTTP implementations.
-Adding intent-based verbs (SUMMARIZE, DELEGATE, ESCALATE) to HTTP would
-require every HTTP client, server, proxy, and middleware component to ignore
-or handle unknown methods gracefully, a compatibility constraint that limits
-how agent-specific semantics can be expressed at the protocol level.
+First, the wire image. HTTP's method registry is extensible under
+{{RFC9110}}, and new methods can be registered; the constraint is on
+the deployed base rather than the registry. An intent-named method
+such as SUMMARIZE, DELEGATE, or ESCALATE registered for HTTP would
+reach every HTTP client, proxy, cache, and middleware component as an
+unknown method, each handling it by its own default. AGTP instead
+presents a distinct wire image, with its own URI scheme and port, so
+that an intermediary either understands agent traffic or sees that it
+does not, and nothing in the HTTP deployed base is asked to change
+its behavior. The case rests on this distinctness and on the failure
+cases documented in {{problem-statement}}, not on any limit of HTTP's
+registry.
 
 Second, HTTP carries decades of backward-compatibility constraints. Features
 such as persistent agent identity headers, authority scope declarations, and
@@ -776,6 +784,16 @@ the AGTP agent identity, bound to a certificate through
 {{AGTP-CERT}}, persists across the workloads that host it. A mature
 deployment carries both, and neither substitutes for the other.
 
+AGTP addresses both roles the agent literature distinguishes: the
+user agent, which acts for a person and owes that person loyalty,
+and the service agent, which acts for an organization and offers a
+capability to others. Every mechanism in this document holds for
+both. What differs is the Owner-ID the Identity Document carries, a
+person or an organization, and the governance policy that owner sets.
+The loyalty, protection, and honesty obligations of a user agent are
+that policy's content; the protocol carries the accountable owner
+and leaves the obligations to the owner and the governance platform.
+
 ## Heteronomy: Agents Are Created by Humans
 
 Agents are not autonomous in the strong sense. Every agent has a
@@ -896,7 +914,7 @@ adjacent layers focus on what they actually contribute (tool
 semantics, conversational structure, authorization framework, REST
 translation).
 
-# Problem Statement
+# Problem Statement {#problem-statement}
 
 AGTP is motivated by three distinct, compounding failures in how current
 internet infrastructure handles AI agent traffic.
@@ -1250,10 +1268,11 @@ is authoritative.
 | Field | Required | Description |
 |-------|----------|-------------|
 | Agent-ID | **MUST** for non-anonymous requests | Canonical 256-bit identifier of the invoking agent. Identifies the request's source, not its target. Servers reject requests lacking `Agent-ID` against non-anonymous endpoints. |
-| Authority-Scope | **MAY** | Scopes the agent claims for this specific request. When present, every claimed scope **MUST** be a subset of the scopes declared in the agent's identity document; servers **MUST** validate and **MUST** return 262 Authorization Required with body code `scope-claim-invalid` on failure. When absent, the request inherits the full scope set of the agent's identity document. The server uses the claimed (or inherited) set when evaluating the endpoint's `required_scopes`. |
+| Authority-Scope | **MAY** | Scopes the agent claims for this specific request. When present, every claimed scope **MUST** be a subset of the scopes declared in the agent's identity document; servers **MUST** validate and **MUST** return 455 Scope Violation with reason `scope-claim-invalid` on failure, since a claim beyond the document's grant exceeds authority the agent holds. When absent, the request inherits the full scope set of the agent's identity document. The server uses the claimed (or inherited) set when evaluating the endpoint's `required_scopes`. |
 | Session-ID | **MAY** | Opaque session identifier grouping multiple requests into an operational session. The protocol assigns no semantics; servers pass the value through to handlers via the endpoint context. |
 | Task-ID | **MAY** | Opaque identifier tracing a specific task or operation across multiple requests. Useful for audit correlation. Servers **SHOULD** echo this value in the response `Task-ID` header. |
 | Delegation-Chain | **MUST** on requests made under delegated authority | The Delegation Sequence that produced this request: an ordered list of canonical Agent-IDs, origination to current, with the per-hop delegation tokens. Format, minting, verification, and failure behavior are specified in {{delegation}}. Absent on requests the agent makes under its own authority. |
+| Request-Signature | **MUST** on non-anonymous requests | Proof that the sender holds the agent's current signing key: a compact JWS over the method, path, Agent-ID, Authority-Scope, Delegation-Chain digest, body digest, timestamp, and nonce, per {{request-signature}}. |
 | Merchant-ID | **MUST** on PURCHASE | Canonical identifier of the intended merchant counterparty. See {{AGTP-MERCHANT}}. |
 | Merchant-Manifest-Fingerprint | **MUST** on PURCHASE | SHA-256 fingerprint of the Merchant Manifest Document verified by the requesting agent. Receiving server **MUST** reject with 458 if this does not match its current manifest. See {{AGTP-MERCHANT}}. |
 | Intent-Assertion | **SHOULD** on PURCHASE | Detached JWT {{RFC7519}} carrying signed principal-authorized purchase intent. Forwardable to payment networks as standalone evidence. See {{AGTP-MERCHANT}}. |
@@ -1263,6 +1282,60 @@ is authoritative.
 | Contract-Synthesized | **MAY** | The `synthesis_id` of a previously-issued RCNS contract. Presents the contract to bypass the four-lock gate and dispatch the request directly under the synthesized contract. The server **MUST** refuse the presentation with `464 contract-not-yours` if the caller's Agent-ID does not match the contract's `originating_agent_id`. See {{AGTP-RCNS}}. |
 | Idempotency-Key | **MAY** | Per-agent idempotency key for RCNS-eligible requests and other state-modifying calls. Servers **MUST** scope the idempotency cache by `(Agent-ID, Idempotency-Key)`; replays from the same agent return the cached response, replays from different agents are independent. See {{AGTP-RCNS}}. |
 {: title="AGTP Request Header Fields"}
+
+### Request Signature and Proof of Possession {#request-signature}
+
+A verified Agent Identity Document establishes that an Agent-ID
+exists, who owns it, and what it may do. It does not establish that
+the sender of a given request is that agent. Without a per-request
+proof, `Agent-ID` is a self-asserted header bound to a verified
+document, and any party that can read the document can present the
+header. The `Request-Signature` header closes that gap.
+
+Every non-anonymous request **MUST** carry `Request-Signature`: a
+compact JWS {{RFC7515}} with algorithm `EdDSA`, `kid` equal to the
+canonical Agent-ID, signed with the private key whose public half is
+the `agent_public_key` of the agent's current Identity Document
+({{AGTP-IDDOC}}). The JWS payload is the JSON object:
+
+~~~~
+{
+  "m":   "<method>",
+  "p":   "<path>",
+  "aid": "<Agent-ID>",
+  "as":  "<Authority-Scope header value, or null>",
+  "dc":  "<SHA-256 of the Delegation-Chain header value, or null>",
+  "bd":  "<SHA-256 of the request body, or null when empty>",
+  "iat": <issued-at, seconds since epoch>,
+  "n":   "<nonce, at least 96 bits, base64url>"
+}
+~~~~
+
+serialized in the canonical form of {{RFC8785}}. The server **MUST**
+verify the signature before dispatch and **MUST** reject the request
+when: the signature fails under the current `agent_public_key`; any
+covered field differs from the request as received; `iat` is outside
+the server's acceptance window (default 300 seconds, operator
+configurable); or the `(aid, n)` pair has been seen within the window.
+Rejection is 401 with reason `possession-unproven`, and the event
+**MUST** be logged. Anonymous requests (no `Agent-ID`) carry no
+signature and receive only what the server offers anonymously.
+
+Key rotation is a re-issuance of the Identity Document with a new
+`agent_public_key` by the agent's issuer; the Agent-ID is unchanged,
+because authority attaches to the agent rather than to the key. A
+verifier caches the document per the freshness rules of
+{{AGTP-IDDOC}} and re-resolves on a signature failure before
+rejecting, so a rotated key is picked up without a round trip in the
+common case and with one in the worst case. Delegation tokens
+({{delegation}}) are signed with the same key.
+
+Identity Documents issued before this revision carry no
+`agent_public_key`. A request from such an agent **MAY** be accepted
+by operator policy and **MUST** be recorded as possession-unproven in
+the Attribution-Record; it is verified at Level 1 ({{verification-levels}})
+regardless of document verification. Operators **SHOULD** set a date
+after which such documents are refused.
 
 ### Response Headers {#response-headers}
 
@@ -1357,7 +1430,7 @@ curated method catalog are specified in {{AGTP-METHODS}}.
 | 202 | Accepted | Method accepted; execution is asynchronous |
 | 204 | No Content | Method executed; no response body |
 | 261 | Negotiation In Progress | PROPOSE evaluation in progress; agent **MAY** poll for terminal status. See {{AGTP-RCNS}}. |
-| 262 | Authorization Required | Request requires credential establishment, additional authorization scope, or consent that is not yet present. Covers PROPOSE-time authorization, missing scope at endpoint dispatch, ad-hoc method invocation requiring wildcards consent, and discovery requests blocked by anonymous-discovery policy. See {{AGTP-RCNS}}. |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or a scope the endpoint requires that the agent holds in its identity document but did not claim. Never returned when the request exceeds the authority the agent holds; that is 455. Covers PROPOSE-time authorization, unclaimed scope at endpoint dispatch, ad-hoc method invocation requiring wildcards consent, and discovery requests blocked by anonymous-discovery policy. See {{AGTP-RCNS}}. |
 | 263 | Proposal Approved | PROPOSE accepted; the proposed endpoint has been synthesized and instantiated. Response body carries the synthesized endpoint contract. See {{AGTP-RCNS}}. |
 | 400 | Bad Request | Malformed AGTP request |
 | 401 | Unauthorized | Authentication failure. Covers Agent-ID not recognized or not authenticated, INSPECT read-access ACL failure for unauthenticated callers, lifecycle-method invocation without a verified client certificate when `genesis_issuer` mode is in effect, and external-credential failures (e.g., missing `Authorization` header on a method that requires one, or an `Authorization` header that fails validation). The response body **SHOULD** carry a structured `reason` from the vocabulary `agent-unauthenticated`, `oauth-required`, `oauth-invalid`, `acl-anonymous-blocked`, or `genesis-issuer-cert-required` to disambiguate the failure mode. See {{AGTP-COMPOSITION}} for the External Identity Provider composition profile and the OAuth-specific reasons. |
@@ -1369,7 +1442,7 @@ curated method catalog are specified in {{AGTP-METHODS}}.
 | 410 | Gone | Agent has been REVOKEd; canonical Agent-ID is permanently retired (status `retired`). A Deprecated agent (status `deprecated`) does **NOT** return 410 and continues to serve traffic; deprecation signals planned end-of-life rather than immediate retirement. AGTP-specific semantics; see below. |
 | 422 | Unprocessable | Request well-formed but semantically invalid |
 | 429 | Rate Limited | Agent is exceeding permitted request frequency |
-| 455 | Scope Violation | Requested action is outside declared scope. Generic scope-violation code for cases not covered by the dedicated scope codes (429 rate-limit, 456 budget, 457 zone, 262 authority). Token-based or query-based scope violations are typical applications. AGTP-specific. |
+| 455 | Scope Violation | The request exceeds authority the agent holds: a claimed Authority-Scope beyond the identity document's grant (`scope-claim-invalid`), an endpoint whose required scope the agent's document does not grant (`scope-exceeded`), a DELEGATE granting more than the delegator's effective scope (`scope-exceeds-parent`), or a token- or query-defined scope dimension outside the standard set. Budget, rate, and zone have dedicated codes 456, 429, 457. AGTP-specific. |
 | 456 | Budget Exceeded | Method execution would exceed the Budget-Limit declared in the request. AGTP-specific. |
 | 457 | Zone Violation | Request would route outside the AGTP-Zone-ID boundary. SEP-enforced. AGTP-specific. |
 | 458 | Counterparty Unverified | PURCHASE counterparty failed merchant identity verification: Merchant-ID absent, Merchant-Manifest-Fingerprint mismatch, or merchant in non-Active lifecycle state. AGTP-specific. See {{AGTP-MERCHANT}}. |
@@ -1416,13 +1489,19 @@ server policy that requires authenticated identity for manifest
 retrieval. The response body **MUST** identify which condition
 applies so the agent knows what to remediate.
 
-Status code 455 (Scope Violation) is a generic scope-violation
-signal for cases not covered by the dedicated scope codes (429
-rate-limit, 456 budget, 457 zone, 262 authority). Typical
-applications include token-based scope violations and query-based
-scope violations, where an operator defines a scope dimension
-outside the standard set. Authority-Scope violations specifically
-are signaled with 262, not 455. Status code 456 (Budget Exceeded)
+The rule separating 262 from 455 is obtainability. 262
+Authorization Required is returned when the authorization the
+request lacks is one the agent could obtain without exceeding what it
+holds: a credential it has yet to establish, a consent it has yet to
+give or receive, or a scope its identity document grants but the
+request did not claim. 455 Scope Violation is returned when the
+request exceeds the authority the agent holds: a claimed scope beyond
+the document's grant, an endpoint requiring a scope the document does
+not grant, or a delegation granting more than the delegator's
+effective scope. Earlier revisions used both codes for Authority-Scope
+failures in different sections; this revision applies the rule above
+throughout. 455 also covers operator-defined scope dimensions outside
+the standard set. Status code 456 (Budget Exceeded)
 is the dedicated code for resource-consumption scope violations:
 the agent's requested action would consume resources beyond what
 the principal authorized for this invocation. Status code 457
@@ -1479,6 +1558,17 @@ action method **MUST** carry them:
   the server cannot determine this. Action methods ({{AGTP-METHODS}}
   defines the property) **MUST NOT** report `none` unless the server
   verified it.
+
+`evaluation`:
+: `refused` when the server evaluated the request and decided against
+  it; `incomplete` when a check the decision depends on could not run.
+  When `incomplete`, `missing_input` names the input that was
+  unavailable (an unreachable registry, an expired credential, a log
+  that did not answer). An intermediary that forwards a response
+  **MUST NOT** convert `incomplete` into `refused`; an intermediary
+  that narrows a request is a decision point and records its own
+  evaluation. A refusal and an incomplete check are different
+  outcomes and are never collapsed.
 
 `reason`:
 : A token from the vocabulary registered for the status code, as
@@ -2424,6 +2514,19 @@ token's `agent_id` field **MUST** match the canonical Agent-ID from
 the Agent Genesis. Tokens that fail this validation **MUST** be
 rejected and the failure **MUST** be logged.
 
+A Governance Token authorizes a specific action, and the verifier
+**MUST** be able to check that the action executed is the action
+authorized. Every Governance Token **MUST** carry `action_digest`:
+the SHA-256 of the {{RFC8785}} canonical serialization of the object
+`{method, path, action, parameters, payload_type, payload_sha256}`
+drawn from the request the token authorizes, with absent members
+omitted. At dispatch the server recomputes the digest from the
+request as received and **MUST** reject with 262 Authorization
+Required and reason `token-action-mismatch` when the two differ,
+logging both digests. A token therefore binds to one request shape;
+a replay against a different path, parameter set, or payload fails
+the comparison before any handler runs.
+
 The relationship between Agent Genesis and Governance Token
 parallels the relationship between a passport and a visa: the passport
 establishes persistent identity; the visa encodes a specific
@@ -2798,8 +2901,8 @@ agent, carrying forward authority lineage. Mechanics.
 
 Security note: the authority_scope in a DELEGATE request **MUST NOT**
 exceed the delegating agent's own Authority-Scope. Servers **MUST** enforce
-this and **MUST** return 262 Authorization Required with body type
-`scope-required` if violated. This is the protocol-level defense against
+this and **MUST** return 455 Scope Violation with reason
+`scope-exceeds-parent` if violated. This is the protocol-level defense against
 authority laundering. Idempotent: No.
 
 ### ESCALATE
@@ -3359,9 +3462,8 @@ produced a request. Each hop is minted by one DELEGATE invocation
 
 The strict-subset rule is enforced at mint: a server processing a
 DELEGATE whose `authority_scope` is not a strict subset of the
-delegating agent's effective scope **MUST** refuse with 262
-Authorization Required and body type `scope-required`
-({{methods-section}}). Same-scope relay, where a delegate exercises
+delegating agent's effective scope **MUST** refuse with 455 Scope
+Violation and reason `scope-exceeds-parent` ({{status-codes}}). Same-scope relay, where a delegate exercises
 exactly its parent's scope, is therefore outside delegation; it is a
 request the parent makes itself, with the relay as transport. The
 rule is also enforced at verify ({{delegation-verification}}), so a
@@ -3447,11 +3549,48 @@ method is a lifecycle method ({{methods-section}}) is refused with
 551 and reason `scope-exceeds-parent`, since lifecycle authority is
 never delegable.
 
+## Mapping to the WIMSE Chain Convention {#wimse-mapping}
+
+The multi-hop convention converging across the WIMSE agent identity
+work carries three claims: `sub` is the principal at every hop,
+`client_id` is the current actor, and `act` is the history of prior
+actors. AGTP carries the same three facts in its own elements, and a
+Delegation Sequence maps onto the convention without loss:
+
+| WIMSE claim | AGTP element |
+|---|---|
+| `sub` (principal at every hop) | Owner-ID of the originating agent, resolved from its Identity Document and unchanged along the sequence |
+| `client_id` (current actor) | `Agent-ID` of the request, equal to the last hop |
+| `act` (prior actors) | the hops of `Delegation-Chain` before the last, in order |
+| scope at this hop | effective scope of {{delegation-verification}} |
+| root authority evidence | the origin hop, checked against the originating agent's Identity Document grant (the authority assertion the mandate drafts ask for) |
+{: title="Delegation Sequence Mapped to the WIMSE Chain Convention"}
+
+Narrowing follows the subset rule stated in that work: what a hop
+passes on is a strict subset of what it received, token by token
+over the Authority-Scope grammar, the narrowing party signs the hop,
+and a party that forwards without narrowing makes no authorization
+claim and appears in no hop.
+
+AGTP states its staleness bound as S plus L. S is the maximum age of
+the authorization state a verifier relied on when it admitted a
+request: the Identity Document freshness window of {{AGTP-IDDOC}} and
+the `Request-Signature` acceptance window ({{request-signature}}).
+L is the maximum lifetime of a hop's delegation token without
+re-validation, which is the token's expiry checked at step 4 of
+{{delegation-verification}}; L **MUST NOT** exceed 24 hours and
+**SHOULD** be shorter for action methods. The bound limits new
+admissions and never the completion of an admitted action. Absence
+of enforcement is never a small bound: a verifier that skips a check
+has an unbounded S for that check and **MUST** record the request as
+possession-unproven or sequence-unverified. Implementations **SHOULD**
+publish one test vector exactly on each limit.
+
 ## Status of This Section
 
-Specified in this revision. Verification steps 1 through 5 are
-implemented in the reference implementation as of the v10 build;
-revocation of a member after minting is caught at step 1 on the next
+Specified in this revision. The reference implementation targets
+verification steps 1 through 5 and the request signature in its v10
+build; revocation of a member after minting is caught at step 1 on the next
 request, and the continuity of that check across certificate expiry
 and session boundaries is planned ({{revocation-continuity}}).
 Delegation across organizations composes with draft-rampalli-pedigree
@@ -3609,7 +3748,7 @@ All AGTP connections **MUST** use TLS 1.3 or higher. Implementations
 follows standard PKI practices per {{RFC5280}}. Servers **MUST** present
 a valid certificate.
 
-## Agent Identity Verification: Three Levels
+## Agent Identity Verification: Three Levels {#verification-levels}
 
 AGTP defines three distinct levels at which agent identity and
 Authority-Scope can be verified. Each level serves a different deployment
@@ -3629,30 +3768,36 @@ detection against the recorded stream. This is the minimum baseline
 every AGTP implementation provides.
 
 **Level 2 - Application-layer cryptographic verification (signed
-Agent Identity Document).** A canonical Agent-ID resolves to a
-signed Agent Identity Document (Section 5.5) that carries the Birth
-Certificate's Authority-Scope grant and is signed by the governance
-platform that issued it. A verifier (including a stranger with no
-prior relationship to the agent's organization) can cryptographically
-verify identity and scope at the application layer by performing the
-following steps:
+Agent Identity Document plus proof of possession).** A canonical
+Agent-ID resolves to a signed Agent Identity Document ({{AGTP-IDDOC}})
+that carries the Agent Genesis's Authority-Scope grant and the agent's
+current `agent_public_key`, signed by the issuer. A verifier
+(including a stranger with no prior relationship to the agent's
+organization) verifies identity, scope, and possession at the
+application layer by performing the following steps:
 
 1. Resolve the canonical Agent-ID to retrieve the signed Agent
-   Manifest Document.
+   Identity Document.
 
-2. Verify the governance platform's signature on the manifest against
-   the platform's published key.
+2. Verify the issuer's signature on the document against the
+   issuer's published key.
 
-3. Confirm that the canonical Agent-ID in the manifest matches the
+3. Confirm that the canonical Agent-ID in the document matches the
    hash of the Agent Genesis.
 
-4. Read the Authority-Scope grant from the verified manifest.
+4. Read the Authority-Scope grant and the `agent_public_key` from the
+   verified document.
 
-Level 2 verification is available in base AGTP without the Agent
-Certificate extension. It is the identity mechanism the protocol
-depends on. Self-asserted headers (Level 1) are bound to verified
-identity (Level 2) by the resolver's retrieval of the signed
-manifest for the declared canonical Agent-ID.
+5. Verify the request's `Request-Signature` under that key per
+   {{request-signature}}.
+
+Steps 1 through 4 establish that the identity exists and what it may
+do. Step 5 establishes that the sender is that identity. A verifier
+that performs steps 1 through 4 and skips step 5 has verified a
+document, not a sender, and the request is at Level 1 for every
+purpose that depends on who sent it. Level 2 is available in base AGTP
+without the Agent Certificate extension and is the identity mechanism
+the protocol depends on.
 
 **Level 3 - TLS-layer cryptographic verification (AGTP-CERT
 extension).** The AGTP Agent Certificate extension {{AGTP-CERT}}
@@ -3712,8 +3857,8 @@ every request.
 ### Authority Laundering
 
 Threat: An agent claims an Authority-Scope broader than what it was
-granted. Mitigation: server-side scope enforcement; 262 Authorization
-Required (body type `scope-required`) returned and logged. In DELEGATE
+granted. Mitigation: server-side scope enforcement; 455 Scope
+Violation (reason `scope-claim-invalid`) returned and logged. In DELEGATE
 chains, each hop's scope **MUST** be a strict subset of the delegating
 agent's scope.
 
@@ -4022,12 +4167,12 @@ The following AGTP status codes are registered with full definitions:
 | Code | Name | Definition | Reference |
 |------|------|------------|-----------|
 | 261 | Negotiation In Progress | The service has received a PROPOSE request and is evaluating it asynchronously. The response body **MUST** include a `proposal_id` and an estimated evaluation duration. The agent retrieves the terminal status by invoking `QUERY /proposals/{proposal_id}` until a 263 (Proposal Approved) or 463 (Proposal Rejected) response is returned. Server policy controls whether async evaluation is offered. | {{AGTP-RCNS}} |
-| 262 | Authorization Required | The request requires credential establishment, additional authorization scope, or consent that is not yet present. The response body **MUST** specify which authorization condition applies: `scope-required` (the endpoint requires Authority-Scope the agent has not declared), `wildcards-required` (the request is an ad-hoc method invocation and the wildcards consent on either the agent identity document or the server policy is absent), `credentials-missing` (the server requires credentials such as AGTP-CERT or OAuth-scoped token before evaluating the request), or `anonymous-discovery-disabled` (the server requires authenticated identity for manifest retrieval and the request is unauthenticated). Returned for PROPOSE-time authorization, endpoint-dispatch scope checks, ad-hoc invocation wildcards refusal, and discovery requests blocked by policy. | {{AGTP-RCNS}} |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, consent, or an unclaimed scope its identity document grants. Never used when the request exceeds held authority (455). The response body **MUST** specify which authorization condition applies: `scope-required` (the endpoint requires Authority-Scope the agent has not declared), `wildcards-required` (the request is an ad-hoc method invocation and the wildcards consent on either the agent identity document or the server policy is absent), `credentials-missing` (the server requires credentials such as AGTP-CERT or OAuth-scoped token before evaluating the request), or `anonymous-discovery-disabled` (the server requires authenticated identity for manifest retrieval and the request is unauthenticated). Returned for PROPOSE-time authorization, endpoint-dispatch scope checks, ad-hoc invocation wildcards refusal, and discovery requests blocked by policy. | {{AGTP-RCNS}} |
 | 263 | Proposal Approved | The service has accepted the PROPOSE request and instantiated the proposed endpoint. The response body **MUST** contain a complete AGTP-METHODS endpoint definition for the instantiated endpoint, a `synthesis_id` identifying the synthesized endpoint for follow-on invocation, and `expires_at` indicating when the synthesis expires. **MAY** include a `persistent` boolean and `granted_duration` indicating the actual duration the server granted (which may be less than the agent requested, bounded by server policy). | {{AGTP-RCNS}} |
 | 405 | Method Not Allowed | The method is recognized and the path is valid, but the server's policy or registry does not expose this combination. The response body **MUST** list allowed methods for the path and any redirects from the manifest's `policies.methods` sub-block. The agent **MAY** PROPOSE the combination if it is not exposed by policy. | {{AGTP-RCNS}} |
 | 408 | Timeout | The method's declared TTL expired before execution completed. AGTP-specific semantics distinct from HTTP's request-timeout: applies to AGTP method TTL rather than transport request timeout. **MUST** be logged. | {{status-codes}} |
 | 410 | Gone | The Agent-ID is permanently retired through REVOKE of the underlying Agent Genesis. AGTP-specific semantics distinct from HTTP's resource-removed: applies to permanent identity retirement. A Deprecated agent does **NOT** return 410 and continues to serve traffic; deprecation signals planned end-of-life rather than retirement. The canonical Agent-ID of a retired agent **MUST NOT** be retried. | {{status-codes}} |
-| 455 | Scope Violation | The requested action is outside a declared scope dimension other than Authority-Scope, rate-limit, budget, or zone (which have dedicated codes 262, 429, 456, 457 respectively). Typical applications include token-based scope violations and query-based scope violations where the operator defines a scope dimension outside the standard set. The server **MUST** log this event. The agent **MUST NOT** retry the same request without modifying its scope declaration. Governance signal, not a protocol error. | {{status-codes}} |
+| 455 | Scope Violation | The request exceeds the authority the agent holds (Authority-Scope claim beyond grant, endpoint scope not granted, delegation beyond parent) or an operator-defined scope dimension other than rate-limit, budget, or zone (dedicated codes 429, 456, 457). Typical applications include token-based scope violations and query-based scope violations where the operator defines a scope dimension outside the standard set. The server **MUST** log this event. The agent **MUST NOT** retry the same request without modifying its scope declaration. Governance signal, not a protocol error. | {{status-codes}} |
 | 456 | Budget Exceeded | The requested method execution would exceed the resource limits declared in the Budget-Limit request header. The agent **MUST NOT** retry without modifying the Budget-Limit or reducing request scope. Governance signal; **MUST** be logged. | {{status-codes}} |
 | 457 | Zone Violation | The request would route outside the network boundary declared in the AGTP-Zone-ID header. SEP-enforced. The agent **MUST NOT** retry without modifying the AGTP-Zone-ID or obtaining explicit cross-zone authorization. **MUST** be logged. | {{status-codes}} |
 | 458 | Counterparty Unverified | The merchant counterparty in a PURCHASE invocation failed identity verification. Returned when the `Merchant-ID` or `Merchant-Manifest-Fingerprint` request headers are absent, when the fingerprint does not match the receiving server's current Merchant Manifest Document, when the Merchant-ID does not match the server's canonical ID, or when the merchant is in a non-Active lifecycle state. Governance signal; **MUST** be logged. Full definition in {{AGTP-MERCHANT}}. | {{AGTP-MERCHANT}} |
@@ -4253,16 +4398,50 @@ normative mechanism.
    to Related Work carrying the identity and location split and the
    discover versus search vocabulary.
 
+8. **Per-request proof of possession.** The `Request-Signature`
+   header ({{request-signature}}) binds every non-anonymous request
+   to the agent's current signing key, published as
+   `agent_public_key` in the Identity Document. Level 2 verification
+   gains a fifth step and now establishes the sender rather than the
+   document alone; a verifier that skips the step is at Level 1 for
+   every purpose that depends on who sent the request. Answers the
+   self-asserted-identity finding raised independently by four
+   reviewers and conceded on list in August.
+
+9. **262 versus 455 resolved.** Obtainability is the rule: 262 when
+   the agent could obtain the missing authorization, 455 when the
+   request exceeds authority the agent holds. A claimed scope beyond
+   the document's grant, an endpoint scope the document does not
+   grant, and a delegation beyond the parent are all 455. Earlier
+   revisions used both codes for Authority-Scope failures in different
+   sections.
+
+10. **HTTP registry argument withdrawn.** The claim that IETF Review
+    freezes the HTTP method registry is removed; the case rests on the
+    distinct wire image and the documented failure cases.
+
+11. **WIMSE chain convention mapping** and a stated staleness bound
+    ({{wimse-mapping}}).
+
+12. **Governance Token action digest** binding a token to one request
+    shape, with `token-action-mismatch` on divergence.
+
+13. **`evaluation` failure field** distinguishing a refusal from an
+    incomplete check, with `missing_input`.
+
+14. **User agent and service agent** stated as both in scope, with the
+    Owner-ID as what differs.
+
 ## Structural Changes
 
-8. **AGTP-API replaced by AGTP-METHODS and AGTP-RCNS.** Every
+15. **AGTP-API replaced by AGTP-METHODS and AGTP-RCNS.** Every
    reference to {{AGTP-API}} is redirected: the method
    vocabulary, path grammar, endpoint primitive, manifest, and policy
    to {{AGTP-METHODS}}; negotiation, contracts, and synthesis to
    {{AGTP-RCNS}}. The `AGTP-API-Version` header registration is
    renamed `AGTP-Methods-Version`.
 
-9. **Agent Identity Document extracted.** The Agent Namespace
+16. **Agent Identity Document extracted.** The Agent Namespace
    Document, the Agent Identity Document and `.agtp` format, and the
    browser interaction model move to {{AGTP-IDDOC}}; this document
    keeps a summary ({{identity-document}}) stating what the protocol
@@ -4270,25 +4449,33 @@ normative mechanism.
    lifecycle events remain here because the Agent-ID derivation and
    the lifecycle methods depend on them.
 
-10. **Module summaries.** Dynamic Endpoint Negotiation, the Extended
+17. **Module summaries.** Dynamic Endpoint Negotiation, the Extended
     Method Vocabulary, Composition Profiles, and the Merchant
     Identity sections are reduced to summaries that point at the
     companion carrying the normative text. The AGMP wire example
     appendix moves to {{AGTP-COMPOSITION}}.
 
-11. **Change history collapsed.** The v06, v07, and v08 change logs
+18. **Change history collapsed.** The v06, v07, and v08 change logs
     (about 680 lines) are replaced by {{change-history}}; the full
     text remains in the archived revisions.
 
-12. **Glossary merged** into Terminology; four entries that appeared
+19. **Glossary merged** into Terminology; four entries that appeared
     only in the glossary are carried over.
 
 ## Wire Format Compatibility
 
 The `Delegation-Chain` header changes from reserved to specified. A
 v09 server receiving it **MAY** have rejected it with 501; a v10
-server verifies it. Requests without the header are unchanged. The
-structured failure fields are additive. The `AGTP-Methods-Version`
+server verifies it. Requests without the header are unchanged.
+`Request-Signature` is new and required on non-anonymous requests; a
+v10 server **MUST** accept unsigned requests from agents whose
+Identity Document predates `agent_public_key` under the
+possession-unproven rule of {{request-signature}}, so v09 agents keep
+working at Level 1 until re-issued. The 262 to 455 change for
+Authority-Scope failures is wire-visible for clients that branched on
+262; clients **SHOULD** treat 455 with `scope-claim-invalid` or
+`scope-exceeds-parent` as they treated 262 `scope-required`. The
+structured failure fields and `action_digest` are additive. The `AGTP-Methods-Version`
 rename is advisory; servers **MAY** emit both names during
 transition. No other wire-visible behavior changes.
 
@@ -4602,7 +4789,7 @@ Content-Type: application/vnd.agtp+json
 | Escalation as first-class primitive | Yes | No | No | No |
 | Ecosystem maturity | Proposed | Mature | Mature | Emerging |
 | Governance/observability | Native | Manual/bolt-on | Manual | Limited |
-| Method registry extensibility | Yes (Expert Review) | Frozen (IETF Review) | N/A | N/A |
+| Method vocabulary | Intent-named, catalog of 425 | Resource operations, registry extensible | N/A | N/A |
 | Open core / royalty-free | Yes | Yes | Yes | Yes |
 | Agent Identity Document | Native (.agtp format) | None | None | None |
 | Tamper-proof identity surface | Yes (hash + signature) | No | No | No |
@@ -4619,9 +4806,8 @@ Content-Type: application/vnd.agtp+json
 | AGMP composition profiles | Normative body section | N/A | N/A | N/A |
 {: title="AGTP Compared to Existing Approaches"}
 
-HTTP's method registry (registered with IETF Review per {{RFC9110}}) is
-effectively frozen for new semantic methods because any new HTTP method
-must be backward-compatible with existing HTTP infrastructure globally.
-AGTP's Expert Review + published spec procedure enables the protocol to
-evolve its method vocabulary as the agent ecosystem develops, without
+HTTP's method registry is extensible per {{RFC9110}}; what constrains
+a new HTTP method is the deployed base that must receive it. AGTP's
+distinct wire image lets its method vocabulary evolve through the
+catalog of {{AGTP-METHODS}} as the agent ecosystem develops, without
 the backward-compatibility constraints of the HTTP method space.
