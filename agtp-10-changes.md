@@ -434,6 +434,37 @@ Rosenthol: C2PA 2.4 binds manifests to HTML and text with an IANA Link
 header. Earmark-01 needs a stated reason to exist beyond C2PA or
 should profile it. Out of this cycle unless decided otherwise.
 
+### H11. Alignment with draft-hulea-wimse-agent-mandate-00
+
+Hulea (Braincap, 24 Oct) separates the Authority Assertion (what the
+delegator could delegate, from an Authority Source) from the mandate,
+makes validation a deterministic function of a fixed input set driven
+by a Validation Profile, and attributes every validated claim to the
+artifact and role that asserted it. Base-10's origin-hop check is his
+Authority Assertion check with the registrar as the source.
+
+Patches for base-10 or -11, one paragraph each:
+
+- Chain verification returns valid, invalid, or indeterminate;
+  indeterminate when a membership or freshness input is unavailable,
+  carried as 551 with `evaluation: incomplete` and `missing_input`,
+  and the relying party denies by default.
+- A verifier takes the fixed input set of {{delegation-verification}}
+  and applies no local policy; the relying party's policy is applied
+  to the result afterwards. This is what makes two conforming
+  verifiers produce the same result.
+- Attribution table for delegation artifacts: what the Genesis, the
+  Identity Document, a hop token, and the origin check each assert,
+  and what none of them asserts (that the agent was unmanipulated).
+
+Planned, stated as such: typed constraints on Authority-Scope
+(predicates over JSON Pointers, decimal-string amounts, budget
+accumulation) for payment-grade mandates; AGTP carries Budget-Limit
+only. lei-01 (G1): the AUTH credential as an Authority Assertion the
+origin hop carries or references, in Hulea's format if the group
+adopts one. AGTP does not compete for the chain format; it carries
+whichever the group settles on.
+
 ## Sequencing
 
 0. Nov 2 package: H1 in base-10, H2 in session-01, H3 across the
