@@ -269,7 +269,7 @@ the 27 October survey.
 | agtp-composition | 02 | 30 Dec 2026 | 5 AGTP-API cites; 6 Delegation-Chain MUSTs restating what base-10 now specifies; 4 Content-Schema (reserved in base); `Owner-ID:` as a request header in 6 examples; 2 Principal-ID | becomes the home of the composition profiles base-10 summarized; AGMP appendix moves here; A2A provenance maps to Delegation Sequence and prior_actions |
 | agtp-discovery | 02 | 30 Dec 2026 | 9 "Agent Manifest Document", 1 "Birth Certificate" (C7b); `Owner-ID:` header in 2 examples | September changelog D1 to D11; DAWN mapping as Identity Document to AgentCard within DAWN's local and organizational scope |
 | agtp-agent-cert | 04 | 30 Dec 2026 | 3 AGTP-API cites; 7 transport-layer (TLS subject, say TLS-layer); 3 Birth Certificate | relation to Request-Signature: Level 3 accelerates possession proof to the handshake; cert key versus agent_public_key |
-| agtp-bindings | 01 | 30 Dec 2026 | 3 AGTP-API cites | C7a eligibility list versus base's safe methods; Request-Signature inside 0-RTT requests; RESUME excluded from early data; H9 H3/WebTransport binding if chosen |
+| agtp-bindings | 01 | 30 Dec 2026 | DONE 28 Oct | connection versus session split; Request-Signature on early data; eligibility rationale (C7a); session methods prohibited; HTTP/3 and WebTransport binding (H9 decided: yes) |
 | agtp-trust | 03 | 30 Dec 2026 | cites base-08 | C5: trust score range and computed_at coupling normative |
 | agtp-lei | 01 | 30 Dec 2026 | 4 `Owner-ID:` header examples | G1 |
 | agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | none beyond the fix |
@@ -420,7 +420,7 @@ the model.
 - agentproto Topic 2: short, draft-anchored posts carrying Session-ID,
   Agent-ID, Authority-Scope into the terminology thread.
 
-### H9. DECISION: H3 and WebTransport binding
+### H9. H3 and WebTransport binding : LANDED in bindings-01, 28 Oct
 
 Lear, Kuehlewind, and Sammartano converge on whether WebTransport or
 H3 could carry the session goal. An H3/WebTransport binding in
