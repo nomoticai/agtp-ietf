@@ -226,7 +226,7 @@ The resolver is the dispatcher hook that closes the loop
 between the tier classification (the tier taxonomy in {{AGTP-METHODS}}) and
 the synthesis machinery: an unregistered `(method, path)`
 pair that resolves to an active contract is classified Tier C
-and dispatched to the synthesized handler; a pair that does
+and dispatched to the synthesized handler; a pair that
 fails to resolve is dispatched per the unregistered-pair rules in
 the tier taxonomy in {{AGTP-METHODS}}.
 

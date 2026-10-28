@@ -302,7 +302,7 @@ than HTTP, because every AGTP request is an exercise of authority.
 Safe:
 : A method is safe when an invocation has no observable side effect
   on agent, server, or external state beyond logging and
-  attribution. Safe methods retrieve, describe, or reason; they do
+  attribution. Safe methods retrieve, describe, or reason; they
   leave what is retrieved unchanged. Safe methods are idempotent by
   construction.
 

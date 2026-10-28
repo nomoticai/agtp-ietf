@@ -647,8 +647,8 @@ SUSPEND (method):
 : An AGTP mechanics floor method that places a specific active session
   workflow into a recoverable paused state, issuing a resumption
   nonce for re-entry. Distinguished from the lifecycle SUSPEND event
-  ({{registration-lifecycle}}): method-level SUSPEND is session-scoped and does
-  leave the agent's registry lifecycle state and Agent Genesis unchanged
+  ({{registration-lifecycle}}): method-level SUSPEND is session-scoped and
+  leaves the agent's registry lifecycle state and Agent Genesis unchanged
   validity. Category: ORCHESTRATE.
 
 Budget-Limit:
@@ -1081,7 +1081,7 @@ with (the A2A AgentCard in its initial revision).
 
 AGTP replaces no messaging protocol. Agents using MCP or A2A
 route those messages over AGTP and gain transport-level observability and
-identity without modifying the messaging layer. AGTP-native agents that do
+identity without modifying the messaging layer. AGTP-native agents that
 use no separate messaging protocol interact with AGTP methods directly.
 
 # Protocol Overview
@@ -1429,7 +1429,7 @@ The AGTP status code model carries four structural rejection codes
 (404, 405, 459, 460) that together cover the failure surface for
 contract-level invocation. Each code is independently actionable:
 404 indicates the path is absent from this server; 405 indicates
-the verb and path are each individually valid but the server does
+the verb and path are each individually valid but the server
 leaves this combination unexposed; 459 indicates the verb is absent from the
 AGTP-METHODS approved method catalog; 460 indicates the path violates
 AGTP-METHODS path grammar. The structural rejection model and the
@@ -1507,7 +1507,7 @@ holds: a credential it has yet to establish, a consent it has yet to
 give or receive, or a scope its identity document grants but the
 request left unclaimed. 455 Scope Violation is returned when the
 request exceeds the authority the agent holds: a claimed scope beyond
-the document's grant, an endpoint requiring a scope the document does
+the document's grant, an endpoint requiring a scope the document
 omits, or a delegation granting more than the delegator's
 effective scope. Earlier revisions used both codes for Authority-Scope
 failures in different sections; this revision applies the rule above
@@ -3499,11 +3499,37 @@ OWS              = *( SP / HTAB )
 The first hop names the originating agent and carries its token
 signed over `origin`. Each subsequent hop names the delegate of the
 previous hop. The last hop names the agent making the request, whose
-Agent-ID **MUST** equal the request's `Agent-ID` header. The
-delegation token format is the compact JWS serialization of
-{{RFC7515}} over the hop fields; the signing key is the parent's
-identity key as published in its identity document ({{AGTP-IDDOC}})
-or bound by {{AGTP-CERT}}.
+Agent-ID **MUST** equal the request's `Agent-ID` header.
+
+### Delegation Token Format {#delegation-token}
+
+A delegation token is the compact JWS serialization of {{RFC7515}},
+algorithm `EdDSA`, `kid` equal to the parent's Agent-ID, over the
+{{RFC8785}} canonical form of:
+
+~~~~
+{
+  "parent":    "<parent Agent-ID, or the literal origin>",
+  "delegate":  "<delegate Agent-ID>",
+  "scope":     [ "<scope-token>", ... ],
+  "parent_tok":"<SHA-256 of the parent hop's token, or null>",
+  "iat":       <minting time, seconds since epoch>,
+  "exp":       <expiry, seconds since epoch>,
+  "depth":     <0 for the origin hop, parent depth plus 1 after>,
+  "authority": "<digest reference to an authority assertion, or null>"
+}
+~~~~
+
+The signing key is the parent's `agent_public_key` as published in
+its Identity Document ({{AGTP-IDDOC}}) or bound by {{AGTP-CERT}}. For
+the origin hop the originating agent signs over `parent: "origin"`
+and `parent_tok: null`; its `scope` **MUST** be a subset of its own
+Identity Document grant, which is the check {{delegation-verification}}
+performs at step 3 for that hop. `parent_tok` binds each hop to the
+exact parent token, so a parent swap changes the digest and fails
+step 2 even when the swapped-in parent is a valid agent. `authority`
+is the optional digest reference described in
+{{authority-evidence}}.
 
 The header is a carrier. The claim it carries, that the requesting
 agent holds authority narrowed from the origin through every listed
@@ -3513,7 +3539,15 @@ hop, exists only after verification.
 
 A server receiving a request with a `Delegation-Chain` header
 **MUST** verify the sequence before dispatch, in order from the first
-hop to the last. For every hop the verifier **MUST** check:
+hop to the last. Verification is a function of a fixed input set: the
+header as received, the request's `Agent-ID` and `Authority-Scope`,
+the verification time, the server's configured maximum depth, and
+the Identity Documents and lifecycle states resolved for the listed
+Agent-IDs. A verifier **MUST NOT** consult any other input and
+**MUST NOT** apply local policy inside verification; the relying
+party applies its policy to the result afterwards, which is what
+lets two conforming verifiers given the same inputs produce the same
+result. For every hop the verifier **MUST** check:
 
 1. **Membership.** The hop's Agent-ID resolves ({{AGTP-DISCOVERY}})
    to an agent in the Active lifecycle state. Failure reason:
@@ -3536,9 +3570,23 @@ hop to the last. For every hop the verifier **MUST** check:
    appears twice. Failure reasons: `depth-exceeded`,
    `cycle-detected`.
 
-The accepted result of verification is the effective scope: the
-scope of the last hop, which by construction is the intersection of
-every hop's scope with the origin's. The request's claimed
+Verification has three outcomes. It is **valid** when every check
+passes; **invalid** when any check fails on an input the verifier
+holds; and **indeterminate** when a check cannot run because an
+input is unavailable (an Agent-ID that cannot be resolved, a
+lifecycle state the registry failed to answer for, an Identity
+Document that failed to fetch). An indeterminate outcome is
+never reported as valid and never reported as invalid; it is carried
+as 551 with `evaluation: incomplete` and `missing_input` naming the
+input ({{failure-fields}}), and the relying party **MUST** deny by
+default. A verifier that is offline for the registry therefore
+produces indeterminate for every delegated request rather than
+either admitting on stale state or refusing as if the chain were
+broken.
+
+The accepted result of a valid verification is the effective scope:
+the scope of the last hop, which by construction is the intersection
+of every hop's scope with the origin's. The request's claimed
 `Authority-Scope`, when present, **MUST** be a subset of the effective
 scope; the endpoint's `required_scopes` are evaluated against the
 claimed or effective scope exactly as for an undelegated request
@@ -3549,16 +3597,77 @@ across requests, since membership and freshness change.
 ## Failure Behavior
 
 A verification failure **MUST** be refused with 551 Authority Chain
-Broken, with the `reason` token from the list above and, in
-`failing_hop`, the zero-based index of the hop that failed. The
+Broken, with `evaluation: refused` for an invalid outcome or
+`evaluation: incomplete` for an indeterminate one, the `reason` token
+from the list above (or `input-unavailable` with `missing_input` when
+indeterminate), and, in `failing_hop`, the zero-based index of the
+hop that failed. The
 server **MUST NOT** dispatch any part of the request, **MUST** log the
 event, and **MUST** produce an Attribution-Record for the refusal as
-for any failure ({{failure-fields}}). A request whose `Agent-ID` does
+for any failure ({{failure-fields}}). A request whose `Agent-ID`
 differs from the last hop's Agent-ID is refused with 551 and reason
 `link-unverifiable`. A `Delegation-Chain` header on a request whose
 method is a lifecycle method ({{methods-section}}) is refused with
 551 and reason `scope-exceeds-parent`, since lifecycle authority is
 never delegable.
+
+## Evidence of the Delegator's Authority {#authority-evidence}
+
+A verified Delegation Sequence proves that no hop exceeds its parent
+and that the origin hop is within the originating agent's Identity
+Document grant. It proves that the registrar that issued the agent
+recorded that grant; it leaves unproven that the person or
+organization behind the registrar could lawfully confer it. For most
+traffic the registrar's record is sufficient. Where a relying party
+in another administrative domain needs the stronger statement (a
+bank receiving a payment instruction from a broker's agent needs to
+know that the broker's signatory could delegate payments at all),
+AGTP carries the evidence rather than producing it.
+
+The origin hop's `authority` field **MAY** carry a digest reference
+to an authority assertion: a signed statement from an authority
+source, separate from the sequence, of the powers the delegator
+could delegate. AGTP defines no authority assertion format of its
+own. Two are recognized: the vLEI Role Credential chain (OOR, ECR,
+AUTH) carried per {{AGTP-LEI}}, whose AUTH credential names the
+human signatory and the role under which the agent was authorized;
+and the Authority Assertion of the WIMSE agent mandate work, when the
+relying party's trust framework accepts it. A verifier that is asked
+by policy to require authority evidence **MUST** check that the
+assertion's delegator matches the origin hop's Owner-ID and that the
+origin hop's `scope` is within the assertion's stated powers; an
+origin hop with no `authority` reference under such a policy is
+indeterminate with `missing_input: authority`.
+
+Typed constraints on delegated authority (bounded amounts, time
+windows, accumulated budgets, co-signature thresholds) are the
+natural next step for payment-grade delegation. AGTP's Authority-Scope
+is a token set and `Budget-Limit` is its only numeric constraint; a
+constraint vocabulary over scope tokens is planned.
+
+### What Each Artifact Asserts {#delegation-attribution}
+
+Each artifact in a delegated request asserts one thing, and a
+verifier **MUST NOT** treat a claim as established by an artifact
+whose role fails to cover it.
+
+| Artifact | Asserts | Leaves unasserted |
+|---|---|---|
+| Agent Genesis | that a registrar issued this Agent-ID to this owner with this grant | that the owner could lawfully confer the grant |
+| Agent Identity Document | the agent's current grant, key, and lifecycle state, as its issuer records them | that the sender of any request is this agent |
+| `Request-Signature` | that the sender of this request holds the agent's current key | anything about delegated authority |
+| origin hop token | that the originating agent narrowed its own grant to this scope | that the grant itself was within the owner's authority |
+| subsequent hop token | that the named parent conferred this scope on this delegate, and that it was within the parent's hop | that the delegate was unmanipulated in requesting |
+| authority assertion (when carried) | the powers the delegator could delegate, per the authority source | that any delegation was in fact made |
+| Attribution-Record | what the agent did, after the fact | that the action was authorized before it ran |
+{: title="Delegation Artifacts and Their Claims"}
+
+A valid sequence shows that the request is within delegated
+authority. It leaves unshown whether the requesting agent was
+manipulated into making it; that is outside what any artifact in the
+sequence can assert, and a relying party that needs it looks to the
+governance platform's runtime verdict ({{AGTP-TRUST}}) and to the
+Governance Token's action digest rather than to the chain.
 
 ## Mapping to the WIMSE Chain Convention {#wimse-mapping}
 
@@ -3574,7 +3683,7 @@ Delegation Sequence maps onto the convention without loss:
 | `client_id` (current actor) | `Agent-ID` of the request, equal to the last hop |
 | `act` (prior actors) | the hops of `Delegation-Chain` before the last, in order |
 | scope at this hop | effective scope of {{delegation-verification}} |
-| root authority evidence | the origin hop, checked against the originating agent's Identity Document grant (the authority assertion the mandate drafts ask for) |
+| root authority evidence | the origin hop checked against the originating agent's Identity Document grant, plus the optional authority assertion reference of {{authority-evidence}} for the delegator's own powers |
 {: title="Delegation Sequence Mapped to the WIMSE Chain Convention"}
 
 Narrowing follows the subset rule stated in that work: what a hop
@@ -3604,11 +3713,17 @@ verification steps 1 through 5 and the request signature in its v10
 build; revocation of a member after minting is caught at step 1 on the next
 request, and the continuity of that check across certificate expiry
 and session boundaries is planned ({{revocation-continuity}}).
-Delegation across organizations composes with draft-rampalli-pedigree
-and draft-rampalli-cross-org-delegation-mapping: AGTP's per-hop
-attenuation and parent re-verification satisfy the chain
-requirements those documents state, and an AGTP Delegation Sequence
-can be mapped row for row into the cross-organization template.
+Delegation across organizations composes with draft-rampalli-pedigree,
+draft-rampalli-cross-org-delegation-mapping, and
+draft-hulea-wimse-agent-mandate: AGTP's per-hop attenuation and
+parent re-verification satisfy the chain requirements those
+documents state, the origin check and the authority assertion
+reference of {{authority-evidence}} correspond to the mandate work's
+Authority Assertion, the three-outcome verification and the
+validator-versus-policy split follow its Validation Result model,
+and an AGTP Delegation Sequence can be mapped row for row into the
+cross-organization template. AGTP carries whichever chain format the
+WIMSE group settles on and competes with none of them.
 
 # Composition with Higher-Level Frameworks {#composition-section}
 
@@ -4382,33 +4497,43 @@ normative mechanism.
    earlier revisions described the header as if specified in those
    places while reserving it in the header table.
 
-2. **Structured failure fields.** `retryable`, `partial` with
+2. **Delegation token format and authority evidence.** The hop
+   token payload is specified ({{delegation-token}}) with a digest
+   of the parent token, so a parent swap fails on the digest as well
+   as the key. Verification is defined over a fixed input set with
+   no local policy and returns valid, invalid, or indeterminate
+   ({{delegation-verification}}); an origin hop may reference an
+   authority assertion for the delegator's own powers
+   ({{authority-evidence}}); and a table states what each artifact in
+   a delegated request asserts ({{delegation-attribution}}).
+
+3. **Structured failure fields.** `retryable`, `partial` with
    `completed_steps`, `side_effects`, and `reason` on 4xx and 5xx
    bodies ({{failure-fields}}). Additive.
 
-3. **Specification status vocabulary.** Specified, specified and
+4. **Specification status vocabulary.** Specified, specified and
    implemented, planned, inherited ({{conventions}}), with the
    carrier-versus-claim rule stated. Applied through the document.
 
-4. **Transfer protocol.** AGTP is described as a transfer protocol
+5. **Transfer protocol.** AGTP is described as a transfer protocol
    throughout; "transport" now refers only to TCP, TLS, and QUIC.
    The positioning section is rewritten around the HTTP and HTML
    analogy in place of SMTP and TCP.
 
-5. **Revocation continuity and tamper evidence** stated as planned
+6. **Revocation continuity and tamper evidence** stated as planned
    and inherited respectively ({{revocation-continuity}} and the
    following subsection), with the member-inactive check of
    {{delegation-verification}} as the first specified piece.
 
-6. **Tool and resource identity** stated as a deliberate composition
+7. **Tool and resource identity** stated as a deliberate composition
    choice under review ({{composition-section}}).
 
-7. **Workload and agent identity** composition sentence added to
+8. **Workload and agent identity** composition sentence added to
    Identity at the Wire, and a Discovery and Naming subsection added
    to Related Work carrying the identity and location split and the
    discover versus search vocabulary.
 
-8. **Per-request proof of possession.** The `Request-Signature`
+9. **Per-request proof of possession.** The `Request-Signature`
    header ({{request-signature}}) binds every non-anonymous request
    to the agent's current signing key, published as
    `agent_public_key` in the Identity Document. Level 2 verification
@@ -4418,7 +4543,7 @@ normative mechanism.
    self-asserted-identity finding raised independently by four
    reviewers and conceded on list in August.
 
-9. **262 versus 455 resolved.** Obtainability is the rule: 262 when
+10. **262 versus 455 resolved.** Obtainability is the rule: 262 when
    the agent could obtain the missing authorization, 455 when the
    request exceeds authority the agent holds. A claimed scope beyond
    the document's grant, an endpoint scope the document fails to
@@ -4426,32 +4551,32 @@ normative mechanism.
    revisions used both codes for Authority-Scope failures in different
    sections.
 
-10. **HTTP registry argument withdrawn.** The claim that IETF Review
+11. **HTTP registry argument withdrawn.** The claim that IETF Review
     freezes the HTTP method registry is removed; the case rests on the
     distinct wire image and the documented failure cases.
 
-11. **WIMSE chain convention mapping** and a stated staleness bound
+12. **WIMSE chain convention mapping** and a stated staleness bound
     ({{wimse-mapping}}).
 
-12. **Governance Token action digest** binding a token to one request
+13. **Governance Token action digest** binding a token to one request
     shape, with `token-action-mismatch` on divergence.
 
-13. **`evaluation` failure field** distinguishing a refusal from an
+14. **`evaluation` failure field** distinguishing a refusal from an
     incomplete check, with `missing_input`.
 
-14. **User agent and service agent** stated as both in scope, with the
+15. **User agent and service agent** stated as both in scope, with the
     Owner-ID as what differs.
 
 ## Structural Changes
 
-15. **AGTP-API replaced by AGTP-METHODS and AGTP-RCNS.** Every
+16. **AGTP-API replaced by AGTP-METHODS and AGTP-RCNS.** Every
    reference to {{AGTP-API}} is redirected: the method
    vocabulary, path grammar, endpoint primitive, manifest, and policy
    to {{AGTP-METHODS}}; negotiation, contracts, and synthesis to
    {{AGTP-RCNS}}. The `AGTP-API-Version` header registration is
    renamed `AGTP-Methods-Version`.
 
-16. **Agent Identity Document extracted.** The Agent Namespace
+17. **Agent Identity Document extracted.** The Agent Namespace
    Document, the Agent Identity Document and `.agtp` format, and the
    browser interaction model move to {{AGTP-IDDOC}}; this document
    keeps a summary ({{identity-document}}) stating what the protocol
@@ -4459,17 +4584,17 @@ normative mechanism.
    lifecycle events remain here because the Agent-ID derivation and
    the lifecycle methods depend on them.
 
-17. **Module summaries.** Dynamic Endpoint Negotiation, the Extended
+18. **Module summaries.** Dynamic Endpoint Negotiation, the Extended
     Method Vocabulary, Composition Profiles, and the Merchant
     Identity sections are reduced to summaries that point at the
     companion carrying the normative text. The AGMP wire example
     appendix moves to {{AGTP-COMPOSITION}}.
 
-18. **Change history collapsed.** The v06, v07, and v08 change logs
+19. **Change history collapsed.** The v06, v07, and v08 change logs
     (about 680 lines) are replaced by {{change-history}}; the full
     text remains in the archived revisions.
 
-19. **Glossary merged** into Terminology; four entries that appeared
+20. **Glossary merged** into Terminology; four entries that appeared
     only in the glossary are carried over.
 
 ## Wire Format Compatibility
