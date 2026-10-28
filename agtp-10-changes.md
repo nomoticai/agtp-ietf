@@ -434,7 +434,7 @@ Rosenthol: C2PA 2.4 binds manifests to HTML and text with an IANA Link
 header. Earmark-01 needs a stated reason to exist beyond C2PA or
 should profile it. Out of this cycle unless decided otherwise.
 
-### H11. Alignment with draft-hulea-wimse-agent-mandate-00
+### H11. Alignment with draft-hulea-wimse-agent-mandate-00 : LANDED 28 Oct (token format, three outcomes, fixed inputs, authority evidence, attribution table; typed constraints stated planned)
 
 Hulea (Braincap, 24 Oct) separates the Authority Assertion (what the
 delegator could delegate, from an Authority Source) from the mandate,
