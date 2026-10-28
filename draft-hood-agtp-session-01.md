@@ -41,6 +41,20 @@ normative:
 informative:
   RFC9000:
   RFC9001:
+  AGTP-IDENTIFIERS:
+    title: "AGTP Identifier Chain"
+    author:
+      fullname: Chris Hood
+    seriesinfo:
+      Internet-Draft: draft-hood-agtp-identifiers-02
+    date: 2026
+  HCTP:
+    title: "The Hash-Chain Context Transfer Protocol"
+    author:
+      fullname: Cristian Xavier Ruvalcaba
+    seriesinfo:
+      Internet-Draft: draft-ruvalcaba-hctp-00
+    date: 2026
   AGTP-IDDOC:
     title: "AGTP Agent Identity Document"
     author:
@@ -161,6 +175,13 @@ Session Token:
   resume window, and the session-scoped Authority-Scope grants. The
   token is what binds a session to its participants. See
   {{session-token}}.
+
+Session Root:
+: A 32-byte rolling SHA-256 commitment over the ordered sequence of
+  Audit-IDs of the responses exchanged under a session, folded by
+  both participants independently. Equal roots mean the two agree on
+  what the session has carried; unequal roots name the point of
+  divergence. See {{session-root}}.
 
 Initiator, Responder:
 : The agent that sends ESTABLISH and the agent that accepts it. The
@@ -365,6 +386,46 @@ connection to the session with a TLS exporter or QUIC connection
 identifier as defense in depth; that binding is per connection,
 re-established at every RESUME, and never the session's identity.
 
+## Session Root {#session-root}
+
+Two participants in a long session need a compact way to stay in
+agreement about what the session has carried without resending it.
+Each response under a session carries an `Audit-ID` ({{AGTP}}), the
+identifier of its Attribution-Record. Both participants fold the
+sequence of Audit-IDs, in the order the responder emitted them, into
+a session root:
+
+~~~~
+root_0 = SHA-256( "agtp-session-root" || session_id )
+root_n = SHA-256( root_{n-1} || audit_id_n )
+~~~~
+
+where `||` is byte concatenation, `session_id` is the 32 raw bytes
+of the session identifier, and `audit_id_n` is the 32 raw bytes of
+the n-th response's Audit-ID. The root after n responses commits to
+every response so far and is independent of how long the session
+has run; it is 32 bytes on the wire however many exchanges precede
+it.
+
+A participant that holds a root and the Audit-IDs since can verify
+the other's root by refolding, and can fetch any response's full
+record with `INSPECT target=audit` ({{AGTP}}) to verify against the
+raw record later. The root is carried on RESUME, where it lets the
+responder detect divergence beyond the single lost response that
+`last_response_id` covers, and on TERMINATE, where the final
+Attribution-Record commits to the whole session. Carriage elsewhere
+(for example on every n-th response as a periodic checkpoint) is
+permitted and is operator policy.
+
+The construction is the rolling-commitment pattern of {{HCTP}},
+restricted here to Audit-IDs so that it composes with the per-agent
+audit chain of {{AGTP-IDENTIFIERS}}: the per-agent chain records
+what one agent did; the session root records what two agents agree
+the session carried. A deployment that needs the full acknowledged
+history and unacknowledged-window machinery of {{HCTP}} **MAY**
+carry HCTP payloads inside the session as EXECUTE content; the
+session root is the minimum the session protocol itself needs.
+
 ## Resumption After Transport Loss {#resumption}
 
 When the transport carrying a session is lost (connection reset,
@@ -384,7 +445,8 @@ Content-Length: ...
 
 {
   "session_token": "<compact JWS from ESTABLISH>",
-  "last_response_id": "<Response-ID of last response seen, or null>"
+  "last_response_id": "<Response-ID of last response seen, or null>",
+  "session_root": "<64 lowercase hex, the initiator's root, or null>"
 }
 ~~~~
 
@@ -395,9 +457,16 @@ the token's `initiator`; that `exp` is in the future and the resume
 window is still open; and that the session is in
 `Suspended-by-transport` rather than terminated. On success the
 responder returns `200 OK` with the `Session-ID` header and a body
-carrying `last_response_id` as seen on its side, so the initiator can
-detect a response lost in transit and re-request it, and the session
-returns to `Active`. On failure the responder returns `410 Gone` with
+carrying `last_response_id` and `session_root` as seen on its side,
+so the initiator can detect a response lost in transit and
+re-request it, and the session returns to `Active`. When the
+initiator's `session_root` is present and differs from the
+responder's, the responder **MUST** still return `200 OK` with its
+own root and `last_response_id`, and **MUST** include
+`divergence: true`; the initiator then reconciles by fetching
+records with `INSPECT target=audit` from its last agreed point. A
+divergent root is a signal to reconcile, never a reason to refuse
+resumption, since the usual cause is a response lost in transit. On failure the responder returns `410 Gone` with
 reason `session-expired` (window or `exp` passed), `session-terminated`
 (a TERMINATE was processed), or `session-unknown`; a token that fails
 verification is `401` with reason `session-token-invalid`.
@@ -419,13 +488,16 @@ AGTP/1.0 TERMINATE /session
 Session-ID: <session identifier>
 Request-Signature: <JWS per AGTP>
 
-{ "reason": "<token>" }
+{ "reason": "<token>", "session_root": "<64 lowercase hex>" }
 ~~~~
 
 `reason` is one of `completed`, `ttl-expired`, `scope-violation`,
-`revoked`, `operator`, or `initiator-request`. The response is
-`200 OK` and its Attribution-Record is the session's final record,
-signed by the terminating party and naming the reason. A terminated
+`revoked`, `operator`, or `initiator-request`. `session_root` is the
+terminating party's root over the session ({{session-root}}). The
+response is `200 OK`, carries the responder's own `session_root`, and
+its Attribution-Record is the session's final record, signed by the
+terminating party, naming the reason, and committing to the root so
+that the session's whole history is verifiable from one record. A terminated
 session identifier **MUST NOT** be reused and RESUME against it
 returns `410 Gone` with reason `session-terminated`. Expiry of a
 bounded session's `session_ttl` is enforced against the responder's
@@ -677,8 +749,9 @@ and 410.
 
 # Open Questions
 
-- How does session attribution interact with the base AGTP
-  Attribution-Record? Are session-level attribution rollups defined?
+- Should the session root be carried as a periodic checkpoint on
+  responses within the session, and at what interval, rather than
+  only on RESUME and TERMINATE?
 - How are persistent sessions migrated across governance platform
   changes (e.g., merchant changes governance providers mid-session)?
 - Should AGTP define an agent type system (Agent Content-Type)
@@ -709,6 +782,12 @@ shipped changes.
   binding is demoted to an optional per-connection check, since the
   transport is what resumption survives ({{session-token}},
   {{resumption}}).
+- Session root specified ({{session-root}}): a 32-byte rolling
+  commitment over the session's Audit-IDs, carried on RESUME for
+  divergence detection and on TERMINATE so the final record commits
+  to the whole session. This answers the session-level attribution
+  question left open in v00 and follows the rolling-commitment
+  pattern of {{HCTP}}.
 - Base reference moved to draft-hood-independent-agtp-10, which
   supplies `Request-Signature` and `agent_public_key`.
 
