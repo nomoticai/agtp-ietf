@@ -167,7 +167,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-log-02
+      Internet-Draft: draft-hood-agtp-log-03
     date: 2026
   AGTP-TRUST:
     title: "AGTP Trust and Verification Specification"
@@ -2257,8 +2257,8 @@ The bootstrap document is JSON with the following fields:
 }
 ~~~~
 
-Resolvers encountering an `agtp://` URI for a domain they have yet to
-previously interacted with **SHOULD** retrieve the bootstrap document
+Resolvers encountering an `agtp://` URI for a domain they have had
+no previous interaction with **SHOULD** retrieve the bootstrap document
 to learn the canonical AGTP endpoint and verification anchors before
 attempting AGTP traffic. The bootstrap is advisory; absence of a
 `.well-known/agtp` document is no indication that the domain has no
@@ -2324,7 +2324,7 @@ ACTIVATE time and contains the following fields:
 
 | Field | Required | Description |
 |---|---|---|
-| `agent_id` | **MUST** | Canonical Agent-ID for this agent. Equals the 256-bit SHA-256 hash of the Agent Genesis in its canonical-form serialization with the `signature` field excluded. The field is included for relying-party convenience; verifiers **MUST** independently recompute the hash and confirm it matches before trusting the value. |
+| `agent_id` | **MUST** | Canonical Agent-ID for this agent. Equals the 256-bit SHA-256 hash of the Agent Genesis in its canonical-form serialization with the `signature` and `log_inclusion_proof` fields excluded. Excluding the inclusion proof lets the issuer compute the Agent-ID, commit it to the transparency log, and embed the resulting receipt without changing the identity ({{AGTP-LOG}}). The field is included for relying-party convenience; verifiers **MUST** independently recompute the hash and confirm it matches before trusting the value. |
 | `owner` | **MUST** | Human or team responsible for this agent |
 | `archetype` | **MUST** | Behavioral category (see archetypes below) |
 | `governance_zone` | **MUST** | Environment context (development, staging, production) |
@@ -2338,6 +2338,7 @@ ACTIVATE time and contains the following fields:
 | `org_domain` | **SHOULD** | DNS-verified or asserted org domain (required for `dns-anchored` and `hybrid`) |
 | `org_label` | **SHOULD** | Agent-native org label (required for Form 2 hierarchical resolution) |
 | `log_inclusion_proof` | **MUST** (log-anchored) | Transparency log inclusion proof (RFC 9162 / RFC 9943) |
+| `log_uri` | **MUST** (log-anchored) | Absolute HTTPS URI of the base of the transparency log's protocol surface, at which the inclusion proof and signed tree head are retrievable per {{AGTP-LOG}} |
 {: title="Agent Genesis Fields"}
 
 The canonical-form serialization used for both the Agent-ID hash
@@ -4643,6 +4644,20 @@ normative mechanism.
     event: ANS registration ({{AGTP-DISCOVERY}}) and the first
     ANNOUNCE ({{AGTP-PRESENCE}}) follow from the lifecycle
     transition, so an agent is findable exactly when Active.
+
+23. **Agent-ID hash excludes `log_inclusion_proof`.** The Genesis
+    hash that yields the Canonical Agent-ID now excludes the
+    inclusion proof alongside `signature`, so that a log-anchored
+    issuer can compute the Agent-ID, commit it, and embed the
+    receipt without the identity changing; v09's rule was circular
+    with the statement subject in {{AGTP-LOG}}. `log_uri` is added
+    to the Genesis fields as that document proposed. Compatibility:
+    only Genesis documents that carry a non-null
+    `log_inclusion_proof` hash differently; dns-anchored and
+    org-asserted Genesis documents whose field is absent are
+    unaffected, and a document that carried the field as `null`
+    **MUST** be re-hashed by its issuer under the v10 rule before it
+    is served as v10.
 
 ## Wire Format Compatibility
 

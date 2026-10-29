@@ -61,7 +61,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-log-02
+      Internet-Draft: draft-hood-agtp-log-03
     date: 2026
   AGTP-MERCHANT:
     title: "AGTP Merchant Identity and Agentic Commerce Binding"
@@ -419,6 +419,7 @@ The following fields are **RECOMMENDED**:
   "cert_status": "Active",
   "dns_anchor_record": "_agtp.acme.tld TXT agtp-zone=...",
   "log_inclusion_proof": null,
+  "log_uri": null,
   "package_format": "nomo",
   "package_integrity_hash": "sha256:[hash]",
   "audit_log_uri": "agtp://agtp.acme.tld/audit/customer-service",
@@ -493,6 +494,13 @@ The following fields are **RECOMMENDED**:
   transparency log inclusion proof per {{RFC9162}} or the COSE_Sign1
   receipt per {{RFC9943}}. Detailed semantics specified in
   {{AGTP-LOG}}.
+
+`log_uri`:
+: Populated when `verification_path` is `log-anchored`. Mirrors the
+  Agent Genesis field of the same name: the absolute HTTPS URI of
+  the transparency log at which `log_inclusion_proof` is verifiable
+  per {{AGTP-LOG}}, carried here so that a verifier holding only the
+  Identity Document can reach the log.
 
 `package_format`, `package_integrity_hash`:
 : Deployment-layer metadata identifying the package format and the

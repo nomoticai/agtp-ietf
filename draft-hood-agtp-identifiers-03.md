@@ -46,7 +46,7 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-log-02
+      Internet-Draft: draft-hood-agtp-log-03
     date: 2026
   AGTP-TRUST:
     title: "AGTP Trust and Verification Specification"
