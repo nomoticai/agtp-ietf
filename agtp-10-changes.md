@@ -224,11 +224,25 @@ Identifiers-03 states tamper evidence against a distrusted holder explicitly via
 
 Earmark stays a separate venue; base-10 adds nothing unless a usage-preference header is wanted at the wire. Default: nothing.
 
-### D6. RECALL
+### D6. Agency evidence and the model gateway (candidate companion: agtp-attestation)
+
+Decided 29 Oct, after the Terminology change in base-10 (C-item in Changes from v09, 21): an agent is defined constitutively, as a domain name is, by what the protocol mints and can enforce, never by what it is made of. The protocol cannot verify agency as an essence. What it can do is carry evidence of agency from parties other than the agent, under the carrier-versus-claim rule.
+
+The enterprise framing: the problem is an allowlist, never a detector. Detection (scanning for API keys, MCP servers) loses to a costume. Port 4480 plus ALPN agtp gives network separability without decryption. The lever that closes the loop is the thing agents cannot do without: model access. An enterprise model gateway that refuses inference to callers without an Active Agent-ID turns rogue-agent detection into a policy question. Agents on AGTP that misbehave are governed, revoked, attributed; agent-shaped code that avoids AGTP cannot reach a model and is shadow IT.
+
+Agency-evidence ladder, orthogonal to the identity verification levels in base-10:
+
+- **Declared.** Agent Genesis and the Identity Document. The agent's own claim, signed by an issuer.
+- **Bound.** Workload attestation (WIMSE / SPIFFE SVID, optionally TEE-backed) binding the Agent-ID to the code and host the principal registered. Proves the identity cannot be worn by other code; says nothing about agency. Home: agent-cert-04 Level 3 material and the WIMSE mapping in base-10.
+- **Evidenced.** Inference receipt: the model gateway or provider signs a receipt bound to Agent-ID, Request-ID, and Audit-ID, carried in or referenced from the Attribution Record. Third-party evidence that a model inference preceded the action. A web server cannot produce one. Limits to state plainly: proves a model was consulted, never that it determined the action; requires gateway or provider cooperation, which the enterprise gateway case supplies today.
+
+Scope decision pending: a new companion (draft-hood-agtp-attestation-00) carrying the receipt format, the gateway's AGTP participation (the gateway holds an Agent-ID and signs as a carrier), and the ladder; or the ladder in agent-cert-04 with the receipt deferred. Leaning companion, since the gateway is a new participant class. Not in the current bundle.
+
+### D7. RECALL
 
 Placeholder for other integration items (ai-control, SAMP, federated resolution).
 
-### D7. Charter alignment and landscape refresh (reading task)
+### D8. Charter alignment and landscape refresh (reading task)
 
 Venue facts from the 27 October mailbox review:
 
@@ -473,10 +487,11 @@ whichever the group settles on.
 
 0. Nov 2 package: H1 in base-10, H2 in session-01, H3 across the
    family. Then the rest of this list.
-1. session-01 submitted this week.
+1. session-01 submitted this week. SUPERSEDED by step 8: session-01 goes in the bundle with everything else.
 2. B1 and B2 decided (names, what moves), since every reference depends on them.
 3. A1 and A2 sweeps run against base-09 to produce the hit lists.
 4. Base-10 drafted: structure first, then C1, then the rest of C, then D.
 5. Methods-00 and rcns-00 cut from api-01 in parallel with step 4.
 6. Companions revised in the order of their expiry dates, each carrying A1 and its row from Part E.
 7. Consistency report re-run across the new set before any submission.
+8. Publication is one bundle (decided 29 Oct): nothing is uploaded until every draft in the family is bumped, so the whole set shares one expiration date. Until then every document, base-10 included, stays open to improvement. Current state: base-10, iddoc-00, methods-00, rcns-00, session-01, bindings-01, identifiers-03, discovery-02, presence-01 built and in the publish bundle; communication-01, log-03, merchant-identity-03, composition-02, agent-cert-04, trust-03, lei-01, commerce-01 still to build; ard-01 source still to obtain.
