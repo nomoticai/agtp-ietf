@@ -267,13 +267,13 @@ the 27 October survey.
 | agtp-communication | 01 | 19 Nov 2026 | cites base-07; Standards Track where the family is Informational (C7); 451 to 455 twice | align media session setup to session-01's ESTABLISH wire format |
 | agtp-log | 03 | 27 Nov 2026 | cites base-08; 32 style hits | state tamper evidence against a distrusted holder as the mechanism base-10 and identifiers-03 point to (D4); audit venue note |
 | agtp-composition | 02 | 30 Dec 2026 | 5 AGTP-API cites; 6 Delegation-Chain MUSTs restating what base-10 now specifies; 4 Content-Schema (reserved in base); `Owner-ID:` as a request header in 6 examples; 2 Principal-ID | becomes the home of the composition profiles base-10 summarized; AGMP appendix moves here; A2A provenance maps to Delegation Sequence and prior_actions |
-| agtp-discovery | 02 | 30 Dec 2026 | 9 "Agent Manifest Document", 1 "Birth Certificate" (C7b); `Owner-ID:` header in 2 examples | September changelog D1 to D11; DAWN mapping as Identity Document to AgentCard within DAWN's local and organizational scope |
+| agtp-discovery | 02 | 30 Dec 2026 | DONE 29 Oct | search/discover/resolve vocabulary per RFC 6763; Identity Document and Genesis terms; Owner-ID header removed from examples; DAWN mapping appendix (lossy, Agent-ID as join). September D1 to D11 build items (/population, federation as implemented) still to fold in |
 | agtp-agent-cert | 04 | 30 Dec 2026 | 3 AGTP-API cites; 7 transport-layer (TLS subject, say TLS-layer); 3 Birth Certificate | relation to Request-Signature: Level 3 accelerates possession proof to the handshake; cert key versus agent_public_key |
 | agtp-bindings | 01 | 30 Dec 2026 | DONE 28 Oct | connection versus session split; Request-Signature on early data; eligibility rationale (C7a); session methods prohibited; HTTP/3 and WebTransport binding (H9 decided: yes) |
 | agtp-trust | 03 | 30 Dec 2026 | cites base-08 | C5: trust score range and computed_at coupling normative |
 | agtp-lei | 01 | 30 Dec 2026 | 4 `Owner-ID:` header examples | G1 |
 | agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | none beyond the fix |
-| agtp-presence | 01 | 30 Dec 2026 | base unpinned; 25 style hits | September changelog P1 to P6 |
+| agtp-presence | 01 | 30 Dec 2026 | DONE 29 Oct | vocabulary aligned (Presence is discovery, DISCOVER intent mode is search); attachment record specified (P3); principals-rather-than-hosts and addressing abstraction in the introduction (P1, P2); references pinned. P4 to P6 (coordinator governance, rendezvous consistency, M2 data) still open |
 | agtp-identifiers | 03 | 3 Dec 2026 | DONE 29 Oct | Owner-ID header registration removed (C6); delegation split with delegation_sequence_digest (C1); tamper evidence via log_inclusion (D4); three-outcome verification; session root composition |
 | agtp-merchant-identity | 03 | 27 Nov 2026 | A1; C7 458 is the core and merchant value | none beyond the fix |
 | agtp-ard | 01 | 20 Dec 2026 | rev bump; absent from the repo | obtain the source |
