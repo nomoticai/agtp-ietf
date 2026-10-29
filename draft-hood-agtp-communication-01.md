@@ -283,7 +283,8 @@ parameters or rejects the session:
 
 ~~~~
 AGTP/1.0 200 OK
-Agent-ID: <responder Agent-ID>
+Server-ID: <responder server>
+Agent-ID: <initiator Agent-ID, echoed>
 Session-ID: <64 lowercase hex>
 Content-Type: application/json
 

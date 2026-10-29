@@ -68,7 +68,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-composition-01
+      Internet-Draft: draft-hood-agtp-composition-02
     date: 2026
   AGTP-BINDINGS:
     title: "AGTP Transport Bindings: TCP/TLS and QUIC"

@@ -146,7 +146,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-composition-01
+      Internet-Draft: draft-hood-agtp-composition-02
     date: 2026
   AGTP-BINDINGS:
     title: "AGTP Transport Bindings: TCP/TLS and QUIC"
@@ -671,7 +671,7 @@ Budget-Limit:
   financial=10.00USD, ttl=3600`. Exceeding the declared limit
   **MUST** cause the server to return 456 Budget Exceeded rather
   than continue execution. Note: ttl= is RECOMMENDED to bound budget
-  lifetime. Reserved for v01+ per {{header-format}}.
+  lifetime. Specified in {{AGTP-COMMERCE}}; see {{planned-headers}}.
 
 AGTP-Zone-ID:
 : A request header declaring the network zone or organizational
@@ -1387,21 +1387,22 @@ convention prefixed `X-`, but such headers have no protocol
 semantics; agents **MUST NOT** rely on them and servers **MUST
 NOT** require them.
 
-### Headers Reserved for Future Revisions
+### Headers Planned or Specified Elsewhere {#planned-headers}
 
-The following headers were specified in earlier drafts and are
-reserved for future revisions. v00 servers **MUST NOT** require
-them and **MAY** ignore them when received:
+The following headers were named in earlier drafts. Two are now
+specified in companions; the rest are planned, in the status
+vocabulary of {{conventions}}. Servers **MUST NOT** require a
+planned header and **MAY** ignore one when received:
 
 | Field | Status | Anticipated Use |
 |-------|--------|-----------------|
-| Priority | Reserved (v01+) | Request priority hint: critical, normal, background |
-| TTL | Reserved (v01+) | Maximum acceptable response latency in milliseconds. Pairs with status code 408 Timeout. |
-| Budget-Limit | Reserved (v01+) | Maximum resource budget per invocation. Pairs with status code 456 Budget Exceeded. |
-| AGTP-Zone-ID | Reserved (v01+) | Network zone boundary constraint. Pairs with status code 457 Zone Violation; SEP-enforced. |
-| Content-Schema | Reserved (v01+) | URI reference to JSON Schema describing the request body structure. |
-| Telemetry-Export | Reserved (v01+) | OTLP endpoint URI for metric export, or `inline` to receive metrics embedded in the response `Attribution-Record`. |
-{: title="Headers Reserved for Future AGTP Revisions"}
+| Priority | Planned | Request priority hint: critical, normal, background |
+| TTL | Planned | Maximum acceptable response latency in milliseconds. Pairs with status code 408 Timeout. |
+| Budget-Limit | Specified in {{AGTP-COMMERCE}} | Maximum resource budget per invocation. Pairs with status code 456 Budget Exceeded. |
+| AGTP-Zone-ID | Planned | Network zone boundary constraint. Pairs with status code 457 Zone Violation; SEP-enforced. |
+| Content-Schema | Specified in {{AGTP-COMPOSITION}} | URI reference to the schema describing the request body or carried payload. |
+| Telemetry-Export | Planned | OTLP endpoint URI for metric export, or `inline` to receive metrics embedded in the response `Attribution-Record`. |
+{: title="Headers Planned or Specified in Companions"}
 
 Status codes 456 Budget Exceeded and 457 Zone Violation remain
 allocated in the AGTP Status Code Registry; their normative
@@ -4406,10 +4407,10 @@ with external identity providers are specified in {{AGTP-COMPOSITION}}.
 The `Allow-RCNS` header semantics for caller opt-in to Runtime
 Contract Negotiation are specified in {{AGTP-RCNS}}.
 
-Headers reserved for future revisions (Priority, TTL, AGTP-Zone-ID,
-Content-Schema, Telemetry-Export) are unregistered in this
-revision. They will be registered alongside the future revision that
-specifies their normative semantics.
+Planned headers (Priority, TTL, AGTP-Zone-ID, Telemetry-Export) are
+unregistered in this revision. They will be registered alongside the
+revision that specifies their normative semantics. `Content-Schema`
+is registered by {{AGTP-COMPOSITION}}.
 
 The `Budget-Limit` header is defined in {{AGTP-COMMERCE}} and
 registered concurrently with that document.
@@ -4658,6 +4659,12 @@ normative mechanism.
     unaffected, and a document that carried the field as `null`
     **MUST** be re-hashed by its issuer under the v10 rule before it
     is served as v10.
+
+24. **Planned-header table relabeled** in the status vocabulary of
+    {{conventions}}: `Budget-Limit` is specified in
+    {{AGTP-COMMERCE}} and `Content-Schema` in {{AGTP-COMPOSITION}};
+    Priority, TTL, AGTP-Zone-ID, and Telemetry-Export are planned.
+    The v09 label "Reserved (v01+)" was stale.
 
 ## Wire Format Compatibility
 
@@ -4995,10 +5002,10 @@ Content-Type: application/vnd.agtp+json
 | Agent Genesis | Yes (genesis record) | No | No | No |
 | Domain-expiry lifecycle handling | Specified | N/A | N/A | N/A |
 | Capability discovery | Native (DESCRIBE) | None | Reflection (partial) | None |
-| Resource budget enforcement | Reserved for v01+ (Budget-Limit, 456) | None | None | None |
+| Resource budget enforcement | Specified (Budget-Limit per AGTP-COMMERCE, 456) | None | None | None |
 | Execution attestation (RATS) | Optional (RFC 9334) | None | None | None |
-| Observability hooks | Reserved for v01+ (Telemetry-Export) | None | None | None |
-| Network zone enforcement | Reserved for v01+ (AGTP-Zone-ID, 457) | None | None | None |
+| Observability hooks | Planned (Telemetry-Export) | None | None | None |
+| Network zone enforcement | Planned (AGTP-Zone-ID, 457) | None | None | None |
 | Session suspension/recovery | Native (SUSPEND method) | None | None | None |
 | AGMP composition profiles | Normative body section | N/A | N/A | N/A |
 {: title="AGTP Compared to Existing Approaches"}
