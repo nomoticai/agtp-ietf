@@ -439,8 +439,19 @@ are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when,
 and only when, they appear in all capitals.
 
 Agent:
-: An AI software system that executes tasks, makes decisions, and takes
-  actions without continuous human supervision per transaction.
+: For the purposes of this protocol, a participant that holds a
+  Canonical Agent-ID issued through Agent Genesis, acts under a
+  principal and an authority scope, proves possession of its signing
+  key per request, and whose actions are attributable. Whether the
+  participant is implemented with a language model is outside the
+  protocol's knowledge; the protocol constrains what the participant
+  can do and makes what it did attributable. The definition is
+  constitutive rather than descriptive, in the way a domain name is
+  whatever the DNS delegation chain resolves: a participant is an
+  agent because it was minted inside the system and the system
+  vouches for the minting, and a participant that meets none of
+  these conditions is outside the protocol however it is
+  implemented.
 
 Principal:
 : The human, organization, or system that authorized an agent to act and
@@ -4615,7 +4626,15 @@ normative mechanism.
 20. **Glossary merged** into Terminology; four entries that appeared
     only in the glossary are carried over.
 
-21. **DISCOVER and ACTIVATE aligned with the companions.** DISCOVER
+21. **Agent defined operationally.** The Terminology entry for Agent
+    now states what the protocol can enforce (Genesis-issued
+    Agent-ID, principal and scope, per-request proof of possession,
+    attributable actions) in place of the v09 description of an AI
+    software system acting without supervision. The protocol has no
+    knowledge of how a participant is implemented; it constrains and
+    attributes what the participant does.
+
+22. **DISCOVER and ACTIVATE aligned with the companions.** DISCOVER
     now distinguishes search (criteria to candidates) from discovery
     (Agent-ID to attachment) per {{AGTP-DISCOVERY}} and defers its
     parameter set and response shape there; the v09 parameter table
