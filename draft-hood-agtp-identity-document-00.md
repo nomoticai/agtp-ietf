@@ -302,7 +302,8 @@ The following fields are **REQUIRED** in all Agent Identity Documents:
     "calendar:book",
     "escalation:route"
   ],
-  "trust_score": 0.94
+  "trust_score": 0.94,
+  "trust_score_computed_at": "2026-03-01T11:30:00Z"
 }
 ~~~~
 {: title="Agent Identity Document - Required Fields"}
@@ -404,6 +405,11 @@ Field semantics:
   signature binding are specified in {{AGTP-TRUST}}. The base AGTP
   specification carries the field; AGTP-TRUST specifies how the value
   is produced and verified.
+
+`trust_score_computed_at`:
+: ISO 8601 UTC timestamp at which the issuer computed `trust_score`.
+  **REQUIRED** whenever `trust_score` is present; a `trust_score`
+  without it is treated as absent per {{AGTP-TRUST}}.
 
 The following fields are **RECOMMENDED**:
 
@@ -750,7 +756,9 @@ First revision under this name. The `agent_public_key` field is
 new, carrying the key that the base specification's per-request proof
 of possession and delegation tokens verify against, and issuers are
 now required to retain prior document versions so attribution chains
-verify across key rotation ({{AGTP-IDENTIFIERS}}). The text is
+verify across key rotation ({{AGTP-IDENTIFIERS}}); `log_uri` is
+mirrored from the Genesis ({{AGTP-LOG}}) and `trust_score_computed_at`
+is listed as required beside `trust_score` ({{AGTP-TRUST}}). The text is
 otherwise extracted from draft-hood-independent-agtp-09, sections Agent Namespace Document,
 Agent Identity Document and the .agtp Format, and Browser and
 Human-Facing Interaction Model, with these edits: cross-references
