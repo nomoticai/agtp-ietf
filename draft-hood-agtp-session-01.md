@@ -46,7 +46,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-identifiers-02
+      Internet-Draft: draft-hood-agtp-identifiers-03
     date: 2026
   HCTP:
     title: "The Hash-Chain Context Transfer Protocol"
@@ -67,7 +67,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-LOG:
     title: "AGTP Transparency Log Protocol"
@@ -81,7 +81,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-bindings-00
+      Internet-Draft: draft-hood-agtp-bindings-01
     date: 2026
   AGTP-COMMUNICATION:
     title: "AGTP Communication Protocol"

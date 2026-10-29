@@ -31,8 +31,6 @@ author:
 normative:
   RFC2119:
   RFC8174:
-  RFC8126:
-  RFC8555:
   AGTP:
     title: "Agent Transfer Protocol (AGTP)"
     author:
@@ -42,15 +40,6 @@ normative:
     date: 2026
 
 informative:
-  RFC1034:
-  RFC7519:
-  AGTP-CERT:
-    title: "AGTP Agent Certificate Extension"
-    author:
-      fullname: Chris Hood
-    seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
-    date: 2026
   AGTP-PRESENCE:
     title: "AGTP Presence: Ambient Discovery and Visibility for Agent Substrates"
     author:
@@ -71,7 +60,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
 
 --- abstract
@@ -1004,7 +993,8 @@ unchanged on the wire.
   lossy, with the Agent-ID as the join.
 - References: base to draft-hood-independent-agtp-10, AGTP-CERT to
   -03, AGTP-PRESENCE to -01, AGTP-IDDOC and RFC 6763 added.
-  Hardcoded section numbers replaced. House style pass.
+  Hardcoded section numbers replaced. Five unused references
+  dropped. House style pass.
 
 # Changes from v00
 

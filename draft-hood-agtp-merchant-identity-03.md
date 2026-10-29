@@ -49,7 +49,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-METHODS:
     title: "AGTP Methods (AGTP Verbs)"
@@ -84,7 +84,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-DISCOVER:
     title: "AGTP Agent Discovery and Name Service"

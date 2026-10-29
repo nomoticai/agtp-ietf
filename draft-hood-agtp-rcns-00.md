@@ -37,7 +37,7 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-independent-agtp-09
+      Internet-Draft: draft-hood-independent-agtp-10
     date: 2026
   AGTP-METHODS:
     title: "AGTP Methods (AGTP Verbs): Method Vocabulary, Path Grammar, and Endpoints"
@@ -53,14 +53,14 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-IDENTIFIERS:
     title: "AGTP Identifier Chain"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-identifiers-02
+      Internet-Draft: draft-hood-agtp-identifiers-03
     date: 2026
   AGTP-API:
     title: "AGTP-API: Verbs, Paths, Endpoints, and Synthesis"

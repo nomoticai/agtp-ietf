@@ -68,7 +68,7 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-identifiers-02
+      Internet-Draft: draft-hood-agtp-identifiers-03
     date: 2026
 
 informative:
@@ -104,7 +104,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   HOOD2026:
     title: "Semantic Method Naming and LLM Agent Accuracy: A Controlled Benchmark of REST/CRUD versus Agentive API Interface Design"
@@ -139,7 +139,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-discovery-01
+      Internet-Draft: draft-hood-agtp-discovery-02
     date: 2026
   AGTP-COMPOSITION:
     title: "AGTP Composition Profiles: Agent Group Messaging Protocols, External Identity Providers, and HTTP Gateways"
@@ -153,14 +153,14 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-bindings-00
+      Internet-Draft: draft-hood-agtp-bindings-01
     date: 2026
   AGTP-MERCHANT:
     title: "AGTP Merchant Identity and Agentic Commerce Binding"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-merchant-identity-02
+      Internet-Draft: draft-hood-agtp-merchant-identity-03
     date: 2026
   AGTP-LOG:
     title: "AGTP Transparency Log Protocol"
@@ -174,28 +174,28 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-PRESENCE:
     title: "AGTP Presence: Ambient Discovery and Visibility for Agent Substrates"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-presence-00
+      Internet-Draft: draft-hood-agtp-presence-01
     date: 2026
   AGTP-LEI:
     title: "AGTP-LEI: Binding the Agent Transfer Protocol to the Verifiable Legal Entity Identifier"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-lei-00
+      Internet-Draft: draft-hood-agtp-lei-01
     date: 2026
   AGTP-COMMERCE:
     title: "AGTP-Commerce: Open Commerce Specification for Agent-to-Agent Transactions"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-commerce-00
+      Internet-Draft: draft-hood-agtp-commerce-01
     date: 2026
 
 --- abstract

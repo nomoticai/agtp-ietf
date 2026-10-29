@@ -53,7 +53,7 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-SESSION:
     title: "AGTP Session Protocol"
@@ -93,14 +93,14 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-MERCHANT:
     title: "AGTP Merchant Identity for Agentic Commerce"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-merchant-identity-02
+      Internet-Draft: draft-hood-agtp-merchant-identity-03
     date: 2026
   EU-AI-ACT:
     title: "Regulation (EU) 2024/1689 of the European Parliament and of the Council on artificial intelligence"

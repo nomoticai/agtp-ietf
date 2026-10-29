@@ -41,7 +41,7 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-independent-agtp-09
+      Internet-Draft: draft-hood-independent-agtp-10
     date: 2026
   JSON-SCHEMA:
     title: "JSON Schema: A Media Type for Describing JSON Documents"
@@ -75,31 +75,31 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-bindings-00
+      Internet-Draft: draft-hood-agtp-bindings-01
     date: 2026
   AGTP-CERT:
     title: "AGTP Agent Certificate Extension"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-IDENTIFIERS:
     title: "AGTP Identifier Chain"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-identifiers-02
+      Internet-Draft: draft-hood-agtp-identifiers-03
     date: 2026
   AGTP-TRUST:
     title: "AGTP Trust and Verification Specification"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-API:
-    title: "AGTP-METHODS: Verbs, Paths, Endpoints, and Synthesis"
+    title: "AGTP-API: Verbs, Paths, Endpoints, and Synthesis"
     author:
       fullname: Chris Hood
     seriesinfo:

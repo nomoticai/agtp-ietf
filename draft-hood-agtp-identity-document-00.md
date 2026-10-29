@@ -47,14 +47,14 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-IDENTIFIERS:
     title: "AGTP Identifier Chain"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-identifiers-02
+      Internet-Draft: draft-hood-agtp-identifiers-03
     date: 2026
   AGTP-LOG:
     title: "AGTP Transparency Log Protocol"
@@ -68,14 +68,14 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-merchant-identity-02
+      Internet-Draft: draft-hood-agtp-merchant-identity-03
     date: 2026
   AGTP-TRUST:
     title: "AGTP Trust and Verification Specification"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
 
 --- abstract

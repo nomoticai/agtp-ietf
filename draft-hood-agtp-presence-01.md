@@ -50,14 +50,14 @@ normative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-trust-02
+      Internet-Draft: draft-hood-agtp-trust-03
     date: 2026
   AGTP-CERT:
     title: "AGTP Agent Certificate Extension"
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-agent-cert-03
+      Internet-Draft: draft-hood-agtp-agent-cert-04
     date: 2026
   AGTP-DISCOVERY:
     title: "AGTP Agent Discovery and Name Service"
@@ -78,7 +78,6 @@ normative:
   RFC8174:
 
 informative:
-  RFC7574:
   KADEMLIA:
     title: "Kademlia: A Peer-to-peer Information System Based on the XOR Metric"
     author:
@@ -101,9 +100,6 @@ informative:
   SERF:
     title: "Serf - Decentralized cluster membership"
     target: https://www.serf.io
-  EU-AI-ACT:
-    title: "EU AI Act Article 12 - Record-Keeping"
-    target: https://artificialintelligenceact.eu
 
 --- abstract
 
@@ -1216,5 +1212,6 @@ model are unchanged on the wire.
 - Wire identity restated around `Agent-ID` and `Request-Signature`
   with Owner-ID resolved from the Identity Document per {{AGTP}}.
 - References pinned to current revisions; AGTP-IDDOC and RFC 6763
-  added. "Autonomous systems" in the BGP analogy reworded. House
+  added, two unused references dropped. "Autonomous systems" in the
+  BGP analogy reworded. House
   style pass.
