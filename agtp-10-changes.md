@@ -274,7 +274,7 @@ the 27 October survey.
 | agtp-lei | 01 | 30 Dec 2026 | 4 `Owner-ID:` header examples | G1 |
 | agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | none beyond the fix |
 | agtp-presence | 01 | 30 Dec 2026 | base unpinned; 25 style hits | September changelog P1 to P6 |
-| agtp-identifiers | 03 | 3 Dec 2026 | cites base-09 | C1 split stated; C6; D4 tamper evidence subsection |
+| agtp-identifiers | 03 | 3 Dec 2026 | DONE 29 Oct | Owner-ID header registration removed (C6); delegation split with delegation_sequence_digest (C1); tamper evidence via log_inclusion (D4); three-outcome verification; session root composition |
 | agtp-merchant-identity | 03 | 27 Nov 2026 | A1; C7 458 is the core and merchant value | none beyond the fix |
 | agtp-ard | 01 | 20 Dec 2026 | rev bump; absent from the repo | obtain the source |
 | aipref-earmark | 00 | 14 Feb 2027 | no change | H10 later |
