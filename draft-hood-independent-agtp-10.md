@@ -118,7 +118,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-communication-00
+      Internet-Draft: draft-hood-agtp-communication-01
     date: 2026
   AGTP-SESSION:
     title: "AGTP Session Protocol"

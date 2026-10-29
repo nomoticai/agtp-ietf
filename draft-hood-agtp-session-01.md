@@ -88,7 +88,7 @@ informative:
     author:
       fullname: Chris Hood
     seriesinfo:
-      Internet-Draft: draft-hood-agtp-communication-00
+      Internet-Draft: draft-hood-agtp-communication-01
     date: 2026
 
 --- abstract
@@ -298,6 +298,20 @@ Content-Length: ...
 `initiator_nonce`:
 : Random value echoed into the session token so the initiator can
   bind the token to this request. **REQUIRED**.
+
+### Body Extensions {#body-extensions}
+
+Companion specifications **MAY** add top-level keys to the ESTABLISH
+request and response bodies, registered in the ESTABLISH Body
+Extension Registry of {{iana}}. A responder that recognizes an
+extension key negotiates it and returns the negotiated value under
+the same key in the response; a responder that fails to recognize a
+key **MUST** ignore it and **MUST** omit it from the response, so
+that the absence of the key in the response tells the initiator the
+extension went unnegotiated. An initiator for which the extension
+is essential **MUST** then TERMINATE the session rather than use it
+without the extension. The first registered extension is
+`communication`, defined by {{AGTP-COMMUNICATION}}.
 
 A successful response is `200 OK` with the `Session-ID` response
 header carrying the new session identifier and a JSON body:
@@ -745,6 +759,15 @@ It also registers the reason tokens `session-participant-mismatch`,
 `session-unknown` in the AGTP reason vocabulary for status codes 401
 and 410.
 
+This document establishes the AGTP ESTABLISH Body Extension
+Registry ({{body-extensions}}), registration policy Specification
+Required, with one initial entry:
+
+| Key | Reference |
+|---|---|
+| communication | {{AGTP-COMMUNICATION}} |
+{: title="ESTABLISH Body Extensions"}
+
 --- back
 
 # Open Questions
@@ -773,6 +796,9 @@ shipped changes.
 
 - Session identifier specified: 256-bit random, 64 lowercase hex,
   responder-assigned, uncorrelated with Agent-IDs
+- ESTABLISH body extensions ({{body-extensions}}) and their
+  registry, so companions such as {{AGTP-COMMUNICATION}} negotiate
+  through the one ESTABLISH grammar rather than through headers
   ({{session-identifier}}).
 - ESTABLISH wire format specified, with RESUME and TERMINATE added
   and all three registered ({{establish}}, {{resumption}}, {{iana}}).
