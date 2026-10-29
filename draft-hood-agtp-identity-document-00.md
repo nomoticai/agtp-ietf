@@ -515,6 +515,11 @@ The following fields are **RECOMMENDED**:
 `audit_log_uri`:
 : AGTP URI of the agent's audit log resource.
 
+`pricing_manifest_uri`:
+: **OPTIONAL**. URI of the agent's signed pricing manifest per the
+  AGTP commerce companion, for agents that sell services; the Agent
+  Name Service may index it for price-bounded search.
+
 `escalation_policy`, `delegation_permitted`, `max_delegation_depth`:
 : Policy fields governing the agent's escalation and delegation
   behavior.
