@@ -40,6 +40,13 @@ normative:
     date: 2026
 
 informative:
+  DAWN-INFRA:
+    title: "Infrastructure-Assisted Discovery of AI Agents"
+    author:
+      fullname: Linda Dunbar
+    seriesinfo:
+      Internet-Draft: draft-dunbar-dawn-infra-assisted-discovery
+    date: 2026
   AGTP-PRESENCE:
     title: "AGTP Presence: Ambient Discovery and Visibility for Agent Substrates"
     author:
@@ -535,7 +542,7 @@ normalized relevance score between the query's `intent` and
 The computation method is implementation-defined but **MUST** be
 deterministic for identical inputs.
 
-# Agent Name Service
+# Agent Name Service {#ans}
 
 ## ANS Architecture
 
@@ -961,6 +968,67 @@ AGTP treats it as a search result rather than a discovered identity.
 The reverse mapping, from a DAWN record to an Identity Document, is
 therefore never a substitute for registration.
 
+## Infrastructure-Assisted Discovery {#infra-assisted}
+
+{{DAWN-INFRA}} describes managed enterprise, edge, and network
+deployments in which discovery is fed by two infrastructure inputs:
+a Resource Publication Hook, through which an orchestration or
+hosting system supplies the discovery mechanism with the agent
+instances currently deployed and their endpoints, and an Attachment
+Context Hook, through which the network supplies an abstract
+representation of the requester's current attachment (site, VPN,
+tenant, slice, edge region). The motivating failure is a discovery
+system that keeps returning an instance that has been withdrawn or
+is unreachable from where the requester now is. AGTP meets the same
+need with one publish event and one verified identity rather than
+two feeds, and the mapping is worth stating for readers coming from
+that work.
+
+The Resource Publication Hook is ACTIVATE. A successful ACTIVATE is
+the publish event of {{AGTP}}: it triggers registration with the ANS
+of the agent's zone ({{ans}}) and the first ANNOUNCE into the
+presence substrate ({{AGTP-PRESENCE}}), and DEACTIVATE, REVOKE, and
+DEPRECATE are the withdrawal events. The dynamic half of what the
+hook would carry, the current endpoint, is the attachment record of
+{{AGTP-PRESENCE}}: signed by the agent, sequenced, and short-lived,
+so that a withdrawn or moved instance expires out of discovery on its
+own and a stale attachment yields nothing an attacker can use. An
+orchestrator that instantiates, moves, scales, or withdraws instances
+does so through the lifecycle methods, and discovery follows without
+a side channel.
+
+The Attachment Context Hook divides into two inputs that AGTP already
+binds to the requester. Administrative context (tenant, VPN,
+organization, governance zone) is a property of the requester's
+verified identity: the `governance_zone` and `org_domain` of the
+Identity Document the requester's `Agent-ID` resolves to, under the
+issuer's signature. That is why the DISCOVER governance-zone rule of
+{{AGTP}} needs no network hook: the server reads the requester's
+zone from the document it has already verified. Location context
+(which site or edge region the requester is attached to) is the
+requester's own presence: the overlays it has joined and the
+attachment record it has itself announced per {{AGTP-PRESENCE}},
+whose `region` partition dimension carries exactly the site and edge
+granularity the use case needs. In both cases the context arrives
+signed and bound to the requester rather than inferred by a
+middlebox, which is the integrity, origin, and freshness protection
+{{DAWN-INFRA}} asks for in its security considerations, and the
+underlying network detail (UPF, DNN, slice, serving gateway) stays
+with the network, since the abstract context is all the requester's
+identity and attachment expose.
+
+The use case's own boundary, that discovery returns the applicable
+entities and leaves selection to the requester, is the search line
+of {{vocabulary}}: DISCOVER returns ranked candidates, each with its
+current attachment, and the requester chooses.
+
+On the word itself: {{DAWN-INFRA}} uses "attachment" for the
+requester's network attachment, this family uses it for the
+discovered agent's. They are the same network term, where a node
+attaches, applied to the two parties of a discovery. Both parties
+have an attachment; AGTP publishes the target's as the attachment
+record and uses the requester's as search context.
+
 # Changes from v01
 
 Version 02 is a vocabulary and alignment revision. The DISCOVER
@@ -990,7 +1058,11 @@ unchanged on the wire.
   pricing manifests to search.
 - **DAWN mapping** ({{dawn-mapping}}): the Identity Document to DAWN
   record mapping for the in-scope organizational case, stated as
-  lossy, with the Agent-ID as the join.
+  lossy, with the Agent-ID as the join; and the mapping of the
+  infrastructure-assisted discovery hooks of
+  draft-dunbar-dawn-infra-assisted-discovery onto ACTIVATE as the
+  publish event and the requester's verified identity and own
+  attachment ({{infra-assisted}}).
 - References: base to draft-hood-independent-agtp-10, AGTP-CERT to
   -03, AGTP-PRESENCE to -01, AGTP-IDDOC and RFC 6763 added.
   Hardcoded section numbers replaced. Five unused references

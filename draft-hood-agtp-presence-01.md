@@ -338,6 +338,18 @@ stale endpoint reaches a node that no longer answers for that
 Agent-ID and a `Request-Signature` from the real agent still
 verifies wherever the agent is.
 
+The attachment record is published by the agent about itself, on
+the ACTIVATE transition and on every move, so an orchestrator that
+instantiates, moves, scales, or withdraws instances needs no
+separate feed into discovery: the lifecycle methods and the
+agent's own ANNOUNCE and WITHDRAW are that feed, and `exp` retires
+what the orchestrator forgets to withdraw. The same record, read
+for the requesting agent rather than the target, is the requester's
+location context for a search ({{AGTP-DISCOVERY}}): the `region`
+and other partition dimensions of the overlays a requester has
+joined say where it is attached, signed by the requester, with the
+underlying network detail left where the network keeps it.
+
 ## Gossip-Based Presence Convergence
 
 In parallel with DHT-based addressing, AGTP Presence uses a
@@ -1208,7 +1220,9 @@ model are unchanged on the wire.
 - ANNOUNCE tied to ACTIVATE: the first ANNOUNCE follows the
   agent's ACTIVATE transition in {{AGTP}}, and WITHDRAW follows
   DEACTIVATE, REVOKE, or DEPRECATE, so activation is the single
-  publish act.
+  publish act. The attachment record stated as the orchestrator's
+  publication feed and, read for the requester, as its location
+  context for search.
 - Wire identity restated around `Agent-ID` and `Request-Signature`
   with Owner-ID resolved from the Identity Document per {{AGTP}}.
 - References pinned to current revisions; AGTP-IDDOC and RFC 6763

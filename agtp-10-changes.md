@@ -214,6 +214,8 @@ Workload identity and agent identity are different concerns that compose: WIMSE 
 
 ### D3. DAWN and discovery
 
+29 Oct addendum: Dunbar's infra-assisted discovery use case (Resource Publication Hook, Attachment Context Hook; thread with Aijun Wang and Dan King on dawn@) mapped in discovery-02 {#infra-assisted} and a paragraph in presence-01's attachment record: the publication hook is ACTIVATE as publish event plus the attachment record (exp/seq retire withdrawn instances); the context hook divides into administrative context (verified identity: governance_zone, org_domain) and location context (the requester's own overlays and attachment, region dimension). "Attachment" is the same network term applied to the two parties. List reply drafted for Chris to send.
+
 Discovery-02 and presence-01 carry the substantive work (the September changelog: /population, cross-ANS federation as implemented, the AMD to MDI mapping appendix for draft-jakab-dawn-agent-discovery-mdns, addressing abstraction, Attachment Record terminology). Base-10 needs the matching summary: the identity and location split (Canonical Agent-ID permanent, attachment short-lived and signed), the search versus discover terminology per RFC 6763, and the name versus address taxonomy from the DAWN exchange. RECALL: whether base-10 should also state the position on domain-anchored agent identifiers.
 
 ### D4. SCITT and transparency
