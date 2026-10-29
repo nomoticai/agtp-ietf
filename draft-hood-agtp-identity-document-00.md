@@ -624,6 +624,13 @@ the served document. An Identity Document that fails either
 verification step **MUST** be rejected, **MUST NOT** be served,
 and the failure **MUST** be logged.
 
+Issuers **MUST** retain every prior version of an Identity Document
+they have signed, keyed by Agent-ID and `updated_at`, for as long as
+attribution records that reference the agent may be verified, so that
+a signature made under a since-rotated `agent_public_key` can be
+checked against the document that was current when the action was
+recorded ({{AGTP-IDENTIFIERS}}).
+
 # Browser and Human-Facing Interaction Model
 
 ## The Separation of Discovery and Execution
@@ -733,7 +740,9 @@ This document is the authoritative reference for the
 
 First revision under this name. The `agent_public_key` field is
 new, carrying the key that the base specification's per-request proof
-of possession and delegation tokens verify against. The text is
+of possession and delegation tokens verify against, and issuers are
+now required to retain prior document versions so attribution chains
+verify across key rotation ({{AGTP-IDENTIFIERS}}). The text is
 otherwise extracted from draft-hood-independent-agtp-09, sections Agent Namespace Document,
 Agent Identity Document and the .agtp Format, and Browser and
 Human-Facing Interaction Model, with these edits: cross-references
