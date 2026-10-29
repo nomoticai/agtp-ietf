@@ -354,6 +354,9 @@ carries `intent` or `capability_domains` is a search.
 | behavioral\_trust\_min | **MAY** | Minimum behavioral trust score (0.0-1.0) |
 | governance\_zone | **MAY** | Restrict results to a specific governance zone |
 | org\_domain | **MAY** | Restrict results to agents from a specific org domain |
+| available\_only | **MAY** | If true, exclude agents whose availability signal ({{availability}}) is unavailable: lifecycle state other than Active, or at session capacity. Default false; unavailable agents are returned and marked |
+| max\_cost | **MAY** | Upper bound, as a decimal string in the unit named by `cost_unit`, on the price an agent's pricing manifest declares for the capability sought. Pricing manifests and their indexing by ANS are specified in the AGTP commerce companion; a server that indexes no pricing **MUST** ignore this parameter and say so in the response |
+| cost\_unit | **MAY** | Unit for `max_cost`, from the AGTP Budget Unit Registry of {{AGTP}} |
 | limit | **MAY** | Maximum number of results to return (default: 10) |
 | scope\_negotiate | **MAY** | If true, include required Authority-Scope for each result |
 {: title="DISCOVER Parameters"}
@@ -432,8 +435,17 @@ before a DELEGATE to this agent will be accepted:
     "results": [
       {
         "rank": 1,
-        "manifest_uri": "agtp://agtp.auditor.tld/agents/solidity-auditor",
         "canonical_id": "4f7e1a2b9c3d...",
+        "attachment": {
+          "node": "9b21...a7d4",
+          "binding": "quic",
+          "endpoint": "agents.auditor.tld:4480",
+          "mode": "full",
+          "exp": 1793300000,
+          "seq": 17
+        },
+        "identity_document_uri": "agtp://agtp.auditor.tld/agents/solidity-auditor",
+        "available": true,
         "agent_label": "solidity-auditor",
         "org_domain": "auditor.tld",
         "trust_tier": 1,
@@ -463,8 +475,10 @@ DELEGATE.
 
 ## DISCOVER Response
 
-The DISCOVER response body contains a ranked list of Agent Manifest
-Documents with optional scope negotiation fields:
+The DISCOVER response body contains a ranked list of result entries,
+each carrying the agent's Canonical Agent-ID, its current attachment
+per {{AGTP-PRESENCE}} so that the result is reachable without a
+further resolution step, and optional scope negotiation fields:
 
 ~~~~json
 {
@@ -477,8 +491,17 @@ Documents with optional scope negotiation fields:
     "results": [
       {
         "rank": 1,
-        "manifest_uri": "agtp://agtp.auditor.tld/agents/contract-auditor",
         "canonical_id": "3a9f2c1d8b7e4a6f...",
+        "attachment": {
+          "node": "7f3a...c2e1",
+          "binding": "quic",
+          "endpoint": "agents.auditor.tld:4480",
+          "mode": "full",
+          "exp": 1793300000,
+          "seq": 42
+        },
+        "identity_document_uri": "agtp://agtp.auditor.tld/agents/contract-auditor",
+        "available": true,
         "agent_label": "contract-auditor",
         "org_domain": "auditor.tld",
         "trust_tier": 1,
@@ -691,7 +714,7 @@ Dynamic routing responses **MUST** indicate:
 
 The requesting agent retains the right to reject the alternative.
 
-## Agent Availability Signals
+## Agent Availability Signals {#availability}
 
 ANS servers **SHOULD** monitor indexed agents' availability by
 periodically checking the `/status` sub-resource defined in
@@ -968,6 +991,14 @@ unchanged on the wire.
   an Agent-ID resolves to.
 - **Owner-ID** is no longer shown as a request header in the
   examples, matching {{AGTP}}; `Request-Signature` is shown instead.
+- **Results carry the attachment.** Each DISCOVER result now carries
+  the agent's current attachment record per {{AGTP-PRESENCE}} in
+  place of the host-anchored `manifest_uri`, so a search result is
+  reachable without a further resolution step; the Identity Document
+  location is `identity_document_uri`.
+- **`available_only`, `max_cost`, `cost_unit`** added to the DISCOVER
+  parameters, binding the availability signals and the commerce
+  pricing manifests to search.
 - **DAWN mapping** ({{dawn-mapping}}): the Identity Document to DAWN
   record mapping for the in-scope organizational case, stated as
   lossy, with the Agent-ID as the join.

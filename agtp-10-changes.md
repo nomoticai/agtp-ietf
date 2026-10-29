@@ -190,7 +190,11 @@ bindings for now.
 
 The reference server's embedded floor and base-08/api-01 agreed on eighteen; the September build plan found the server at the v07 twelve in one path. Reconcile before the ANS registration hook (fires on ACTIVATE) is documented in discovery-02.
 
-### C9. RECALL
+### C9. Publish flow (mint, publish, resolve, search). LANDED 29 Oct
+
+Walked the flow end to end: Genesis mints the Agent-ID; ACTIVATE publishes it (ANS registration per discovery-02, first ANNOUNCE per presence-01); a known name resolves through ANS to the Agent-ID; a known Agent-ID discovers its attachment through Presence; an unknown agent is found by search (DISCOVER intent mode). Four gaps closed: base-10 DISCOVER definition carried the v09 parameter set and disagreed with discovery-02 (base now keeps the floor and defers parameters and response to AGTP-DISCOVERY); base-10 ACTIVATE and presence-01 ANNOUNCE said nothing about each other (ACTIVATE is now the publish event, withdrawal transitions imply WITHDRAW); discovery-02 results carried a host-anchored manifest_uri (now the attachment record plus identity_document_uri); discovery-02 had no availability or budget parameters (available_only, max_cost, cost_unit added; commerce-01 owes the ANS-indexed pricing statement).
+
+### C10. RECALL
 
 Placeholder for base changes still to be remembered.
 
@@ -267,13 +271,13 @@ the 27 October survey.
 | agtp-communication | 01 | 19 Nov 2026 | cites base-07; Standards Track where the family is Informational (C7); 451 to 455 twice | align media session setup to session-01's ESTABLISH wire format |
 | agtp-log | 03 | 27 Nov 2026 | cites base-08; 32 style hits | state tamper evidence against a distrusted holder as the mechanism base-10 and identifiers-03 point to (D4); audit venue note |
 | agtp-composition | 02 | 30 Dec 2026 | 5 AGTP-API cites; 6 Delegation-Chain MUSTs restating what base-10 now specifies; 4 Content-Schema (reserved in base); `Owner-ID:` as a request header in 6 examples; 2 Principal-ID | becomes the home of the composition profiles base-10 summarized; AGMP appendix moves here; A2A provenance maps to Delegation Sequence and prior_actions |
-| agtp-discovery | 02 | 30 Dec 2026 | DONE 29 Oct | search/discover/resolve vocabulary per RFC 6763; Identity Document and Genesis terms; Owner-ID header removed from examples; DAWN mapping appendix (lossy, Agent-ID as join). September D1 to D11 build items (/population, federation as implemented) still to fold in |
+| agtp-discovery | 02 | 30 Dec 2026 | DONE 29 Oct | search/discover/resolve vocabulary per RFC 6763; Identity Document and Genesis terms; Owner-ID header removed from examples; DAWN mapping appendix (lossy, Agent-ID as join); results carry the attachment record instead of manifest_uri; available_only / max_cost / cost_unit parameters (flow check 29 Oct). September D1 to D11 build items (/population, federation as implemented) still to fold in |
 | agtp-agent-cert | 04 | 30 Dec 2026 | 3 AGTP-API cites; 7 transport-layer (TLS subject, say TLS-layer); 3 Birth Certificate | relation to Request-Signature: Level 3 accelerates possession proof to the handshake; cert key versus agent_public_key |
 | agtp-bindings | 01 | 30 Dec 2026 | DONE 28 Oct | connection versus session split; Request-Signature on early data; eligibility rationale (C7a); session methods prohibited; HTTP/3 and WebTransport binding (H9 decided: yes) |
 | agtp-trust | 03 | 30 Dec 2026 | cites base-08 | C5: trust score range and computed_at coupling normative |
 | agtp-lei | 01 | 30 Dec 2026 | 4 `Owner-ID:` header examples | G1 |
-| agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | none beyond the fix |
-| agtp-presence | 01 | 30 Dec 2026 | DONE 29 Oct | vocabulary aligned (Presence is discovery, DISCOVER intent mode is search); attachment record specified (P3); principals-rather-than-hosts and addressing abstraction in the introduction (P1, P2); references pinned. P4 to P6 (coordinator governance, rendezvous consistency, M2 data) still open |
+| agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | state that pricing manifests are indexed by ANS, so discovery-02's `max_cost` / `cost_unit` DISCOVER parameters have a source (29 Oct) |
+| agtp-presence | 01 | 30 Dec 2026 | DONE 29 Oct | vocabulary aligned (Presence is discovery, DISCOVER intent mode is search); attachment record specified (P3); first ANNOUNCE tied to ACTIVATE, WITHDRAW to withdrawal transitions (flow check 29 Oct); principals-rather-than-hosts and addressing abstraction in the introduction (P1, P2); references pinned. P4 to P6 (coordinator governance, rendezvous consistency, M2 data) still open |
 | agtp-identifiers | 03 | 3 Dec 2026 | DONE 29 Oct | Owner-ID header registration removed (C6); delegation split with delegation_sequence_digest (C1); tamper evidence via log_inclusion (D4); three-outcome verification; session root composition |
 | agtp-merchant-identity | 03 | 27 Nov 2026 | A1; C7 458 is the core and merchant value | none beyond the fix |
 | agtp-ard | 01 | 20 Dec 2026 | rev bump; absent from the repo | obtain the source |

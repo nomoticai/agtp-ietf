@@ -2650,25 +2650,33 @@ indicate provenance of each result. Idempotent: Yes.
 
 ### DISCOVER
 
-Purpose: Locate agents, resources, or services matching specified
-criteria. Returns a list of candidate canonical Agent-IDs (or resource
-references) with minimal metadata for selection. Distinguished from
-QUERY: DISCOVER returns endpoints to talk to, QUERY returns data to
-consume. Cognitive.
+Purpose: Search for agents matching a capability need, or discover
+the current attachment of a known Agent-ID. Returns a ranked list of
+candidate Agent Identity Documents, each carrying the attachment at
+which the agent is currently reachable. Distinguished from QUERY:
+DISCOVER returns agents to talk to, QUERY returns data to consume.
+Cognitive.
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| criteria | **MUST** | Structured or natural-language description of what is being sought |
-| filter | **MAY** | Constraints (capabilities, scopes, tier, geography, principal) |
-| max\_results | **MAY** | Maximum number of candidates to return |
-| context | **MAY** | Session context for disambiguation |
-{: title="DISCOVER Parameters"}
+The two uses are distinguished by the vocabulary of {{AGTP-DISCOVERY}}
+following RFC 6763: a DISCOVER whose criteria describe a need
+(intent, capability domains, trust and governance constraints) is a
+search and returns candidates to be evaluated; a DISCOVER whose
+criteria name a single Agent-ID is a discovery and returns that
+agent's signed attachment. The parameter set, the response shape,
+the ranking rule, and the operational modes (direct Presence,
+ANS-brokered, cross-scope) are specified normatively in
+{{AGTP-DISCOVERY}}; the population a search runs over is the presence
+substrate of {{AGTP-PRESENCE}}. This document fixes only the floor:
+the method name, its safe and idempotent properties, the
+`discovery:query` scope requirement, and the governance-zone rule
+below.
 
-Response: Ordered list of candidate entries, each containing
-`agent_id`, `name`, `description`, `principal`, and a relevance score.
-Server **SHOULD** apply governance-zone filtering: candidates outside
+Servers **MUST** apply governance-zone filtering: candidates outside
 the requesting agent's permitted zones **MUST NOT** be returned.
-Idempotent: Yes. Primary error codes: 422.
+Every result **MUST** carry the agent's Canonical Agent-ID; a result
+with no Agent-ID is a search hit from an external catalog and
+**MUST** be marked as such. Idempotent: Yes. Primary error codes:
+422, 455.
 
 ### DESCRIBE
 
@@ -3045,6 +3053,16 @@ makes the agent eligible to be addressed by AGTP requests. The
 canonical Agent-ID **MUST** already exist (its Agent Genesis
 **MUST** have been issued and loaded); ACTIVATE never mints
 Agent-IDs. Lifecycle.
+
+A successful ACTIVATE is the publish event for the agent: it is the
+trigger for the governance platform's registration of the agent
+with the Agent Name Service of its zone per {{AGTP-DISCOVERY}}, and
+for the agent's first ANNOUNCE into the presence substrate per
+{{AGTP-PRESENCE}}. Neither is a separate registration step an
+operator performs; both follow from the lifecycle transition, so
+that an agent is findable exactly when it is Active and never
+otherwise. DEACTIVATE, REVOKE, and DEPRECATE are the corresponding
+withdrawal events.
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
@@ -4596,6 +4614,16 @@ normative mechanism.
 
 20. **Glossary merged** into Terminology; four entries that appeared
     only in the glossary are carried over.
+
+21. **DISCOVER and ACTIVATE aligned with the companions.** DISCOVER
+    now distinguishes search (criteria to candidates) from discovery
+    (Agent-ID to attachment) per {{AGTP-DISCOVERY}} and defers its
+    parameter set and response shape there; the v09 parameter table
+    (`criteria`, `filter`, `max_results`, `context`) disagreed with
+    the companion and is withdrawn. ACTIVATE is named as the publish
+    event: ANS registration ({{AGTP-DISCOVERY}}) and the first
+    ANNOUNCE ({{AGTP-PRESENCE}}) follow from the lifecycle
+    transition, so an agent is findable exactly when Active.
 
 ## Wire Format Compatibility
 

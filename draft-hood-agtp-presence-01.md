@@ -597,7 +597,13 @@ operate over the AGTP wire format.
 The ANNOUNCE method publishes an agent's presence into the AGTP
 Presence layer. An agent invokes ANNOUNCE upon joining the network,
 when its visibility posture changes within the bounds permitted by its
-certificate, or as a periodic refresh of its presence state.
+certificate, or as a periodic refresh of its presence state. The
+first ANNOUNCE is a consequence of the agent's ACTIVATE transition
+({{AGTP}}): the agent **MUST** announce within the presence TTL of
+becoming Active, and a DEACTIVATE, REVOKE, or DEPRECATE transition
+**MUST** be followed by WITHDRAW. Activation is therefore the single
+publish act; ANS registration ({{AGTP-DISCOVERY}}) and presence
+announcement both follow from it.
 
 ANNOUNCE requests are sent to one or more peer agents within the
 sender's visibility scope. The receiving agents validate the
@@ -1203,6 +1209,10 @@ model are unchanged on the wire.
   ({{addressing}}): the introduction states why the stack's
   host-nature presumption fails for agents and answers, in the
   document, the question of over what protocol and to what address.
+- ANNOUNCE tied to ACTIVATE: the first ANNOUNCE follows the
+  agent's ACTIVATE transition in {{AGTP}}, and WITHDRAW follows
+  DEACTIVATE, REVOKE, or DEPRECATE, so activation is the single
+  publish act.
 - Wire identity restated around `Agent-ID` and `Request-Signature`
   with Owner-ID resolved from the Identity Document per {{AGTP}}.
 - References pinned to current revisions; AGTP-IDDOC and RFC 6763
