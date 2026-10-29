@@ -131,7 +131,7 @@ informative:
       Internet-Draft: draft-hood-agtp-discovery-02
     date: 2026
   AGTP-PRESENCE:
-    title: "AGTP Presence: Ambient Discovery and Visibility for Agent Substrates"
+    title: "AGTP Presence: Ambient Discovery and Visibility for Agents"
     author:
       fullname: Chris Hood
     seriesinfo:

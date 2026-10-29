@@ -1,5 +1,5 @@
 ---
-title: "AGTP Presence: Ambient Discovery and Visibility for Agent Substrates"
+title: "AGTP Presence: Ambient Discovery and Visibility for Agents"
 abbrev: "AGTP-PRESENCE"
 docname: draft-hood-agtp-presence-01
 category: info
@@ -1226,6 +1226,7 @@ model are unchanged on the wire.
 - Wire identity restated around `Agent-ID` and `Request-Signature`
   with Owner-ID resolved from the Identity Document per {{AGTP}}.
 - References pinned to current revisions; AGTP-IDDOC and RFC 6763
-  added, two unused references dropped. "Autonomous systems" in the
+  added, two unused references dropped. Title shortened to "Ambient
+  Discovery and Visibility for Agents". "Autonomous systems" in the
   BGP analogy reworded. House
   style pass.
