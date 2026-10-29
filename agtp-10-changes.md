@@ -293,7 +293,7 @@ the 27 October survey.
 | agtp-commerce | 01 | 30 Dec 2026 | 458 collision with core and merchant (C7); 33 style hits | state that pricing manifests are indexed by ANS, so discovery-02's `max_cost` / `cost_unit` DISCOVER parameters have a source (29 Oct) |
 | agtp-presence | 01 | 30 Dec 2026 | DONE 29 Oct | vocabulary aligned (Presence is discovery, DISCOVER intent mode is search); attachment record specified (P3); first ANNOUNCE tied to ACTIVATE, WITHDRAW to withdrawal transitions (flow check 29 Oct); principals-rather-than-hosts and addressing abstraction in the introduction (P1, P2); references pinned. P4 to P6 (coordinator governance, rendezvous consistency, M2 data) still open |
 | agtp-identifiers | 03 | 3 Dec 2026 | DONE 29 Oct | Owner-ID header registration removed (C6); delegation split with delegation_sequence_digest (C1); tamper evidence via log_inclusion (D4); three-outcome verification; session root composition |
-| agtp-merchant-identity | 03 | 27 Nov 2026 | A1; C7 458 is the core and merchant value | none beyond the fix |
+| agtp-merchant-identity | 03 | 27 Nov 2026 | DONE 29 Oct | examples aligned to base-10 (Principal-ID header removed, Request-Signature, canonical IDs rather than URIs); hash rule with log_inclusion_proof excluded; DISCOVER restated as search with max_cost/cost_unit; 458 collision noted (commerce is 462); v01 document-type registrations withdrawn; AGTP-API to METHODS; WEB3 removed |
 | agtp-ard | 01 | 20 Dec 2026 | rev bump; absent from the repo | obtain the source |
 | aipref-earmark | 00 | 14 Feb 2027 | no change | H10 later |
 
