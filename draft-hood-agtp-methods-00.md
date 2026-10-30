@@ -466,8 +466,8 @@ server's `policies.methods.legacy` opts into legacy verbs.
 The catalog is curated to contain only imperative-form action-intent
 verbs that:
 
-- Express a command or action, never a state, an attribute, or
-  a noun (RESERVE is valid; RESERVATION is invalid).
+- Express a command or action; a state, an attribute, or a noun is
+  rejected (RESERVE is valid; RESERVATION is invalid).
 - Carry a single intent (verbs with compound intent are decomposed
   into separate verbs).
 - Are never HTTP method names.
@@ -1452,8 +1452,8 @@ intent-expressing semantic metadata is documented in {{HOOD2026}}.
 
 `outcome`:
 : A natural-language statement of the post-condition produced by
-  successful invocation. Distinct from `intent`: intent is what the
-  endpoint sets out to do; outcome is what is true after.
+  successful invocation. Distinct from `intent`, which states the
+  endpoint's aim; `outcome` states the condition that holds after.
 
 `capability`:
 : The high-level effect class of the endpoint. One of the catalog
@@ -2209,8 +2209,8 @@ A conforming AGTP server implements:
    `catalog_versions_supported` per {{manifest}}.
 
 6. The endpoint projection of {{endpoint-projection}}: manifest
-   responses expose `handler.type` only, never the full handler
-   binding.
+   responses expose `handler.type` only; the full handler
+   binding stays server-side.
 
 7. PROPOSE handling per {{AGTP-RCNS}} when
    `policies.synthesis_enabled` is `true`; refusal with 463 and
@@ -2283,8 +2283,8 @@ before invoking the handler:
 
 Validation **MUST** complete before handler invocation. Servers
 **MUST NOT** invoke the handler with input that has yet to satisfy
-schema validation; this guarantee is what allows handler authors
-to assume their context structure is well-formed.
+schema validation; handler authors may therefore assume their
+context structure is well-formed.
 
 The startup-vs-runtime split is a recommendation, with no strict
 requirement behind it. Servers **MAY** defer startup validation if their
@@ -2357,7 +2357,7 @@ defaults, flagging cases where verb mapping requires human judgment.
 The AGTP-METHODS approved method catalog ({{the-approved-method-catalog}}) is the
 canonical source for HTTP-verb-to-AGTP-verb conversions: tooling
 **MUST** select target verbs from the list and **MUST NOT** invent
-ad-hoc names, which is what makes converted endpoints interoperable
+ad-hoc names, so that converted endpoints interoperate
 with native AGTP-METHODS endpoints.
 
 Servers **SHOULD NOT** treat machine-converted endpoints as
@@ -2796,7 +2796,7 @@ is added as a parallel face for agent traffic. New agent-facing
 features go in the AGTP-METHODS layer; existing HTTP traffic continues
 unaffected. Two interfaces, one backend, indefinite coexistence.
 
-This is the path most large enterprises will take when regulatory,
+Most large enterprises will take this path when regulatory,
 contractual, or customer-relationship commitments make a forced
 migration impractical. AGTP-METHODS is additive in this posture and
 replaces nothing.
@@ -2808,9 +2808,8 @@ HTTP-side OpenAPI specifications.
 ## Path Selection
 
 The right path depends on organizational constraints; the protocol
-has no preference. Wrap-and-expose is the path that scales: it is the one
-that can move millions of existing APIs to AGTP-METHODS discoverability
-at low cost. Translate-and-rehost is the right target for
+has no preference. Wrap-and-expose scales: it can move millions of
+existing APIs to AGTP-METHODS discoverability at low cost. Translate-and-rehost is the right target for
 organizations committing to AGTP-METHODS as the long-term primary
 surface. Coexist-permanently is the honest answer for organizations
 that want agent access without disruption to existing systems.

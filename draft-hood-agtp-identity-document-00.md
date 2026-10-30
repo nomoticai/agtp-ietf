@@ -146,8 +146,8 @@ agtp://acme.tld/agents
 agtp://agtp.acme.tld/agents
 ~~~~
 
-The Agent Namespace Document is never a manually edited file. It is
-generated and cryptographically signed by the governance platform each
+The Agent Namespace Document is generated and cryptographically
+signed by the governance platform each
 time the registry changes. Any Namespace Document that fails signature
 verification **MUST** be rejected by the requesting party.
 
@@ -222,8 +222,8 @@ agtp://acme.tld/agents/customer-service?format=json
 ~~~~
 
 The Identity Document is derived from the embedded manifest inside the
-agent's `.agent` or `.nomo` package. It is never a separate file that can
-be independently modified. The governance platform **MUST** verify the
+agent's `.agent` or `.nomo` package; no separately modifiable file
+exists. The governance platform **MUST** verify the
 package integrity hash before extracting and serving the Identity
 Document.
 
@@ -249,9 +249,9 @@ Document.
 ~~~~
 {: #format-relationship title="Relationship Between AGTP File Formats"}
 
-The `.agtp` format is the protocol's own document type. It is what
-gets transmitted over the wire. The `.agent` and `.nomo` formats are
-what get deployed. An AGTP implementation has no need to understand
+The `.agtp` format is the protocol's own document type and the one
+transmitted over the wire. The `.agent` and `.nomo` formats are
+deployment artifacts. An AGTP implementation has no need to understand
 `.agent` or `.nomo` packaging internals; it is only required to
 produce and consume `.agtp` Identity Documents.
 

@@ -401,7 +401,7 @@ Agent-ID MUST be:
   to correlate the response with the requesting agent. The
   responding host's identity is carried separately in the
   `Server-ID` response header per {{AGTP}}; `Server-ID` names the
-  host that processed the request and is never an agent identifier.
+  host that processed the request; it identifies no agent.
   When the audit consumer needs the canonical Agent-ID of the
   agent that produced the response, it is recorded in the
   `agent_id` field of the Attribution-Record payload.
@@ -688,7 +688,7 @@ Evaluation Records, the Attribution-Record references the
 Decision Record by `decision_id`; the full record is retrievable
 out-of-band.
 
-The Decision-ID is what makes the verdict independently
+The Decision-ID makes the verdict independently
 auditable. A regulator or attorney requesting the governance
 decision for a specific action MUST be able to retrieve the
 Decision-ID and read the full reasoning record that produced it.
@@ -788,7 +788,7 @@ The Audit-ID is computed as follows:
    the agent's next emitted Attribution-Record.
 
 The hash covers the full signed JWS, including signature and
-protected header, and never the JSON payload alone. This
+protected header; the JSON payload alone is insufficient. This
 ensures that any modification of the signature, the protected
 header, or the payload invalidates the Audit-ID.
 
@@ -1060,8 +1060,8 @@ and defined in theirs.
 | Action-ID | response | **MAY** | UUIDv7 or ULID; convenience echo of the `action_id` field in the Attribution-Record payload |
 {: title="New Headers Defined by AGTP-IDENTIFIERS"}
 
-Owner-ID is a field of the Agent Genesis and the Identity Document
-and never a request header; earlier revisions of this document registered
+Owner-ID is a field of the Agent Genesis and the Identity Document;
+earlier revisions of this document registered
 it as a request header, which {{AGTP}} retired. Action-ID,
 Evaluation-ID, and Decision-ID are primarily carried as fields
 inside the extended Attribution-Record payload; none of the three
@@ -1099,7 +1099,7 @@ unchanged in the response. This follows the echo convention
 {{AGTP}} uses for `Task-ID` and `Agent-ID`, and avoids
 introducing a separate correlation header. The host that
 processed the request is named in `Server-ID` per {{AGTP}};
-`Server-ID` is a host identifier and never an agent identity.
+`Server-ID` is a host identifier and identifies no agent.
 The canonical Agent-ID of the agent that produced the response is
 recorded in the `agent_id` field of the Attribution-Record
 payload. The responder's per-interaction identifier is carried in
@@ -1454,7 +1454,7 @@ anticipated in future revisions:
 Version 03 aligns this document with AGTP v10 and answers two
 questions raised in review.
 
-1. **Owner-ID is a document field, never a header.** v02 registered
+1. **Owner-ID is a document field.** v02 registered
    `Owner-ID` as a MUST request header. {{AGTP}} retired the header
    in v09 and records the Owner-ID in the Agent Genesis and the Agent
    Identity Document, resolved from the Agent-ID. The header row is
@@ -1532,8 +1532,8 @@ The following substantive changes were made:
    section ({{agent-id}}) previously stated that responses carry
    the responding agent's identity in the `Server-ID` header
    in place of echoing the requester's `Agent-ID`. This was wrong
-   on two counts: `Server-ID` is a host identifier and never an
-   agent identifier, and responses do echo the request's
+   on two counts: `Server-ID` is a host identifier and identifies
+   no agent, and responses do echo the request's
    `Agent-ID` per {{AGTP}}. The corrected text states that
    responses **SHOULD** echo `Agent-ID`, that `Server-ID` names
    the host that processed the request, and that the canonical

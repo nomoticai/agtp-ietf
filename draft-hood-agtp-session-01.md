@@ -174,7 +174,7 @@ Session Token:
   {{RFC7515}} issued by the responder over the session identifier,
   the two participant Agent-IDs, the session model, the expiry, the
   resume window, and the session-scoped Authority-Scope grants. The
-  token is what binds a session to its participants. See
+  token binds a session to its participants. See
   {{session-token}}.
 
 Session Root:
@@ -376,8 +376,8 @@ The token is the binding between a session identifier and its two
 participants. A responder's governance platform **MAY** countersign
 the token (a second JWS over the same payload, carried in a
 `governance_token` body field) where deployment policy requires a
-platform record of the session; the responder's signature is what the
-protocol depends on.
+platform record of the session; the protocol depends on the
+responder's signature alone.
 
 The initiator retains the token and presents it on RESUME. The
 responder **MAY** retain only the session identifier and verify the
@@ -399,7 +399,8 @@ and to the live sender by signature on every request, and to no
 transport connection. A responder **MAY** also bind each live
 connection to the session with a TLS exporter or QUIC connection
 identifier as defense in depth; that binding is per connection,
-re-established at every RESUME, and never the session's identity.
+re-established at every RESUME, and separate from the session's
+identity.
 
 ## Session Root {#session-root}
 
@@ -480,8 +481,8 @@ responder's, the responder **MUST** still return `200 OK` with its
 own root and `last_response_id`, and **MUST** include
 `divergence: true`; the initiator then reconciles by fetching
 records with `INSPECT target=audit` from its last agreed point. A
-divergent root is a signal to reconcile, never a reason to refuse
-resumption, since the usual cause is a response lost in transit. On failure the responder returns `410 Gone` with
+divergent root is a signal to reconcile and an insufficient reason
+to refuse resumption, since the usual cause is a response lost in transit. On failure the responder returns `410 Gone` with
 reason `session-expired` (window or `exp` passed), `session-terminated`
 (a TERMINATE was processed), or `session-unknown`; a token that fails
 verification is `401` with reason `session-token-invalid`.
@@ -806,8 +807,8 @@ shipped changes.
 - Re-binding after transport loss specified: the session is bound to
   its participants by a responder-signed session token and to the
   live sender by the base per-request signature; transport channel
-  binding is demoted to an optional per-connection check, since the
-  transport is what resumption survives ({{session-token}},
+  binding is demoted to an optional per-connection check, since
+  resumption survives the transport ({{session-token}},
   {{resumption}}).
 - Session root specified ({{session-root}}): a 32-byte rolling
   commitment over the session's Audit-IDs, carried on RESUME for

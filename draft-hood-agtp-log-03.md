@@ -289,7 +289,7 @@ Agent Certificate:
   verification and O(1) scope enforcement at Scope-Enforcement
   Points. Agent Certificates are renewable and revocable, with a
   recommended 90-day validity period. The Agent Certificate is a
-  derived credential, never an identity substrate; it
+  derived credential, with the Genesis as its substrate; it
   references the Agent Genesis via the `activation-certificate-id`
   extension.
 
@@ -561,8 +561,8 @@ for the agent whose Canonical Agent-ID is the `agtp-subject`; the
 log operator signs the statement as issuer, so the committed
 statement is the operator's attestation that the Audit-ID existed
 at the commit time, which the holder can neither antedate nor
-revise afterward. The statement carries the Audit-ID alone and
-never the Attribution-Record payload, which may hold operational
+revise afterward. The statement carries the Audit-ID alone; the
+Attribution-Record payload stays off the log, since it may hold operational
 detail unfit for a public log ({{security}}).
 
 A deployment that elects per-record commitment submits one
@@ -924,7 +924,7 @@ agent cannot:
 
 The threat shifts to compromising the governance platform itself
 ({{log-operator-compromise}}); compromising the agent gains nothing.
-This is a higher bar architecturally: the governance platform's
+The bar is higher: the governance platform's
 signing key is a long-lived infrastructure credential typically
 protected with hardware security modules and key ceremonies, while
 agent credentials may be more numerous and shorter-lived.
@@ -992,8 +992,8 @@ retired keys are deferred to a later revision; see
 Statements in AGTP-LOG are public by design. The Agent Genesis
 itself is published as the canonical identity record of an agent;
 the lifecycle events that follow it are operational facts, and an
-attribution statement carries an Audit-ID and never the record
-behind it. AGTP-LOG is a public log.
+attribution statement carries an Audit-ID alone, with the record
+behind it held by the parties. AGTP-LOG is a public log.
 
 Operators **MUST NOT** commit statements containing secrets,
 operational credentials, or other sensitive material. The validation
@@ -1167,7 +1167,7 @@ otherwise unchanged.
    an AGTP server commits Attribution-Record Audit-IDs or periodic
    chain heads to the log, and the `log_inclusion` reference object
    the extended Attribution-Record of draft-hood-agtp-identifiers-03
-   carries. This is the mechanism that document names for tamper
+   carries, which is the mechanism that document names for tamper
    evidence against a distrusting verifier. Acceptance check 7
    added.
 

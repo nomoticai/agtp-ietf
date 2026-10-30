@@ -195,9 +195,9 @@ Session:
   token and to the live sender of every request by `Request-Signature`
   ({{AGTP}}). A session may span several connections over its
   lifetime and is never identified with any one of them. In this
-  document "session" means this and never the transport's own notion
-  (a TLS session or a WebTransport session), which this document
-  calls a connection.
+  document "session" means this; the transport's own notion
+  (a TLS session or a WebTransport session) is called a connection
+  throughout.
 
 Safe Idempotent Method:
 : An AGTP method whose invocation has no observable side effects on
@@ -240,9 +240,8 @@ cryptographic identity at the TLS layer that infrastructure
 components (load balancers, SEPs, governance gateways) can verify
 without parsing AGTP headers. The signature provides proof, on every
 request and on every binding, that the sender holds the agent's
-current key; it is what makes AGTP identity the same regardless of
-which binding carries the request and whether a certificate is
-deployed.
+current key, so AGTP identity is the same on every binding, with or
+without a certificate.
 
 Both bindings **MUST** verify that AGTP identity headers, when
 combined with a presented Agent Certificate, are consistent. A
@@ -484,7 +483,7 @@ request ({{AGTP}}). The server **MUST** verify the signature, the
 honoring the request, even for an eligible method; an early-data
 request whose signature fails is rejected with 401 and reason
 `possession-unproven` and is never retried as early data. The
-signature's nonce is what bounds replay of an eligible request to
+signature's nonce bounds replay of an eligible request to
 one acceptance per nonce per window, so the eligibility list limits
 what a replay can do and the signature limits how often it can do
 it. The two defenses compose and neither substitutes for the other.

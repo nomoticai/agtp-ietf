@@ -300,7 +300,7 @@ the parties themselves:
   mechanism accommodates cryptocurrency rails through opaque
   identifiers without specifying internal formats.
 
-This narrow scope is what makes AGTP-Commerce defensible as a
+This narrow scope keeps AGTP-Commerce defensible as a
 protocol specification. The document specifies messaging structures;
 payment infrastructure operation is outside it.
 

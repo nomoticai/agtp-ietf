@@ -128,7 +128,7 @@ verification path (`vlei-anchored`) is added to AGTP-TRUST for
 KERI-based verification, and how vLEI Role Credentials (OOR, ECR, AUTH)
 express the human authorization chain that produced an agent.
 
-The result is a clean composition: AGTP provides the agent identity
+The four layers compose: AGTP provides the agent identity
 substrate, the LEI provides the institutional identity, the vLEI
 provides cryptographic verification of that institutional identity,
 and the vLEI Role Credentials provide the authorization chain from
@@ -647,7 +647,7 @@ A sequence whose origin hop carries no `authority` reference under
 such a policy is `indeterminate` with `missing_input: authority`;
 one whose AUTH credential fails step 2, 3, or 4 is `invalid`; one
 whose KEL cannot be reached is `indeterminate` with
-`missing_input: vlei-resolution`. The result is a sequence that
+`missing_input: vlei-resolution`. A sequence that passes
 traces from the request through every DELEGATE hop to a named human
 signatory holding a verifiable role at the legal entity that owns
 the originating agent, which is the signed-mandate shape regulated
@@ -731,8 +731,8 @@ on the agent being verified.
 ## GLEIF Resolution Unavailable
 
 A relying party whose GLEIF or KEL resolution fails at verification
-time holds an `indeterminate` result on that rung of {{ladder}},
-never a valid one. Policies **MUST** state whether an indeterminate
+time holds an `indeterminate` result on that rung of {{ladder}};
+policy cannot upgrade it to valid. Policies **MUST** state whether an indeterminate
 institutional rung is accepted for the operation class at hand and,
 if so, the maximum age of cached registry data that may stand in;
 the Attribution-Record records which case applied. An attacker who

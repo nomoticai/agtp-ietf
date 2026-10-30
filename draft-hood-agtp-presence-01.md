@@ -114,7 +114,7 @@ In the vocabulary this family adopts from RFC 6763, Presence is the
 discovery layer: it resolves a known Canonical Agent-ID to the agent's
 current attachment. Search, which turns a capability need into
 candidate identities, is the DISCOVER method of the discovery
-companion; Presence is what search runs over.
+companion; search runs over Presence.
 
 The architecture combines three proven patterns: a Distributed Hash Table
 (DHT) keyed by Canonical Agent-ID for content-addressable routing, a
@@ -168,8 +168,8 @@ being registered on it; there is no second step. Presence treats an
 agent's intrinsic identity the same way and makes joining the
 registration.
 
-This document specifies AGTP Presence, a substrate-level layer that
-delivers ambient discovery as a structural property of joining the
+This document specifies AGTP Presence, a layer of the protocol that
+delivers ambient discovery as a consequence of joining the
 AGTP network. The design is informed by patterns that have been
 operationally validated at scale in other domains:
 
@@ -184,26 +184,24 @@ operationally validated at scale in other domains:
   systems including Skype.
 
 AGTP Presence applies these patterns to agent infrastructure, with
-cryptographically declared visibility as a substrate property. The
-result is a layer that is
-more than "AGTP plus better discovery." It is a layer where the
-discovery problem dissolves because the substrate carries the
-population structurally.
+visibility declared cryptographically at the protocol level. The
+result is more than "AGTP plus better discovery": the protocol
+carries the population, so the discovery problem dissolves.
 
 ## The Addressing Abstraction {#addressing}
 
 The question put to this work on the IETF lists is the right one to
 answer in the document itself: over what protocol, and to what
-address. Over AGTP, to a Canonical Agent-ID. The substrate resolves
+address. Over AGTP, to a Canonical Agent-ID. The protocol resolves
 the Agent-ID to the agent's current attachment ({{attachment}}) and
-routes between conventionally addressed substrate nodes; the
+routes between conventionally addressed nodes; the
 application layer never sees an IP address, in the way a user of a
 filesystem never sees a disk sector although the sector exists and
-the data is on it. The address becomes a substrate concern and
+the data is on it. The address becomes the network's concern and
 leaves the agent's view.
 
-This is also why the model scales with identity: addresses come and
-go beneath it. Light clients hold no routing state; relay-mediated
+The model therefore scales with identity; addresses come and go
+beneath it. Light clients hold no routing state; relay-mediated
 agents hold no routable endpoint of their own. Routable addresses
 scale with the number of full nodes and relays; agents scale with
 the number of identities. Ten full nodes can carry a scope of a
@@ -328,9 +326,8 @@ by the agent with its `agent_public_key` ({{AGTP-IDDOC}}):
 A node **MUST** reject an attachment whose signature fails under the
 `agent_public_key` of the Agent-ID's current Identity Document, whose
 `seq` is no greater than the stored one, or whose `exp` has passed.
-Equal Agent-IDs with higher `seq` replace; this is what lets an
-agent that moves hosts republish without any coordination with the
-old host. The attachment is the mutable half of the identity split:
+Equal Agent-IDs with higher `seq` replace, so an agent that moves
+hosts republishes without any coordination with the old host. The attachment is the mutable half of the identity split:
 the Agent-ID and its Genesis never change, the attachment changes
 whenever the agent moves, and a verifier that holds a stale
 attachment holds nothing an attacker can use, since reaching the
@@ -381,7 +378,7 @@ numerical parameters are operator-defined.
 
 ## Scoped Overlay Partitioning
 
-Presence in AGTP is never a global property. Visibility is partitioned
+Presence in AGTP is a scoped property. Visibility is partitioned
 across overlapping scopes determined by the trust tiers and verification
 paths defined in {{AGTP-TRUST}}, the visibility posture declared by
 each agent's certificate, and the operational dimensions agents
@@ -451,9 +448,8 @@ bound the methods that constitute a booking capability in the
 method library; agents that have yet to bind those methods cannot
 join the overlay.
 
-The architectural property worth noting: the filtering vocabulary
-agents use to find peers and the partition vocabulary the substrate
-uses to organize overlays are the same vocabulary. The same mechanism
+The filtering vocabulary agents use to find peers and the partition
+vocabulary the overlays are organized by are the same vocabulary. The same mechanism
 that prevents capability misrepresentation also defines the partition
 keyspace.
 
@@ -467,7 +463,7 @@ appropriate to their use cases.
 ### Adaptive Partition Refinement
 
 Scopes split when they exceed working-set thresholds and merge when
-they become sparse. This adaptive refinement is what keeps individual
+they become sparse. This adaptive refinement keeps individual
 overlays within the operational envelope of gossip convergence as
 agent populations grow.
 
@@ -531,7 +527,7 @@ queries.
 
 The architectural distinction is: agents have total awareness within
 the scopes they have joined, and deterministic resolution into the
-scopes they have yet to. This composite is what holds at billion-agent
+scopes they have yet to. This composite holds at billion-agent
 populations. No single agent maintains awareness of the global
 population; every agent has efficient access to every other agent
 through the scope structure.
@@ -777,8 +773,8 @@ time.
 
 # Bootstrap
 
-New agents joining the AGTP Presence network require entry points to
-the substrate. The bootstrap problem is non-trivial because the
+New agents joining the AGTP Presence network require entry points.
+The bootstrap problem is non-trivial because the
 operators of bootstrap services have structural influence over network
 topology. This document specifies a decentralized bootstrap model
 that avoids single points of capture.
@@ -816,7 +812,7 @@ meet operational requirements.
 
 # Security Considerations {#security}
 
-The introduction of substrate-level presence creates an attack surface
+Presence at the protocol level creates an attack surface
 that this document addresses through multiple layered mitigations.
 Implementers and operators **MUST** consider the following.
 
@@ -1150,7 +1146,7 @@ of Kademlia at hundreds of thousands of nodes.
 
 The contribution of AGTP Presence beyond these systems is the
 integration of cryptographically declared visibility scoping with
-DHT operations, allowing scoped views over a shared substrate without
+DHT operations, allowing scoped views over one shared network without
 requiring separate physical networks per scope.
 
 ## Gossip Protocols
@@ -1166,14 +1162,14 @@ of certificate-based signature verification for all announcements.
 libp2p {{LIBP2P}} provides general-purpose peer discovery primitives
 including Kademlia DHT and gossipsub. AGTP Presence differs in
 specifying trust-tier-aware visibility scoping and certificate-bound
-declaration of visibility posture as substrate properties.
+declaration of visibility posture at the protocol level.
 
 ## Presence Protocols
 
 XMPP presence (RFC 6121) provides per-user presence within federated
 servers using subscription rosters. The AGTP Presence model differs
-in being ambient (requiring no explicit subscription) and in being
-substrate-level, with no server in the middle.
+in being ambient (requiring no explicit subscription) and in having
+no server in the middle.
 
 ## Comparison with Pull-Based Discovery
 
@@ -1182,9 +1178,8 @@ mechanisms for querying known endpoints; in the vocabulary of
 {{AGTP-DISCOVERY}} they are search and resolution. AGTP Presence
 operates at a different layer, providing the live population view
 against which those reactive queries can be evaluated. AGTP Presence
-replaces none of them; it provides the substrate that makes reactive
-queries operate against a known live population in place of
-static or stale directories.
+replaces none of them; it provides the live population that reactive
+queries run against, in place of static or stale directories.
 
 --- back
 

@@ -140,16 +140,16 @@ Discover:
 : The caller has an identity and no current location. Input: a
   Canonical Agent-ID. Output: the agent's current attachment, the
   signed, short-lived record of where it can be reached, and its
-  Identity Document ({{AGTP-IDDOC}}). Discover is what the presence
-  substrate of {{AGTP-PRESENCE}} provides ambiently and what the
-  DISCOVER method does when invoked against a known Agent-ID. Its
+  Identity Document ({{AGTP-IDDOC}}). The presence substrate of
+  {{AGTP-PRESENCE}} provides discovery ambiently, and the DISCOVER
+  method performs it when invoked against a known Agent-ID. Its
   result is bound to the identity by signature.
 
 Resolve:
 : The caller has a name and no identity. Input: a human-readable
   name under a naming authority. Output: the Canonical Agent-ID the
-  authority has bound to it. Resolve is what the Agent Name Service
-  does. Its result is bound to the name by the authority's signature
+  authority has bound to it. The Agent Name Service performs
+  resolution. Its result is bound to the name by the authority's signature
   and is only as trustworthy as the authority.
 
 The method is named DISCOVER for continuity with the registered
@@ -623,7 +623,7 @@ tied to AGTP activation:
 4. The ANS server updates its result index within 60 seconds.
 
 Manual registration is unsupported. ANS registration is a consequence
-of AGTP activation and never an independent step. This ensures that only
+of AGTP activation, with no independent registration step. This ensures that only
 Active, registered agents appear in discovery results.
 
 ## ANS Deregistration
@@ -965,8 +965,8 @@ be discovered (in the sense of {{vocabulary}}) through AGTP to the
 signed Identity Document. A DAWN record with no Agent-ID maps to an
 Identity Document at Level 1 of {{AGTP}} only, with no issuer, and
 AGTP treats it as a search result, short of a discovered identity.
-The reverse mapping, from a DAWN record to an Identity Document, is
-therefore never a substitute for registration.
+The reverse mapping, from a DAWN record to an Identity Document,
+therefore falls short of registration and cannot replace it.
 
 ## Infrastructure-Assisted Discovery {#infra-assisted}
 

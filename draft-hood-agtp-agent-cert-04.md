@@ -1071,7 +1071,7 @@ with the wire header model defined in {{AGTP}}:
 
 2. The `principal-id` extension was renamed to `owner-id`. The
    extension has always carried the Owner-ID (the permanent principal
-   recorded on the Agent Genesis) and never a per-request acting principal;
+   recorded on the Agent Genesis), as distinct from the per-request acting principal;
    the name now matches the wire header and the underlying concept.
    Cross-references to the per-request delegating principal field on
    Attribution-Records were updated to use that field's new name

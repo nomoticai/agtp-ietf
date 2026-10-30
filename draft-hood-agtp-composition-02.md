@@ -436,7 +436,7 @@ identity concepts mapped to AGTP headers.
 | A2A Concept | A2A Field | AGTP Mapping |
 |---|---|---|
 | Sending agent identity | `agent.id` | `Agent-ID` header, proven by `Request-Signature` |
-| Accountable principal | `agent.owner` | `owner_id` of the Agent Identity Document the Agent-ID resolves to ({{AGTP-IDDOC}}); never a request header |
+| Accountable principal | `agent.owner` | `owner_id` of the Agent Identity Document the Agent-ID resolves to ({{AGTP-IDDOC}}); there is no request header for it |
 | Agent capabilities | Agent Card | AGTP DESCRIBE response |
 | Agent identity document | Agent Card | AGTP Agent Identity Document ({{AGTP-IDDOC}}); the Card is a self-asserted description, the Identity Document an issuer-signed credential |
 | Task delegation | Task object | AGTP DELEGATE method body |
@@ -511,9 +511,9 @@ information **SHOULD** be exposed via the AGTP DESCRIBE method.
 An AGTP DESCRIBE request to the agent **MUST** return a Capability
 Document ({{AGTP}}) that reflects the agent's A2A capabilities
 translated into AGTP capability domain format. The Agent Card and
-the Agent Identity Document are different kinds of document: the
-Card is what the agent says about itself, the Identity Document is
-what its issuer signed about it, and only the latter is a credential
+the Agent Identity Document are different kinds of document. The
+agent writes the Card about itself; the issuer signs the Identity
+Document about the agent. Only the latter is a credential
 ({{AGTP-IDDOC}}).
 
 ### Artifact Delivery
@@ -1094,8 +1094,8 @@ The gateway applies the following translation rules:
   HTTP request properties.** The `Agent-ID` forwarded to the AGTP
   daemon **MUST** be the gateway's own Canonical Agent-ID, signed
   with the gateway's own key in `Request-Signature` (the agent on
-  whose behalf the gateway is calling into the AGTP layer), never an
-  identity inferred from the HTTP client; the owner recorded on the
+  whose behalf the gateway is calling into the AGTP layer); any
+  identity inferred from the HTTP client is prohibited; the owner recorded on the
   gateway's Identity Document is therefore the gateway operator. HTTP
   clients that need authenticated agent identity at the AGTP layer
   **MUST** present credentials the gateway can validate and lift

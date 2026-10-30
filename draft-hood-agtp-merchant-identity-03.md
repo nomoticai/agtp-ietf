@@ -724,8 +724,8 @@ unexpired quote.
 
 The DISCOVER method defined in {{AGTP-DISCOVER}} returns ranked
 Agent Identity Documents, each with the agent's current attachment.
-This is a search in the vocabulary of that document: the requesting
-agent describes a need and receives candidates. A requesting agent
+In the vocabulary of that document the operation is a search: the
+requesting agent describes a need and receives candidates. A requesting agent
 that wants to address a merchant counterparty filters the search by
 `role: "merchant"`; `max_cost` and `cost_unit`, defined there,
 bound the result to merchants whose pricing manifest

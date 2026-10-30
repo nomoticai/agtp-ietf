@@ -250,7 +250,8 @@ Specified and implemented:
 
 Planned:
 : Named, with its carrier reserved, and specified in a later
-  revision. A planned mechanism is never a current guarantee.
+  revision. A planned mechanism guarantees nothing in the current
+  revision.
 
 Inherited:
 : Provided by a companion specification or an external standard. The
@@ -564,8 +565,8 @@ Agent Namespace Document:
   response to a request targeting an organization's agent registry
   root (for example `agtp://acme.tld/agents`). Lists every Active agent
   registered under the organization's governance zone. Generated and
-  re-signed by the governance platform on any registry change; never a
-  manually edited file. Specified in {{AGTP-IDDOC}}; see
+  re-signed by the governance platform on any registry change, with
+  no manual editing. Specified in {{AGTP-IDDOC}}; see
   {{document-taxonomy}}.
 
 Agent Identity Document:
@@ -601,7 +602,7 @@ Agent Genesis:
   Agent Genesis fields map to AGTP protocol elements: `agent_id`
   maps to the `Agent-ID` header on every request; `owner` is the
   principal identifier recorded in the agent identity document
-  referenced by `Agent-ID` (never a separate header); `scope` is the
+  referenced by `Agent-ID` (there is no separate header); `scope` is the
   Authority-Scope set declared in the agent identity document,
   optionally narrowed per-request via the `Authority-Scope` header.
   See {{agent-genesis-contents}}.
@@ -704,8 +705,8 @@ Scope-Enforcement Point (SEP):
 
 AGTP identity rests on three objects with one join key. The
 canonical Agent-ID is the SHA-256 of the Agent Genesis, so the
-Genesis is the root; the Agent Identity Document is what the Agent-ID
-resolves to; the Attribution-Record chain is what the agent did,
+Genesis is the root; the Agent-ID resolves to the Agent Identity
+Document; the Attribution-Record chain records what the agent did,
 anchored back to the Genesis through the Audit-ID of
 {{AGTP-IDENTIFIERS}}.
 
@@ -856,9 +857,9 @@ at the wire layer through the identifier chain (Agent-ID, Owner-ID,
 issuing registrar).
 
 The implications for governance, attribution, and accountability are
-substantial. An agent operating outside its granted authority is never
-a protocol failure (the protocol structurally prevents the
-out-of-scope action); it is a governance failure traceable to the
+substantial. An agent operating outside its granted authority is
+a governance failure (the protocol structurally prevents the
+out-of-scope action, so the protocol itself has held) traceable to the
 principal who granted the authority, the registrar who recorded it,
 or the operator who deployed the agent. Each is identified at the
 wire layer.
@@ -935,8 +936,8 @@ The principle has economic and operational consequences:
   from substrate properties without negotiating each property anew.
 
 Adjacent layers benefit from substrate properties without needing to
-implement them. This is why composition works: the substrate is the
-load-bearing layer for identity, authority, attribution, and audit;
+implement them. Composition works because the substrate carries
+identity, authority, attribution, and audit;
 adjacent layers focus on what they actually contribute (tool
 semantics, conversational structure, authorization framework, REST
 translation).
@@ -1138,8 +1139,8 @@ Extensible by design:
   changes require no version increment.
 
 Agent-native:
-: Every design decision assumes the initiating party is an AI system,
-  never a human.
+: Every design decision assumes the initiating party is an AI system.
+  Human-initiated traffic belongs on HTTP.
 
 Secure by default:
 : TLS 1.3 or higher is mandatory. Unencrypted AGTP connections **MUST**
@@ -1186,7 +1187,7 @@ versioning, and the inventory surfaces are specified in
 {{AGTP-METHODS}} without {{AGTP-RCNS}} is conformant and refuses
 unregistered method and path pairs with 404 or 405.
 
-The RCNS property is what makes composition with higher-level agent
+The RCNS property makes composition with higher-level agent
 frameworks ({{composition-section}}) tractable: a server that wants
 to expose a framework-specific operation as a first-class AGTP
 endpoint negotiates it at runtime, with no registry to wait for.
@@ -1953,7 +1954,7 @@ operations the endpoint path identifies the endpoint to invoke.
 The wire-level encoding of this pattern is the AGTP request line
 (method and path) plus the connection target (host derived from
 the URI). The URI is the agent-facing addressing notation; the
-wire format is what travels over TLS.
+wire format travels over TLS.
 
 ### Web3 Verification Anchors
 
@@ -2370,8 +2371,8 @@ Archetypes inform scope enforcement and observability tooling; an
 `monitor` archetype agent attempting booking operations, are anomaly
 signals. The archetype field plays no part in scope enforcement;
 Authority-Scope headers govern actual permissions at the protocol
-level. Archetypes are a classification and observability signal,
-never a security boundary.
+level. Archetypes are a classification and observability signal;
+the security boundary is Authority-Scope.
 
 | Archetype | Description | Typical Scope |
 |---|---|---|
@@ -3591,8 +3592,8 @@ the verification time, the server's configured maximum depth, and
 the Identity Documents and lifecycle states resolved for the listed
 Agent-IDs. A verifier **MUST NOT** consult any other input and
 **MUST NOT** apply local policy inside verification; the relying
-party applies its policy to the result afterwards, which is what
-lets two conforming verifiers given the same inputs produce the same
+party applies its policy to the result afterwards, so that two
+conforming verifiers given the same inputs produce the same
 result. For every hop the verifier **MUST** check:
 
 1. **Membership.** The hop's Agent-ID resolves ({{AGTP-DISCOVERY}})
@@ -3748,8 +3749,9 @@ L is the maximum lifetime of a hop's delegation token without
 re-validation, which is the token's expiry checked at step 4 of
 {{delegation-verification}}; L **MUST NOT** exceed 24 hours and
 **SHOULD** be shorter for action methods. The bound limits new
-admissions and never the completion of an admitted action. Absence
-of enforcement is never a small bound: a verifier that skips a check
+admissions; an admitted action runs to completion. Absence
+of enforcement is an unbounded S, the opposite of a small bound: a
+verifier that skips a check
 has an unbounded S for that check and **MUST** record the request as
 possession-unproven or sequence-unverified. Implementations **SHOULD**
 publish one test vector exactly on each limit.
