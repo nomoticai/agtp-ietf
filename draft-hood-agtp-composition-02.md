@@ -187,7 +187,7 @@ observability, and identity without modification to the adjacent layers.
 AGTP {{AGTP}} is a transfer protocol for AI agent traffic: the
 dedicated substrate on which that traffic runs, above TCP, QUIC, or
 HTTP/3 and below the agent frameworks. It is designed to compose
-with adjacent layers rather than to replace them. Three categories of adjacent layer benefit from explicit
+with adjacent layers, each of which keeps its own role. Three categories of adjacent layer benefit from explicit
 composition profiles with AGTP:
 
 **Agent Group Messaging Protocols (AGMPs).** Protocols such as MCP
@@ -202,13 +202,12 @@ and inherit HTTP's constraints for agent traffic.
 enterprise IdPs, and similar services issue credentials that answer
 "on whose behalf is the agent acting." AGTP identity answers "which
 agent is making this call." The two axes are orthogonal and require
-explicit composition rules so they compose cleanly rather than
-conflict.
+explicit composition rules so that they compose without conflict.
 
 **HTTP gateways.** Many existing clients communicate over HTTP/REST
-rather than AGTP. Operators that want to expose AGTP-served agents
+and have no AGTP stack. Operators that want to expose AGTP-served agents
 to HTTP clients deploy translation gateways. The gateway is a
-deployment-time adoption ramp rather than a protocol of its own; the
+deployment-time adoption ramp and no protocol of its own; the
 translation contract benefits from being specified explicitly so it
 is interoperable across implementations.
 
@@ -666,7 +665,7 @@ An MCP `sampling/createMessage` operation **MUST** be carried as an
 AGTP EXECUTE method invocation with `action: sampling/createMessage`
 and a `Budget-Limit` in tokens. Sampling consumes budget and
 produces a fresh result on every invocation, so it belongs on the
-mechanics carrier rather than on QUERY; the `action` value signals to
+mechanics carrier and off QUERY; the `action` value signals to
 AGTP infrastructure that the request involves model inference,
 enabling differentiated routing and budget enforcement.
 
@@ -1084,7 +1083,7 @@ The gateway applies the following translation rules:
   AGTP-native authentication on top of the gateway, in which case
   the gateway is no longer the right abstraction.
 
-- **The gateway is a translation surface rather than a binding.**
+- **The gateway is a translation surface and no binding.**
   Two AGTP servers exchanging traffic with one another **MUST NOT**
   use the gateway as their hop; AGTP runs on its own bindings, and
   gateway-mediated AGTP-to-AGTP flows would lose the wire-level
@@ -1141,7 +1140,7 @@ Content-Type: application/agtp+json
 }
 ~~~~
 
-The Agent-ID is the gateway's own agent identity rather than one
+The Agent-ID is the gateway's own agent identity; nothing is
 synthesized from the HTTP client. The bearer token from the HTTP request is forwarded
 and validated by the AGTP server's External IdP composition per
 Pattern 2. The original HTTP method (`GET`) is preserved on the
@@ -1168,8 +1167,8 @@ Semantics:
   `Request-Signature` covers the body digest and leaves this header
   outside its signed set, so the header is an unsigned hint about a
   signed body: a receiver that validates learns whether the body
-  conforms, and an altered header is caught by that validation
-  rather than by the signature.
+  conforms, and an altered header is caught by that validation;
+  the signature plays no part in catching it.
 - A receiver **MAY** validate the body against the schema. A
   receiver that validates and finds the body non-conformant **MUST**
   reject with `422` and reason `schema-mismatch`; one that lacks the
@@ -1368,10 +1367,10 @@ their structure are unchanged.
 2. **Delegation restated against base v10.** The A2A provenance
    rule now maps to the Delegation Sequence (pre-authorization) and
    `prior_actions` (attribution), with the hop format, token
-   signer, and verification rules by reference to {{AGTP}} rather
-   than restated as independent MUSTs. The DELEGATE example no
+   signer, and verification rules by reference to {{AGTP}}; the
+   independent MUSTs of v01 are withdrawn. The DELEGATE example no
    longer carries `Delegation-Chain` on an undelegated invocation,
-   and `delegation_token` is the parent's signature rather than a
+   and `delegation_token` is the parent's signature, where v01 had a
    governance-platform token.
 
 3. **MCP tool calls and sampling move from QUERY to EXECUTE.** QUERY
@@ -1481,7 +1480,7 @@ canonical location for the normative specification.
 
 This document covers three composition profile families. Other
 composition surfaces specific to AGTP companion specifications are
-addressed in those specifications rather than duplicated here:
+addressed in those specifications and only referenced here:
 
 - Payment provider composition is specified in {{AGTP-COMMERCE}}.
 - Credit bureau and trust provider composition is specified in
@@ -1506,8 +1505,7 @@ and AGTP v08 servers.
 
 The AGMP composition profiles in this document build on the foundational
 work of the MCP, A2A, and ACP specification teams. AGTP is designed to
-be additive to and compatible with their work rather than competitive
-with it.
+be additive to and compatible with their work.
 Thank you to Anthropic, Linux Foundation A2A team, and IBM ACP.
 
 The External Identity Provider composition profile builds on the

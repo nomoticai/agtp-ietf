@@ -161,7 +161,7 @@ scales:
 
 - Payment networks and card issuers extending protection to agent-
   initiated transactions require verifiable identity on both parties
-  to the transaction rather than the agent alone.
+  to the transaction; the agent alone is insufficient.
 
 - Dispute investigation requires a cryptographically linked record
   of both the initiating agent and the merchant counterparty at the
@@ -181,9 +181,9 @@ specified in {{AGTP}}.
 ## Relationship to Payment Networks
 
 This specification is a protocol-layer identity and verification
-mechanism for merchant counterparties. It leaves undefined payment
-credential handling, tokenization, authorization messages to card
-networks, or settlement. Those belong to payment-rail specifications
+mechanism for merchant counterparties. Payment credential handling,
+tokenization, authorization messages to card networks, and
+settlement are outside it. Those belong to payment-rail specifications
 operated by issuers, networks, and acquirers.
 
 The relationship is complementary. Payment-network programs that
@@ -209,8 +209,8 @@ cryptographic machinery.
 **Verification at PURCHASE.** Merchant identity is verified by the
 requesting agent immediately before executing PURCHASE. The
 verification result is recorded in the Attribution-Record. A
-verification failure is a 458 Counterparty Unverified response
-rather than a protocol error.
+verification failure is a 458 Counterparty Unverified response, a
+governance signal distinct from a protocol error.
 
 **Discovery surfaces both sides.** The DISCOVER method defined in
 {{AGTP-DISCOVER}} returns Agent Identity Documents. This document
@@ -314,7 +314,7 @@ existing audit-chain entry, certificate, and reference. The
 Agent Identity Document, in contrast, is a capability-bearing
 manifest that an operator can edit between server restarts;
 adding or removing the `merchant` role is therefore a manifest
-edit rather than a re-issuance event.
+edit; no re-issuance occurs.
 
 This is a deliberate change from v01 of this document, which
 defined a separate Merchant Genesis document type with its
@@ -426,7 +426,7 @@ party that needs to address a merchant uses any of the
 agent URI forms; no separate `/merchant` path component is
 defined. The receiving server gates PURCHASE eligibility on
 the `role: "merchant"` declaration in the addressed agent's
-Agent Identity Document rather than on URI shape.
+Agent Identity Document; URI shape carries no weight.
 
 This is a deliberate simplification from v01 of this
 document, which defined `/merchant` and `/merchant/{label}`
@@ -440,7 +440,7 @@ agent label and applying the standard agent URI resolution
 rules in {{AGTP}}. A future revision **MAY** define a
 discovery convention for merchant-role agents under a server
 (e.g., a DISCOVER filter on `role`); discovery filtering is
-left unspecified in this revision.
+deferred in this revision.
 
 # Counterparty Verification at PURCHASE {#counterparty-verification}
 
@@ -618,7 +618,7 @@ recorded in the Attribution-Record and **MUST NOT** be accepted a
 second time.
 
 Recommended validity period: 300 seconds. Intent Assertions are
-designed to expire rather than persist; they cover the interval between principal
+designed to expire; they cover the interval between principal
 authorization and transaction execution.
 
 ## Forwarding to Payment Networks
@@ -829,7 +829,7 @@ code. The requesting agent **MUST NOT** retry the PURCHASE without
 re-running counterparty verification against a freshly retrieved
 Agent Identity Document.
 
-Status code 458 is a governance signal rather than a protocol
+Status code 458 is a governance signal, distinct from a protocol
 error, and **MUST** be logged by both parties. The value 458 is the
 one registered in {{AGTP}}; earlier revisions of {{AGTP-COMMERCE}}
 used 458 for a budget condition, which {{AGTP}} assigns 462
@@ -1037,7 +1037,7 @@ the PURCHASE verification handshake, the headers, and status code
   a header in draft-hood-independent-agtp-10; the principal is
   `principal_id` in the Attribution-Record) removed from the
   examples; `Request-Signature` shown; `Agent-ID` and `Merchant-ID`
-  shown as canonical identifiers rather than URIs, matching the
+  shown as canonical identifiers in place of URIs, matching the
   terminology section; request lines carry a path.
 - **Agent-ID hash** stated with `log_inclusion_proof` excluded
   alongside `signature`, per draft-hood-independent-agtp-10.
@@ -1114,7 +1114,7 @@ The following substantive changes were made:
 6. **Counterparty verification updated.** The
    {{counterparty-verification}} section now requires the
    addressed agent to declare `role: "merchant"` and gates the
-   fingerprint check on the Agent Identity Document rather than
+   fingerprint check on the Agent Identity Document in place of
    the retired Merchant Manifest Document.
 
 7. **Trust posture loading deferred to AGTP-TRUST.** Merchant
@@ -1156,7 +1156,7 @@ Merchant Manifest Document will produce a different value than
 v02 implementations and will fail to interoperate without an
 update. Since no production deployments of v01 Merchant
 Manifest Documents exist, this revision treats the change as a
-clarification rather than a breaking transition.
+clarification with no breaking transition.
 
 # Changes from v00
 
@@ -1210,8 +1210,8 @@ Substantive changes:
 Version 01 leaves the wire format of the PURCHASE handshake unchanged,
 the Intent-Assertion header, the Cart-Digest mechanism, or the 458
 status code semantics. Implementations built against v00 require
-changes only in the registration and identity-verification paths rather than
-in the transaction flow.
+changes only in the registration and identity-verification paths;
+the transaction flow is untouched.
 
 # Deployment Considerations
 

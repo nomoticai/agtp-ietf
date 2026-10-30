@@ -112,9 +112,9 @@ and monitor role definitions, full federation procedures, and the
 formal entry-acceptance threat model are deferred to a future
 revision.
 
-The audit properties AGTP-LOG provides are structural rather than
-retrofitted. Statements are signed by the governance platform that
-operates the log rather than by the agent the statements concern;
+The audit properties AGTP-LOG provides are structural. Statements
+are signed by the governance platform that operates the log, never
+by the agent the statements concern;
 an agent cannot forge its own audit trail because the log
 operator's signing key is outside its control. This architectural separation
 distinguishes AGTP-LOG audit infrastructure from approaches that
@@ -130,8 +130,8 @@ Tier 1 verification paths defined in {{AGTP-TRUST}}. This document
 specifies the log protocol that path depends on. Earlier draft
 material that referred to an inline AGTP Certificate Transparency Log
 (AGTP-CTL) in early revisions of {{AGTP-CERT}} is superseded by this
-document, and {{AGTP-CERT}} now references AGTP-LOG rather than
-defining its own log.
+document, and {{AGTP-CERT}} now references AGTP-LOG in place of a
+log of its own.
 
 AGTP-LOG inherits the verifiable data structure of {{RFC9162}} and
 the receipt format of {{RFC9943}}. This document leaves the
@@ -154,11 +154,11 @@ distinguish protocol-layer audit from application-layer audit
 logging:
 
 *Audited party cannot forge own trail.* Statements are signed by
-the governance platform that issued the Agent Genesis rather than
-by the agent. The log operator's signing key is outside the agent's
+the governance platform that issued the Agent Genesis, never by the
+agent. The log operator's signing key is outside the agent's
 control, so the agent can neither forge, alter, nor omit its own
-audit records. This is a structural property of the architecture
-rather than a policy constraint that requires enforcement.
+audit records. This is a structural property of the architecture;
+no policy constraint needs enforcing to obtain it.
 
 *Audit records are append-only and tamper-evident.* The verifiable
 data structure of {{RFC9162}} guarantees that committed statements
@@ -176,8 +176,8 @@ assertion that it does.
 `agtp-subject` field of every statement is a Canonical Agent-ID
 that ties the audit record to the protocol-level identity used in
 every AGTP request. The audit trail and the operational identity
-are the same identity rather than separately maintained
-representations that must be correlated after the fact.
+are the same identity, with no separately maintained
+representations to correlate after the fact.
 
 ## Scope: Post-Hoc Audit
 
@@ -231,8 +231,8 @@ platform, recording different categories of agent events.
 (e.g., {{AUDIT-ARCH}}) proposes audit data models layered over
 HTTP and existing token formats. AGTP-LOG's architectural
 commitment is different: audit is a structural property of the
-protocol substrate rather than a data model retrofitted onto a
-substrate designed without accountability in mind. Both approaches may
+protocol substrate, where the HTTP-based approach retrofits a data
+model onto a substrate designed without accountability in mind. Both approaches may
 coexist for the agent traffic each substrate carries.
 
 *Transparency standards (SCITT, RFC 9162):* AGTP-LOG reuses these
@@ -277,7 +277,7 @@ Canonical Agent-ID:
   Agent-ID is the value carried in the `Agent-ID` header on every
   request, the key in the registry, and the subject of transparency
   log entries. The Canonical Agent-ID is derived from the Agent
-  Genesis rather than being an independent value. Per {{AGTP}}, the
+  Genesis and has no independent existence. Per {{AGTP}}, the
   hash is computed over the canonical-form Genesis with the
   `signature` and `log_inclusion_proof` fields excluded, which is
   what lets the Genesis carry its own inclusion proof
@@ -289,7 +289,7 @@ Agent Certificate:
   verification and O(1) scope enforcement at Scope-Enforcement
   Points. Agent Certificates are renewable and revocable, with a
   recommended 90-day validity period. The Agent Certificate is a
-  derived credential rather than an identity substrate; it
+  derived credential, never an identity substrate; it
   references the Agent Genesis via the `activation-certificate-id`
   extension.
 
@@ -900,10 +900,11 @@ governance-platform-operated public record.
 
 A common threat model for audit systems is the audited party
 forging, altering, or omitting their own audit records. AGTP-LOG
-addresses this structurally rather than through policy controls.
+addresses this in the structure of the protocol, with no policy
+control to rely on.
 
 Statements in AGTP-LOG are signed by the governance platform that
-operates the log rather than by the agent the statements concern.
+operates the log, never by the agent the statements concern.
 The log operator's signing key is outside the agent's control. An
 agent cannot:
 
@@ -911,7 +912,7 @@ agent cannot:
   identity (statements bind to `agtp-subject` and are signed by the
   log operator)
 - Omit an event from its own audit trail (commit decisions are made
-  by the log operator rather than by the agent; for attribution
+  by the log operator alone; for attribution
   statements, omission shows as a `sequence` gap per
   {{audit-id-statements}})
 - Alter a committed statement after the fact (the verifiable data
@@ -922,7 +923,7 @@ agent cannot:
   is detectable by monitors observing the log)
 
 The threat shifts to compromising the governance platform itself
-({{log-operator-compromise}}) rather than compromising the agent.
+({{log-operator-compromise}}); compromising the agent gains nothing.
 This is a higher bar architecturally: the governance platform's
 signing key is a long-lived infrastructure credential typically
 protected with hardware security modules and key ceremonies, while
@@ -932,7 +933,7 @@ This structural property distinguishes AGTP-LOG from audit
 approaches where the audited party participates in writing the
 audit trail. In application-layer audit logging on HTTP-based
 substrates, an agent or its operator typically generates audit
-records about its own behavior; ensuring those records stay unaltered by the audited party requires
+records about its own behavior; protecting those records from the audited party requires
 additional cryptographic machinery layered on top of the substrate. In AGTP-LOG, the
 separation is built into the protocol architecture.
 
@@ -983,7 +984,7 @@ modules, key ceremonies for key generation and rotation, and
 documented operational procedures for key recovery.
 
 Key rotation procedures and the binding of historical STHs to
-retired keys remain unspecified in this revision; see
+retired keys are deferred to a later revision; see
 {{open-items}}.
 
 ## Statement Privacy
@@ -992,7 +993,7 @@ Statements in AGTP-LOG are public by design. The Agent Genesis
 itself is published as the canonical identity record of an agent;
 the lifecycle events that follow it are operational facts, and an
 attribution statement carries an Audit-ID and never the record
-behind it. AGTP-LOG is a public log rather than a confidential one.
+behind it. AGTP-LOG is a public log.
 
 Operators **MUST NOT** commit statements containing secrets,
 operational credentials, or other sensitive material. The validation
@@ -1027,8 +1028,8 @@ ecosystem matures. Several of these constructs are AGTP-specific
 and have no current home in existing standards-body registries. The
 appropriate venue for AGTP registry stewardship (IANA, an AGTP
 governance forum, a foundation, or some combination) is an open
-question for the broader AGTP family and stays undecided in this
-document.
+question for the broader AGTP family; this document takes no
+position on it.
 
 This section enumerates the registry-shaped artifacts AGTP-LOG
 defines, so that whichever stewardship model the AGTP family
@@ -1079,8 +1080,8 @@ defined in {{RFC9943}} and reused without redefinition.
 The following protected-header parameter names are introduced by
 this document. This document makes no CBOR label assignments;
 implementations prior to a formal registry process
-**SHOULD** use string-form labels in the protected header rather
-than numeric labels, and **MUST** document their string-to-numeric
+**SHOULD** use string-form labels in the protected header in place
+of numeric labels, and **MUST** document their string-to-numeric
 mapping for downstream tooling.
 
 | Parameter Name | Use |
@@ -1221,7 +1222,7 @@ The following substantive changes were made:
    `agent-genesis-issued` by ACTIVATE, `agent-genesis-revoked`
    by REVOKE, `agent-lifecycle-suspended` by DEACTIVATE
    (replacing the v01 SUSPEND triggering method, which is a
-   Mechanics in-session pause method rather than a lifecycle
+   Mechanics in-session pause method and no lifecycle
    transition), `agent-lifecycle-reinstated` by REINSTATE,
    and `agent-lifecycle-deprecated` by DEPRECATE. The five
    event types themselves are unchanged; only the method-to-

@@ -261,8 +261,8 @@ the LEI/vLEI infrastructure:
    accountability from the legal entity through human officers to the
    agent ({{authorization-chain}}).
 
-This document leaves unmodified the LEI standard, the vLEI Ecosystem
-Governance Framework, KERI, ACDC, or any of the existing AGTP
+This document modifies none of the LEI standard, the vLEI Ecosystem
+Governance Framework, KERI, ACDC, or the existing AGTP
 specifications. It defines composition surfaces that allow agents
 deployed by LEI holders to carry verifiable institutional identity
 through the AGTP substrate.
@@ -490,8 +490,9 @@ verification_path: vlei-anchored
 ~~~
 
 A Tier 1 agent with `vlei-anchored` verification path has its
-institutional identity anchored in the vLEI infrastructure rather
-than in DNS ownership or transparency logs. The verification mechanism
+institutional identity anchored in the vLEI infrastructure, where
+the other Tier 1 paths anchor in DNS ownership or transparency logs.
+The verification mechanism
 relies on KERI key event verification and the vLEI Ecosystem
 Governance Framework.
 
@@ -509,7 +510,7 @@ Verifying a `vlei-anchored` Tier 1 agent proceeds as follows:
    that issued it, terminating at the GLEIF root of trust.
 
 4. Verify that the QVI is currently accredited per GLEIF's QVI
-   registry, and that the credential remains unrevoked.
+   registry, and that the credential is still in good standing.
 
 5. If the agent carries vLEI Role Credentials (OOR, ECR, AUTH) per
    {{authorization-chain}}, verify the credential chain from the
@@ -668,7 +669,7 @@ Authority decisions for agents with verified vLEI authorization chains
   operations.
 
 The mapping from role credential to authority decision is governance
-policy defined and left unspecified in this document. What is
+policy defined and outside this document. What is
 specified is the structural carriage of the credential chain so that
 governance policy can evaluate it.
 
@@ -742,8 +743,8 @@ that relying party's own stated fallback.
 
 vLEI credentials can be revoked through KERI key event mechanisms.
 Verifiers **MUST** check current revocation status of vLEI credentials
-during verification rather than relying on cached or previously
-verified state.
+during verification; cached or previously verified state is
+insufficient.
 The KERI Key Event Log provides the authoritative revocation status.
 
 ## QVI Compromise
@@ -881,8 +882,8 @@ the LEI ecosystem and extends it into the agent infrastructure layer.
 
 Feedback from GLEIF on the binding's alignment with the vLEI Ecosystem
 Governance Framework is particularly welcome. The binding is designed
-to compose with the vLEI ecosystem as specified rather than to modify
-it; if the binding requires adjustment to align with vLEI governance,
+to compose with the vLEI ecosystem as specified and to modify none
+of it; if the binding requires adjustment to align with vLEI governance,
 this document will be revised accordingly.
 
 --- back
@@ -891,8 +892,8 @@ this document will be revised accordingly.
 
 The author thanks Tom Roberts for the strategic introduction to GLEIF
 and the broader LEI/vLEI ecosystem, and for the architectural framing
-that positions AGTP-LEI as a natural composition rather than a
-competitive alternative. The author also acknowledges the foundational
+that positions AGTP-LEI as a natural composition with the vLEI
+ecosystem. The author also acknowledges the foundational
 work of the GLEIF leadership, the KERI specification authors led by
 Samuel M. Smith, and the Trust over IP Foundation's stewardship of the
 vLEI ecosystem governance framework.

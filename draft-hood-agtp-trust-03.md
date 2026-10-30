@@ -147,8 +147,8 @@ unbounded `trust_score` field is operationally useless. An
 infrastructure component that receives a trust score with no
 normative semantics cannot distinguish a well-computed value from a
 freshly-fabricated one, cannot decide whether to refresh it, and
-cannot verify that the issuer left the value unsubstituted
-at retrieval time. AGTP-TRUST closes these gaps by specifying:
+cannot verify that the value it received is the one the issuer
+computed. AGTP-TRUST closes these gaps by specifying:
 
 - The trust-tier framework that contextualizes any trust-score
   evaluation.
@@ -215,7 +215,7 @@ Freshness:
 The architectural pattern this document specifies is structurally
 analogous to the credit rating infrastructure that operates for
 human and institutional entities today. Understanding this analogy
-clarifies what AGTP-TRUST defines, what it leaves undefined, and how
+clarifies what AGTP-TRUST defines, what it leaves to others, and how
 existing credit bureaus and new entrants can compose as trust
 providers in the agent ecosystem.
 
@@ -261,8 +261,8 @@ architectural decomposition is:
 AGTP-TRUST normatively defines the identifier infrastructure, the
 evidence primitives, the score format, the freshness model, the
 signature binding, and the consumer behavior. AGTP-TRUST deliberately
-leaves the score computation algorithm undefined, just as the credit
-bureau infrastructure leaves the FICO formula unstandardized. Score
+leaves the score computation algorithm to the issuer, just as the
+credit bureau infrastructure leaves the FICO formula to FICO. Score
 computation is the trust provider's intellectual property and
 competitive differentiator.
 
@@ -478,7 +478,8 @@ precedence, evaluated independently for each field:
    default the agent to Trust Tier 2 with
    `verification_path: org-asserted`. This is the
    conservative posture: an unverified agent is treated as
-   org-asserted rather than as Tier 1 or Tier 3.
+   org-asserted, Tier 2, with no default promotion to Tier 1 and no
+   default demotion to Tier 3.
 
 The `trust_warning` field is computed after the precedence is
 resolved, on the basis of the resolved `trust_tier`:
@@ -605,8 +606,8 @@ local policy.
 
 The OIDC-federated path lets enterprise deployments bottom
 the Genesis-issuer trust path out in their existing identity
-infrastructure rather than maintaining a separate
-trusted-registrars list. The Genesis schema is unchanged;
+infrastructure, with no separate trusted-registrars list to
+maintain. The Genesis schema is unchanged;
 the change is purely in the resolution path the verifier
 uses to decide whether a recorded issuer key is trusted.
 
@@ -702,7 +703,7 @@ endpoints and at the midpoint:
   the scale.
 
 The interpretation of intermediate values is governance-policy
-defined rather than normative. AGTP-TRUST specifies no mappings from
+defined; this document fixes only the endpoints. AGTP-TRUST specifies no mappings from
 trust score ranges to authority decisions; consumers (SEPs,
 governance gateways, peer agents) make those decisions according to
 their own policies, with the trust score as one of several inputs.
@@ -758,7 +759,7 @@ the difference between consumption time and `trust_score_computed_at`:
 | PURCHASE / financial transactions | 30 seconds |
 {: title="Recommended Trust Score Freshness Thresholds"}
 
-These thresholds are recommendations rather than normative requirements.
+These thresholds are recommendations and carry no normative force.
 Consumers **MAY** adopt stricter or looser thresholds based on
 governance policy. Implementations **MUST** document the freshness
 thresholds they enforce.
@@ -904,7 +905,7 @@ refreshed and signed independently of the full Identity Document.
 The detached form is anticipated to be a small COSE_Sign1 envelope
 ({{RFC9052}}) carrying just the trust score, dimensions, freshness
 timestamp, the canonical Agent-ID being attested, and the issuer
-signature. Detached Trust Score Documents remain unspecified in this
+signature. Detached Trust Score Documents are deferred to a later
 revision.
 
 ## Issuer Key Rotation
@@ -919,7 +920,7 @@ the freshness section above. Issuer key rotation is specified in
 
 # Computation Methodology Guidance
 
-## What This Document Leaves Unspecified
+## What This Document Leaves to the Issuer
 
 AGTP-TRUST is deliberately silent on the specific algorithm an
 issuer uses to compute a composite trust score. Computation
@@ -927,8 +928,8 @@ methodology is governance-policy and issuer-specific. Two issuers
 operating under different governance frameworks may legitimately
 compute different scores for the same agent based on the evidence
 each weights. AGTP-TRUST specifies the data structure, freshness,
-and binding properties of the score and leaves unspecified the
-function from evidence to score.
+and binding properties of the score; the function from evidence to
+score belongs to the issuer.
 
 ## Recommendations
 
@@ -936,7 +937,7 @@ The following are non-normative recommendations for issuer
 implementations:
 
 **Avoid arbitrary single-dimensional scoring.** A trust score that
-collapses to "agent remains unrevoked" is a Boolean dressed as a
+collapses to "the agent is still active" is a Boolean dressed as a
 scalar. Implementations **SHOULD** incorporate at least three
 distinct dimensions before publishing a composite.
 
@@ -955,8 +956,8 @@ delegation.
 **Prefer evidence-weighted dimensions over policy-weighted
 dimensions.** A trust score that primarily reflects compliance with
 the issuer's own policies is reflexive: it tells the consumer
-whether the issuer trusts the agent rather than whether the agent is
-behaviorally trustworthy. Implementations **SHOULD** prioritize
+whether the issuer trusts the agent, which is a different question
+from whether the agent is behaviorally trustworthy. Implementations **SHOULD** prioritize
 dimensions grounded in observable evidence (attestation, behavioral
 history, scope-violation frequency) over policy-conformance
 dimensions.
@@ -990,8 +991,8 @@ trust score for protocol-level authority decisions.
 ## Decision Mapping
 
 Consumers **MAY** apply trust score thresholds to authority
-decisions. AGTP-TRUST leaves unspecified the mapping from trust score
-to authority decision; that mapping is governance-policy defined.
+decisions. The mapping from trust score to authority decision is
+governance-policy defined and outside this document.
 Common patterns include:
 
 - Accepting all method invocations from agents with trust score
@@ -1098,8 +1099,8 @@ governance external to AGTP.
 An issuer or agent may attempt to inflate trust scores by
 manipulating the dimensions that contribute to the composite. The
 mitigations are governance-side: dimension definitions **SHOULD**
-be grounded in observable evidence rather than self-attested
-properties; issuer methodology **SHOULD** be publicly documented
+be grounded in observable evidence, with self-attested properties
+given no weight; issuer methodology **SHOULD** be publicly documented
 and auditable.
 
 ## Out-of-Band Trust Score Channels
@@ -1161,8 +1162,8 @@ freshness rule, and the dimension catalog are unchanged.
 
 ## Substantive Changes in v03
 
-1. **Score without timestamp is treated as absent** rather than as
-   grounds to reject the Identity Document, since identity and
+1. **Score without timestamp is treated as absent.** The Identity
+   Document itself stays valid, since identity and
    trust posture are independent functions of the document; the
    coupling is now carried into the Identity Document schema by
    draft-hood-agtp-identity-document-00, which lists
@@ -1174,8 +1175,8 @@ freshness rule, and the dimension catalog are unchanged.
    Web3 bridge draft has expired and is withdrawn for this cycle;
    the alias rule of base AGTP covers non-DNS naming systems.
 
-3. **Agent Certificate** described as Level 3 of base AGTP v10,
-   TLS-layer rather than transport-layer.
+3. **Agent Certificate** described as Level 3 of base AGTP v10, at
+   the TLS layer.
 
 4. References: base to -10; AGTP-CERT -04, AGTP-LOG -03,
    AGTP-IDENTIFIERS -03, AGTP-PRESENCE -01; AGTP-IDDOC added;
@@ -1277,7 +1278,8 @@ The following substantive changes were made in v01:
    uses to decide whether a recorded issuer key is trusted.
    Network failures on OIDC discovery or JWKS retrieval
    **MUST** be non-fatal: the affected Genesis is treated
-   as unresolvable rather than as a verification failure.
+   as unresolvable, which is a different outcome from a
+   verification failure.
 
 ## Wire Format Compatibility
 

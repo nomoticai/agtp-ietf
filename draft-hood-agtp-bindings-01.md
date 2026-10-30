@@ -367,8 +367,8 @@ sequentially or interleaved by `Session-ID`. The binding keeps no
 per-session state of its own: which session a request belongs to is
 the `Session-ID` header, and the server **MUST** check that the
 request's `Agent-ID` is a participant in that session per
-{{AGTP-SESSION}} rather than inferring membership from the connection
-the request arrived on.
+{{AGTP-SESSION}}; the connection the request arrived on says
+nothing about membership.
 
 Connection pools **MAY** maintain pre-established connections to
 frequent counterparties to reduce handshake overhead. Pooled
@@ -438,7 +438,7 @@ When a QUIC connection migration changes the apparent client network
 location, AGTP implementations **MAY** apply additional verification
 (e.g., re-checking the Agent Certificate, requesting attestation per
 trust posture per {{AGTP-CERT}}) for sensitive sessions, but this is
-operator policy rather than protocol requirement.
+operator policy and no protocol requirement.
 
 ## QUIC-Specific Replay Safety Profile {#replay-safety}
 
@@ -450,8 +450,8 @@ cannot distinguish a replay from the original.
 AGTP requests carry authority-scoped actions. A replayed EXECUTE,
 DELEGATE, PURCHASE, or other action method could re-trigger
 authorized work, transfer funds, modify state, or produce duplicate
-side effects. This is a real security concern rather than a theoretical
-one.
+side effects. This is a real security concern with deployed
+precedent.
 
 This document defines an AGTP-specific replay-safety profile
 governing early data use.
@@ -635,7 +635,7 @@ of a single HTTP/3 request:
 ~~~~
 
 The extended CONNECT form of {{RFC9220}} is used so that the stream
-is handed to AGTP rather than interpreted as an HTTP request. After
+is handed to AGTP in place of HTTP request interpretation. After
 the server answers with `:status = 200`, the stream carries AGTP
 messages framed exactly as over TCP/TLS: the AGTP request line,
 headers, and `Content-Length`-delimited body in one direction and
@@ -677,7 +677,7 @@ An HTTP intermediary in the path sees an extended CONNECT to the
 server and opaque stream data; it sees no AGTP headers and
 cannot act on them. Infrastructure that needs to enforce
 Authority-Scope at line rate (an SEP) therefore sits at the AGTP
-server rather than at the intermediary when this binding is in use,
+server, beyond the intermediary, when this binding is in use,
 or terminates the CONNECT itself and becomes the AGTP server. The
 `Request-Signature` is verified end to end by whichever party is the
 AGTP server, so an intermediary cannot forge or alter a request
@@ -715,8 +715,8 @@ through AGTP Identity Document fields. Discovery of binding support
 is outside wire-layer protocol concern.
 
 The earlier "SHOULD prefer QUIC" guidance of base v08 is withdrawn.
-Transport preference is a deployment-time choice rather than a
-protocol-level requirement. Operators
+Transport preference is a deployment-time choice; the protocol
+expresses none. Operators
 make the choice based on their infrastructure, their counterparty
 ecosystem, and their latency requirements.
 
@@ -801,8 +801,8 @@ Implementations **SHOULD** enable TLS 1.3 downgrade protection
 ## QUIC Connection Migration Identity Verification
 
 QUIC connection migration changes the network path the connection
-uses but leaves unchanged the connection's TLS keys and the agent
-identity. An attacker on a new network path cannot impersonate the
+uses; the connection's TLS keys and the agent identity are the same
+before and after. An attacker on a new network path cannot impersonate the
 client because the attacker lacks the keys.
 
 However, deployment policies for sensitive operations **MAY**

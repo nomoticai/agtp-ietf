@@ -157,7 +157,7 @@ The deeper mismatch is that the Internet's naming and routing stack
 presumes host-nature: a participant is a thing at a network location,
 found by resolving a name to that location. An agent is a
 coordination participant defined by identity, capability, delegation,
-and trust rather than by where it happens to run. The same agent may
+and trust; where it happens to run is incidental. The same agent may
 run on a laptop this hour and a cloud instance the next, or on no
 single host at all when relay-mediated; its Canonical Agent-ID is
 unchanged throughout. Two analogies anchor the design. A music
@@ -184,8 +184,8 @@ operationally validated at scale in other domains:
   systems including Skype.
 
 AGTP Presence applies these patterns to agent infrastructure, with
-cryptographically declared visibility as a substrate property rather
-than an application-layer convention. The result is a layer that is
+cryptographically declared visibility as a substrate property. The
+result is a layer that is
 more than "AGTP plus better discovery." It is a layer where the
 discovery problem dissolves because the substrate carries the
 population structurally.
@@ -199,11 +199,11 @@ the Agent-ID to the agent's current attachment ({{attachment}}) and
 routes between conventionally addressed substrate nodes; the
 application layer never sees an IP address, in the way a user of a
 filesystem never sees a disk sector although the sector exists and
-the data is on it. The address becomes a substrate concern rather
-than an agent concern.
+the data is on it. The address becomes a substrate concern and
+leaves the agent's view.
 
-This is also why the model scales with identity rather than with
-addresses. Light clients hold no routing state; relay-mediated
+This is also why the model scales with identity: addresses come and
+go beneath it. Light clients hold no routing state; relay-mediated
 agents hold no routable endpoint of their own. Routable addresses
 scale with the number of full nodes and relays; agents scale with
 the number of identities. Ten full nodes can carry a scope of a
@@ -344,7 +344,7 @@ instantiates, moves, scales, or withdraws instances needs no
 separate feed into discovery: the lifecycle methods and the
 agent's own ANNOUNCE and WITHDRAW are that feed, and `exp` retires
 what the orchestrator forgets to withdraw. The same record, read
-for the requesting agent rather than the target, is the requester's
+for the requesting agent instead of the target, is the requester's
 location context for a search ({{AGTP-DISCOVERY}}): the `region`
 and other partition dimensions of the overlays a requester has
 joined say where it is attached, signed by the requester, with the
@@ -399,8 +399,8 @@ This mirrors how internet routing scales: BGP operates as a
 federation of independently operated systems with
 controlled inter-AS routing. AGTP Presence adopts the same
 architectural pattern for agent populations, with the partition
-axes being meaningful to agent search rather than network
-topology.
+axes chosen for their meaning to agent search; network topology
+plays no part in them.
 
 ### Multi-Dimensional Partition Keys
 
@@ -432,15 +432,16 @@ visibility, `{capability: marketing, region: us}` for the regional
 view, and `{capability: marketing, industry: fintech, region: us}`
 for a niche scope. Multi-membership is the mechanism by which an
 agent declares which subsets of the broader population are
-operationally meaningful to it. Agents stay unexposed to overlays
-they have yet to join.
+operationally meaningful to it. An overlay an agent has yet to join
+has no view of it.
 
 ### Capability Derivation from the Method Library
 
 The `capability` partition dimension is derived from the AGTP method
-library rather than from agent self-declaration. An agent's capability
+library; agent self-declaration plays no part. An agent's capability
 scope membership is determined by the methods it has bound through
-its Agent Genesis and certificate rather than by free-form text claims.
+its Agent Genesis and certificate; free-form text claims count for
+nothing.
 
 This design eliminates the keyspace fragmentation that would result
 from agents inventing arbitrary capability strings. The method
@@ -687,8 +688,8 @@ search at all. The following modes are defined:
 
 Invisible-mode agents remain on the AGTP substrate and are reachable
 by other agents that already possess the Invisible agent's Agent-ID.
-The invisible mode applies to search results; it leaves unaffected
-prevent direct addressing.
+The invisible mode applies to search results; direct addressing by
+Agent-ID is unaffected.
 
 ## Disclosure Visibility
 
@@ -904,8 +905,8 @@ This document specifies that conforming AGTP Presence implementations
 PROBE, and gossip behaviors. Non-conforming implementations may
 ignore declared posture. Visibility is enforced by the protocol where
 implementations conform; the cryptographic declaration prevents
-visibility claims from being falsified but leaves unprevented
-non-conforming actors from observing what they choose to observe.
+visibility claims from being falsified; a non-conforming actor can
+still observe what it chooses to observe.
 
 This is structurally similar to TLS certificate validation: a server's
 certificate declares its identity verifiably, but a non-conforming
@@ -1012,7 +1013,7 @@ Service, which operate over the presence substrate. The two documents
 divide the three operations of {{RFC6763}} between them: Presence is
 discovery (Agent-ID to attachment); DISCOVER's intent-driven mode is
 search (criteria to candidates), evaluated against the live presence
-layer rather than a separate registry; ANS is resolution (name to
+layer instead of a separate registry; ANS is resolution (name to
 Agent-ID). Agents a search returns are agents currently visible in
 the requesting agent's presence scope, and each result carries the
 attachment Presence holds for it. The dichotomy between the two
@@ -1024,7 +1025,7 @@ directions.
 # Scaling Considerations
 
 AGTP Presence is designed to scale through partitioning and hybrid
-participation rather than through any single-overlay solution. This
+participation; no single overlay is asked to hold the population. This
 section addresses scaling characteristics at different population
 sizes.
 
@@ -1048,8 +1049,8 @@ cross-domain search proceeds through controlled federation points.
 
 This is structurally analogous to how the internet scales through BGP:
 the internet is a federation of
-independently operated systems with controlled inter-AS routing
-rather than a single flat network. AGTP Presence
+independently operated systems with controlled inter-AS routing,
+with no single flat network anywhere in it. AGTP Presence
 adopts the same architectural pattern for agent populations.
 
 ## Light-Client Predominance
@@ -1165,15 +1166,14 @@ of certificate-based signature verification for all announcements.
 libp2p {{LIBP2P}} provides general-purpose peer discovery primitives
 including Kademlia DHT and gossipsub. AGTP Presence differs in
 specifying trust-tier-aware visibility scoping and certificate-bound
-declaration of visibility posture as substrate properties rather than
-application-layer policy.
+declaration of visibility posture as substrate properties.
 
 ## Presence Protocols
 
 XMPP presence (RFC 6121) provides per-user presence within federated
 servers using subscription rosters. The AGTP Presence model differs
 in being ambient (requiring no explicit subscription) and in being
-substrate-level rather than server-mediated.
+substrate-level, with no server in the middle.
 
 ## Comparison with Pull-Based Discovery
 
@@ -1183,7 +1183,7 @@ mechanisms for querying known endpoints; in the vocabulary of
 operates at a different layer, providing the live population view
 against which those reactive queries can be evaluated. AGTP Presence
 replaces none of them; it provides the substrate that makes reactive
-queries operate against a known live population rather than against
+queries operate against a known live population in place of
 static or stale directories.
 
 --- back
@@ -1213,7 +1213,7 @@ model are unchanged on the wire.
   short-lived record ANNOUNCE publishes and PROBE returns, as the
   mutable half of the permanent-identity versus current-location
   split.
-- **Principals rather than hosts** and **the addressing abstraction**
+- **Principals, where the stack presumes hosts,** and **the addressing abstraction**
   ({{addressing}}): the introduction states why the stack's
   host-nature presumption fails for agents and answers, in the
   document, the question of over what protocol and to what address.

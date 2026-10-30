@@ -154,7 +154,7 @@ are added, and the status codes that reject a request whose method
 is unknown or unavailable on a resource. AGTP does the same with
 one difference of scale: because an agent reasons about intent from
 the method name, AGTP carries a large registered vocabulary of
-action-intent verbs rather than a small fixed set, and governs that
+action-intent verbs, where HTTP has a small fixed set, and governs that
 vocabulary through a catalog with versioned evolution. The
 empirical basis for that choice is documented in {{HOOD2026}}.
 
@@ -199,8 +199,8 @@ body against the endpoint's input schema, apply scope checks, and
 log the invocation. Each of these checks requires the protocol to
 know what the method-on-path combination means.
 
-This is the load-bearing claim of AGTP-METHODS. The contract is a
-first-class protocol concept rather than something inferred from
+This is the central claim of AGTP-METHODS. The contract is a
+first-class protocol concept; on HTTP it is inferred from
 documentation, OpenAPI specs, or framework conventions. Operational
 concerns (rate limiting, observability, caching, custom
 authentication strategies, request transformation, deployment
@@ -212,7 +212,8 @@ middleware governs operations.
 
 AGTP-METHODS is the renamed successor of {{AGTP-API}}. The rename
 reflects what the document is: a method vocabulary and the contract
-layer declared in its terms, rather than an API in the HTTP sense.
+layer declared in its terms, which is a different thing from an API
+in the HTTP sense.
 Two changes accompany the rename. The runtime contract negotiation
 substrate (the PROPOSE and Synthesis chapter of {{AGTP-API}}) is
 extracted to {{AGTP-RCNS}}, and the method vocabulary is given the
@@ -302,8 +303,8 @@ than HTTP, because every AGTP request is an exercise of authority.
 Safe:
 : A method is safe when an invocation has no observable side effect
   on agent, server, or external state beyond logging and
-  attribution. Safe methods retrieve, describe, or reason; they
-  leave what is retrieved unchanged. Safe methods are idempotent by
+  attribution. Safe methods retrieve, describe, or reason without
+  changing what they touch. Safe methods are idempotent by
   construction.
 
 Idempotent:
@@ -346,8 +347,7 @@ handler does.
 Safety is the property a transport binding reads. {{AGTP-BINDINGS}}
 admits to early data only methods that are safe and idempotent;
 the floor methods currently admitted are QUERY and DISCOVER, and
-any extension of that list is made in the binding document rather
-than here.
+any extension of that list is made in the binding document.
 
 # Method Overview {#method-overview}
 
@@ -444,8 +444,8 @@ The catalog is a versioned JSON document with five top-level keys:
   (`deprecated_in`, `removed_in`, `successor`).
 
 The catalog is published in machine-readable form at the URL above
-and is intentionally maintained as an open living artifact rather
-than a closed IANA registry. Curation is performed by the AGTP-METHODS
+and is intentionally maintained as an open living artifact, in
+contrast to a closed IANA registry. Curation is performed by the AGTP-METHODS
 maintainers in public; the version of the catalog in effect at any
 given moment is declared in the `catalog_version` field of every
 server manifest. A closed IANA registry would freeze the verb
@@ -466,14 +466,14 @@ server's `policies.methods.legacy` opts into legacy verbs.
 The catalog is curated to contain only imperative-form action-intent
 verbs that:
 
-- Express a command or action rather than a state, an attribute, or
+- Express a command or action, never a state, an attribute, or
   a noun (RESERVE is valid; RESERVATION is invalid).
 - Carry a single intent (verbs with compound intent are decomposed
   into separate verbs).
 - Are never HTTP method names.
 
-These are curatorial principles applied during verb addition rather than
-runtime checks performed by AGTP servers. Servers validate verbs
+These are curatorial principles applied during verb addition; AGTP
+servers perform no runtime check of them. Servers validate verbs
 against the catalog membership and the lexical regex; semantic
 class adherence is the responsibility of the catalog maintainers.
 
@@ -621,7 +621,7 @@ Header fields:
 - `removed_in=VERSION`: the target removal version. Omitted while
   declared.
 
-The header is advisory rather than a rejection. The request **MUST** still
+The header is advisory; the request **MUST** still
 process. Agents and CLIs that surface the header to their users
 allow operators to schedule migration before forced removal.
 
@@ -699,8 +699,8 @@ changes exist: 0 (no breakage), 1 (breakage in deployment context),
 
 The tool is implementation-provided; alternative implementations
 **MAY** ship equivalents. The diff format is specified by the
-implementation's documentation rather than normatively by this
-section.
+implementation's documentation; this section places no normative
+requirement on it.
 
 ## Multi-Version Catalog Support
 
@@ -908,8 +908,8 @@ The response is a JSON array of objects, each with `method`, `path`,
 classification per {{endpoint-tiers}} (`"A"` for protocol-native
 built-ins, `"B"` for operator-registered endpoints). The verb is
 DISCOVER because the response carries
-endpoints to talk to (the AGTP semantics for DISCOVER, see {{AGTP}})
-rather than data to consume; agents use the response to drive
+endpoints to talk to (the AGTP semantics for DISCOVER, see {{AGTP}}),
+where QUERY returns data to consume; agents use the response to drive
 follow-on invocations against the listed endpoints.
 
 The `DISCOVER /methods` response is a lightweight inventory; agents
@@ -934,7 +934,7 @@ Servers that host one or more agents with a loaded Agent Genesis
 **MUST** expose `DISCOVER /genesis`. The endpoint returns the
 Agent Genesis document for the agent identified in the request's
 `Agent-ID` header (or for an explicitly addressed agent when the
-request is server-level rather than agent-level). The response
+request is server-level with no agent named). The response
 body is the Agent Genesis JSON in its canonical form, including
 the `signature` field, suitable for re-hashing to verify the
 canonical Agent-ID and for offline signature verification
@@ -1114,7 +1114,7 @@ regardless of additional segments (e.g.,
 `/methods/v2`, `/agents-extended`, `/toolset`,
 `/patterns-v2`, `/contracts/history`). Servers **MUST**
 refuse a registration that would shadow a reserved path;
-the refusal is a configuration-time error rather than a runtime
+the refusal is a configuration-time error and never reaches a runtime
 status code.
 
 The reservation applies only to DISCOVER. The same paths
@@ -1136,7 +1136,7 @@ nonconforming.
 Earlier revisions of AGTP and this document supported a
 body-keyed `DISCOVER target=...` form in which the discovery
 surface was selected by a `target` field in the request body
-rather than by the request path (e.g.,
+in place of the request path (e.g.,
 `DISCOVER target=methods` instead of `DISCOVER /methods`).
 The body-keyed form is **DEPRECATED**. Servers **MAY**
 accept the legacy form for transition compatibility and
@@ -1156,8 +1156,8 @@ the other.
 
 Future revisions of this specification **MAY** define additional
 built-in endpoints (e.g., `QUERY /catalog-version` for catalog
-version negotiation). Built-ins are protocol-level conventions rather than
-deployment-level extensions.
+version negotiation). Built-ins are protocol-level conventions, present
+on every conforming server.
 
 # The Endpoint Primitive {#the-endpoint-primitive}
 
@@ -1429,8 +1429,8 @@ how the invocation resolves.
 
 The semantic block is the part of the endpoint definition that
 encodes machine-readable intent. Agents reason about whether an
-endpoint matches their goal by interpreting the semantic block rather than
-by parsing the verb and path alone. The empirical evidence for
+endpoint matches their goal by interpreting the semantic block; the
+verb and path alone carry too little. The empirical evidence for
 intent-expressing semantic metadata is documented in {{HOOD2026}}.
 
 ## Required Semantic Block Fields
@@ -1574,8 +1574,8 @@ level:
 `catalog_versions_supported`:
 : List of catalog versions the server can validate against. The
   current `catalog_version` **MUST** appear in this list.
-  Multi-version support is anticipated in a future revision but is
-  left unspecified normatively in v00.
+  Multi-version support is anticipated in a future revision; v00
+  places no normative requirement on it.
 
 ## Server Block
 
@@ -1962,9 +1962,9 @@ are specified in {{AGTP-RCNS}}.
 
 | Code | Name | Returned When |
 |---|---|---|
-| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, wildcards consent, authenticated identity, or an Authority-Scope the agent's identity document grants but the request left unclaimed (`scope-required`). A request that exceeds the authority the document grants is 455 Scope Violation per {{AGTP}}, never 262. |
+| 262 | Authorization Required | Authorization the agent could obtain is absent: credential establishment, wildcards consent, authenticated identity, or an Authority-Scope the agent's identity document grants but the request omitted from its claim (`scope-required`). A request that exceeds the authority the document grants is 455 Scope Violation per {{AGTP}}, never 262. |
 | 404 | Not Found | The path is absent from this server |
-| 405 | Method Not Allowed | Method and path are valid but server policy leaves this combination unexposed |
+| 405 | Method Not Allowed | Method and path are valid but server policy exposes no endpoint at that combination |
 | 459 | Method Violation | The method is in neither the floor nor the AGTP-METHODS catalog nor the server's custom methods |
 | 460 | Endpoint Violation | The path violates AGTP-METHODS path grammar (method-name leakage) |
 {: title="AGTP-METHODS Status Codes"}
@@ -1977,7 +1977,7 @@ actionable and addresses a distinct failure mode:
   resource locator.
 
 - **405**: the method and path are individually valid but the
-  server leaves this combination unexposed. The agent **MAY** try a
+  server exposes no endpoint at that combination. The agent **MAY** try a
   different method on the same path, or **MAY** PROPOSE the
   combination per {{AGTP-RCNS}} unless it is a policy refusal.
 
@@ -2286,8 +2286,8 @@ Validation **MUST** complete before handler invocation. Servers
 schema validation; this guarantee is what allows handler authors
 to assume their context structure is well-formed.
 
-The startup-vs-runtime split is a recommendation rather than a strict
-requirement. Servers **MAY** defer startup validation if their
+The startup-vs-runtime split is a recommendation, with no strict
+requirement behind it. Servers **MAY** defer startup validation if their
 endpoint catalog is dynamic (e.g., a PROPOSE-driven server that
 only synthesizes endpoints on demand). Such servers **MUST** still
 validate at the moment an endpoint is registered or synthesized,
@@ -2356,7 +2356,7 @@ Conversion tooling **MAY** automate this translation with reasonable
 defaults, flagging cases where verb mapping requires human judgment.
 The AGTP-METHODS approved method catalog ({{the-approved-method-catalog}}) is the
 canonical source for HTTP-verb-to-AGTP-verb conversions: tooling
-**MUST** select target verbs from the list rather than inventing
+**MUST** select target verbs from the list and **MUST NOT** invent
 ad-hoc names, which is what makes converted endpoints interoperable
 with native AGTP-METHODS endpoints.
 
@@ -2375,8 +2375,8 @@ AGTP verbs have no clean HTTP analog and are best exposed via the
 legacy verb compatibility mode of {{legacy-verb-support}}); path
 remains; schemas pass through unchanged.
 
-The exported OpenAPI document is a compatibility surface rather than the
-authoritative description of the service. Servers exporting OpenAPI
+The exported OpenAPI document is a compatibility surface; the
+authoritative description of the service is the AGTP contract. Servers exporting OpenAPI
 **SHOULD** mark the export as derived from the AGTP-METHODS manifest and
 **SHOULD** publish a link to the manifest in the OpenAPI `info`
 section.
@@ -2422,8 +2422,8 @@ operations.
 A malicious server could declare endpoints whose semantic blocks
 misrepresent the actual behavior. Agents that rely on semantic
 blocks for authorization decisions **MUST** also enforce
-Authority-Scope checks against actual outcomes rather than declared
-outcomes.
+Authority-Scope checks against actual outcomes, whatever the declared
+outcomes say.
 
 ## Method Policy Tampering
 
@@ -2510,9 +2510,9 @@ traffic from generic JSON.
 This document does **NOT** request establishment of an IANA AGTP-METHODS
 Verb List Registry. As specified in {{list-maintenance}}, the verb
 list is intentionally maintained as an open living artifact at
-`https://agtp.io/api/methods.json` rather than as a closed IANA
+`https://agtp.io/api/methods.json`, in contrast to a closed IANA
 registry, so that the catalog can evolve at the cadence of agent
-deployment rather than the cadence of IETF process. The structural
+deployment, which outpaces the cadence of IETF process. The structural
 status codes, the media types, and the response headers below are
 appropriate for IANA registration; the method catalog is the exception.
 
@@ -2562,7 +2562,7 @@ and are anticipated in future revisions:
 
 - The full text of the method catalog (425 methods at catalog
   version 1.0.0). v00 references the published JSON at
-  `agtp.io/api/methods.json` rather than embedding the catalog
+  `agtp.io/api/methods.json` without embedding the catalog
   inline. A future revision may include a curated subset as a
   non-normative appendix; the authoritative catalog remains the
   published JSON per {{list-maintenance}}.
@@ -2782,8 +2782,8 @@ or is retained only for legacy clients that have yet to migrate.
 
 The conversion tool generates endpoint declarations and handler
 stubs from the existing OpenAPI specification, leaving the
-organization to fill in the business logic. The work is conversion,
-rather than greenfield development.
+organization to fill in the business logic. The work is conversion;
+nothing is built from scratch.
 
 Translate-and-rehost deployments leave the `apis` array empty once
 the HTTP layer retires; during transition, the array continues to
@@ -2798,8 +2798,8 @@ unaffected. Two interfaces, one backend, indefinite coexistence.
 
 This is the path most large enterprises will take when regulatory,
 contractual, or customer-relationship commitments make a forced
-migration impractical. AGTP-METHODS is additive in this posture rather than
-replacing.
+migration impractical. AGTP-METHODS is additive in this posture and
+replaces nothing.
 
 Coexist-permanently deployments populate `apis` with HTTP API
 descriptors that include `http_documentation` URLs pointing at the
@@ -2807,8 +2807,8 @@ HTTP-side OpenAPI specifications.
 
 ## Path Selection
 
-The right path depends on organizational constraints rather than protocol
-preferences. Wrap-and-expose is the path that scales: it is the one
+The right path depends on organizational constraints; the protocol
+has no preference. Wrap-and-expose is the path that scales: it is the one
 that can move millions of existing APIs to AGTP-METHODS discoverability
 at low cost. Translate-and-rehost is the right target for
 organizations committing to AGTP-METHODS as the long-term primary

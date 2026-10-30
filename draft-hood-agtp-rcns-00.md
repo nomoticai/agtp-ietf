@@ -295,7 +295,7 @@ closed:
 |---|---|
 | Server policy disabled | `464 RCNS No Contract` reason: `rcns-disabled` |
 | Caller opt-in absent | Standard unregistered-pair refusal (`404` or `405`); RCNS goes unsignaled |
-| Caller scope absent | `262 Authorization Required` reason `scope-required scope: rcns:negotiate` when the agent's identity document grants the token but the request left it unclaimed; `455 Scope Violation` reason `scope-exceeded` when the document omits it (obtainability rule of {{AGTP}}) |
+| Caller scope absent | `262 Authorization Required` reason `scope-required scope: rcns:negotiate` when the agent's identity document grants the token but the request omitted it from its claim; `455 Scope Violation` reason `scope-exceeded` when the document omits it (obtainability rule of {{AGTP}}) |
 | Trust tier insufficient | `464 RCNS No Contract` reason: `trust-tier-insufficient` |
 {: title="Four-Lock Gate Refusal Mapping"}
 
@@ -354,7 +354,7 @@ specific success code) for the underlying action. The
 response **MUST** carry the `Contract-Synthesized` header
 with the issued `synthesis_id`, signaling to the caller
 that this response was served under a runtime-negotiated
-contract rather than a Tier A or Tier B endpoint. Callers
+contract, as distinct from a Tier A or Tier B endpoint. Callers
 that wish to repeat the action send subsequent requests
 with the `Contract-Synthesized` header to bypass the gate.
 
@@ -479,11 +479,11 @@ implementations **SHOULD** default to a conservative value
 (e.g., 10 evaluations per minute) and operators **MAY**
 raise it.
 
-Rate limiting applies to gate evaluations rather than to
-invocations served under an already-issued contract.
+Rate limiting applies to gate evaluations only; invocations served
+under an already-issued contract are outside it.
 Repeated `Contract-Synthesized`-bearing requests against a
 synthesized contract are rate-limited like any other
-endpoint rather than under the RCNS rate limit.
+endpoint, outside the RCNS rate limit.
 
 ### Attribution-Record Extension Fields {#rcns-attribution-fields}
 
@@ -518,7 +518,7 @@ authored and is invisible to callers on the wire; what is
 visible is the *result* of the configuration (whether the
 gate fires, which mode it delivers in, what the rate ceiling
 is). The block name (`[policies.rcns]` in the recommended
-TOML form) is conventional rather than normative; servers using
+TOML form) is conventional and carries no normative weight; servers using
 different configuration formats apply equivalent semantics.
 
 | Knob | Default | Purpose |
@@ -677,7 +677,7 @@ in effect at the moment the contract was produced.
 The `version` field is operator-defined; servers **MUST** treat
 the value opaquely. The recommended convention is a monotonically
 increasing string (semver, integer counter, or timestamp); the
-specific format leaves wire interoperability unaffected.
+specific format has no effect on wire interoperability.
 
 When a server synthesizes a contract from a recipe:
 
@@ -703,8 +703,8 @@ disturb in-flight callers; callers who need the updated
 behavior reproduce the proposal under the new recipe version.
 Operators that want to force callers off an old recipe version
 use the contract revocation surface specified in
-{{rcns-overview}} (revoking specific `synthesis_id` values)
-rather than mutating recipes in place.
+{{rcns-overview}} (revoking specific `synthesis_id` values);
+recipes are never mutated in place.
 
 ## Server-Side Synthesis Evaluation {#server-side-synthesis-evaluation}
 
@@ -728,7 +728,7 @@ On receipt of a PROPOSE request, the server **MUST** evaluate:
 5. **Authority sufficiency.** Does the proposing agent's
    declared Authority-Scope cover the proposed authority
    requirements? If the agent's identity document grants them but
-   the request left them unclaimed, return 262 Authorization
+   the request omitted them from its claim, return 262 Authorization
    Required with reason `scope-required`; if the document omits
    them, return 455 Scope Violation with reason `scope-exceeded`
    ({{AGTP}}).
@@ -756,7 +756,7 @@ Authority **MUST** be preserved through the composition. The agent's
 Authority-Scope **MUST** be sufficient for every underlying endpoint
 the synthesis invokes. If a composed step would require authority
 the agent lacks, the synthesis **MUST** fail at evaluation
-time (step 5) rather than at execution time.
+time (step 5), before any execution.
 
 ## Session-Scoped vs Persistent Synthesis
 
@@ -941,7 +941,7 @@ anticipated in future revisions:
   sweep trigger.
 
 - The `on_policy_change` contract-invalidation behavior is
-  specified ({{rcns-config}}) and remains unwired in the reference
+  specified ({{rcns-config}}) and still awaits wiring in the reference
   implementation.
 
 - Whether the trust-tier lock should also drive the stale contract

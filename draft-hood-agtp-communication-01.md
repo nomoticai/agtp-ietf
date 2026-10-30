@@ -198,8 +198,8 @@ preserves the timing and sequencing properties that real-time
 media requires while binding each frame to the Communication
 Session, and through it to the AGTP wire-level facts (identity,
 authority scope, attribution) established at ESTABLISH. Media
-frames carry the Session-ID and a stream identifier rather than the
-full AGTP request header set; the per-request proof of possession
+frames carry the Session-ID and a stream identifier only, with no
+AGTP request header set; the per-request proof of possession
 of {{AGTP}} is made once, at ESTABLISH and at each control message,
 and the session token binds the frames that follow to it.
 
@@ -326,7 +326,7 @@ either negotiates each modality in `modalities` or rejects with
 422 naming the one it cannot serve. A response that omits the
 `communication` key entirely means the responder predates this
 extension ({{AGTP-SESSION}}); the initiator **MUST** TERMINATE the
-session rather than send media into it.
+session; sending media into it is prohibited.
 
 ## Authority Scope Considerations
 
@@ -368,8 +368,8 @@ adaptation for AGTP transport:
 - Codec-specific parameters (sample rate, channels) are negotiated
 
 AGTP-COMMUNICATION reuses RTP timestamp and sequence semantics
-{{RFC3550}} where compatible, adapted for carriage on AGTP rather
-than UDP. This preserves established real-time audio handling while
+{{RFC3550}} where compatible, adapted for carriage on AGTP in place
+of UDP. This preserves established real-time audio handling while
 gaining AGTP's wire-level identity and attribution properties.
 
 ## Video Streams
@@ -579,8 +579,8 @@ modalities, scope tokens, and open questions are unchanged.
   that document. The four v00 headers are withdrawn.
 - **Status codes.** 451 becomes 455 Scope Violation, matching the
   renumbering in draft-hood-independent-agtp-10; parameter mismatch
-  is 422 with a re-offer body rather than 463, which base AGTP
-  reserves for PROPOSE.
+  is 422 with a re-offer body; 463, which v00 used, is the code base
+  AGTP reserves for PROPOSE.
 - **Carriage on the bindings** ({{carriage}}): QUIC streams and
   datagrams per modality, the TCP binding's limits, and the rule
   that media streams belong to the connection and are re-opened

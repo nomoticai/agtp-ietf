@@ -858,12 +858,12 @@ performs log-inclusion checks.
 An agent MAY hold multiple certificates simultaneously. Renewal
 overlap is one cause; key rotation under a stable Agent Genesis
 is another. Because the canonical Agent-ID is bound to the Agent
-Genesis rather than to any specific cert key pair, successive
+Genesis and to no specific cert key pair, successive
 certificates for the same agent **MUST** carry the same value in
 `agent-id` and **MAY** carry different public keys.
 Infrastructure **MUST** use the `agent-id` extension
-value as the authoritative agent identifier rather than the
-certificate subject CN, and **MUST NOT** treat key differences
+value as the authoritative agent identifier, with the
+certificate subject CN carrying no authority, and **MUST NOT** treat key differences
 across certificates for the same Agent-ID as evidence of an
 identity mismatch.
 
@@ -986,8 +986,8 @@ from one renamed extension.
 
 6. **Agent-ID hash** stated with `log_inclusion_proof` excluded,
    per base v10. Trust Tier 1 wording corrected: the certificate is
-   an input to the paths of {{AGTP-TRUST}} rather than a
-   requirement.
+   an input to the paths of {{AGTP-TRUST}}, which impose no
+   requirement for it.
 
 7. References: base to -10; AGTP-API removed (the `/genesis`
    sub-resource is base); AGTP-IDENTIFIERS -03, AGTP-TRUST -03,
@@ -1071,7 +1071,7 @@ with the wire header model defined in {{AGTP}}:
 
 2. The `principal-id` extension was renamed to `owner-id`. The
    extension has always carried the Owner-ID (the permanent principal
-   recorded on the Agent Genesis) rather than a per-request acting principal;
+   recorded on the Agent Genesis) and never a per-request acting principal;
    the name now matches the wire header and the underlying concept.
    Cross-references to the per-request delegating principal field on
    Attribution-Records were updated to use that field's new name
@@ -1096,8 +1096,8 @@ substantive changes were made in v01:
    extension value is now defined as the lexicographically
    sorted, comma-separated, UTF-8-encoded list of
    Authority-Scope tokens. Integrity is provided by the
-   certificate's enclosing CA signature rather than by a separate
-   Ed25519 signature carried in the extension. The earlier
+   certificate's enclosing CA signature; the separate
+   Ed25519 signature the extension once carried is gone. The earlier
    detached-signature framing is withdrawn. SEP enforcement
    parses the token list once per session and checks request
    tokens by set membership; the operational contract is
@@ -1153,7 +1153,7 @@ substantive changes were made in v01:
 6. **`activation-certificate-id` semantics clarified.** The
    field is now defined as a cross-layer reference to the
    Agent Genesis lifecycle event that activated this
-   certificate, rather than to a `certificate_hash` field
+   certificate, in place of a `certificate_hash` field
    that no longer exists under the locked taxonomy. The
    relying-party contract is unchanged: a 64-hex value
    suitable for cross-layer audit reconstruction.
@@ -1178,7 +1178,7 @@ substantive changes were made in v01:
    Section references that pointed at v02 / v06 section
    numbers (`Section 6.2`, `Section 6.7`, `Section 6.7.3`,
    `Section 8.7`) are removed; cross-references now name the
-   companion document and the concept rather than a specific
+   companion document and the concept in place of a specific
    section number, since section structure in {{AGTP}}
    continues to evolve. RFC 4122 added to normative references
    to support the OID derivation.
@@ -1198,4 +1198,4 @@ OIDs. The OIDs themselves are unchanged across v01, v02, and v03;
 only the canonical short names changed in v02.
 
 All other changes are editorial or specify operational
-behavior that v00 left unspecified.
+behavior that v00 was silent on.

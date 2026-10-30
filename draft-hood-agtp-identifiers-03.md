@@ -141,7 +141,7 @@ and that a log entry was written, but they cannot prove that the
 specific agent that issued the request was the specific agent that
 took the action, that the action was authorized by a specific
 governance decision, or that the log entry was the original record
-rather than a reconstruction.
+and no reconstruction.
 
 The accountability gap matters in three settings:
 
@@ -155,7 +155,7 @@ The accountability gap matters in three settings:
   system decided at the moment of action.
 
 AGTP closes the gap by treating the identifier chain as a
-first-class protocol primitive rather than as application-level
+first-class protocol primitive; on HTTP it is application-level
 metadata.
 
 ## A Layered Model Over Existing Primitives
@@ -523,7 +523,7 @@ Request-ID MUST be:
 - A UUIDv7 per {{RFC9562}} or a ULID rendered as 26 base32
   characters, selected at the caller's discretion. Both schemes
   provide monotonic ordering and high collision resistance.
-- Minted by the calling agent rather than by the server. Server-minted
+- Minted by the calling agent, never by the server. Server-minted
   identifiers break the causal chain because the caller cannot
   prove it issued the request before the server received it.
 - Carried in the `Request-ID` request header.
@@ -787,7 +787,8 @@ The Audit-ID is computed as follows:
    The same Audit-ID becomes the `previous_audit_id` value in
    the agent's next emitted Attribution-Record.
 
-The hash covers the full signed JWS rather than the JSON payload. This
+The hash covers the full signed JWS, including signature and
+protected header, and never the JSON payload alone. This
 ensures that any modification of the signature, the protected
 header, or the payload invalidates the Audit-ID.
 
@@ -1046,7 +1047,7 @@ new request and response headers and as extensions to the
 existing `Attribution-Record` envelope. Headers defined by other
 AGTP drafts (Agent-ID, Owner-ID, Session-ID, Task-ID,
 Server-ID, Attribution-Record) are referenced by this document
-and left undefined here.
+and defined in theirs.
 
 ## New Headers Defined by This Document
 
@@ -1060,11 +1061,11 @@ and left undefined here.
 {: title="New Headers Defined by AGTP-IDENTIFIERS"}
 
 Owner-ID is a field of the Agent Genesis and the Identity Document
-rather than a header; earlier revisions of this document registered
+and never a request header; earlier revisions of this document registered
 it as a request header, which {{AGTP}} retired. Action-ID,
 Evaluation-ID, and Decision-ID are primarily carried as fields
-inside the extended Attribution-Record payload rather than as
-standalone wire headers. The Action-ID MAY appear as a
+inside the extended Attribution-Record payload; none of the three
+is a standalone wire header. The Action-ID MAY appear as a
 convenience header on the response for clients that need to
 reference it without parsing the JWS.
 
@@ -1430,11 +1431,10 @@ anticipated in future revisions:
 - Contract ID specification. Evaluation Records reference a
   `contract_id` (the governance contract or policy in effect at
   the time of evaluation). The contract ID scheme is referenced
-  but left undefined here.
+  here and defined in {{AGTP-RCNS}}.
 - Concrete redaction format for `inputs` in Evaluation Records.
 - The Owner Identity Document format. This document specifies
-  what Owner-ID resolves to but leaves undefined the document
-  structure.
+  what Owner-ID resolves to; the document structure is still open.
 - Cross-agent audit chain federation protocol. The wire format
   for `prior_actions` references in the Attribution-Record
   payload is specified; the federation protocol by which
@@ -1531,7 +1531,7 @@ The following substantive changes were made:
 1. **`Agent-ID` echo on responses corrected.** The Agent-ID
    section ({{agent-id}}) previously stated that responses carry
    the responding agent's identity in the `Server-ID` header
-   rather than echoing the requester's `Agent-ID`. This was wrong
+   in place of echoing the requester's `Agent-ID`. This was wrong
    on two counts: `Server-ID` is a host identifier and never an
    agent identifier, and responses do echo the request's
    `Agent-ID` per {{AGTP}}. The corrected text states that
@@ -1619,8 +1619,8 @@ The following substantive changes were made:
    section in {{AGTP}}. The field is distinct from
    `owner_id` (which identifies the agent's permanent
    principal on the Agent Genesis) and from the Agent-ID:
-   it identifies the per-request acting principal rather than the
-   agent itself or its owner. Verifiers walking the chain
+   it identifies the per-request acting principal, a different party
+   from the agent itself and from its owner. Verifiers walking the chain
    **SHOULD** consider `principal_id` (when present)
    when reconstructing on-whose-behalf semantics. The raw
    credential the claim was lifted from **MUST NOT** appear

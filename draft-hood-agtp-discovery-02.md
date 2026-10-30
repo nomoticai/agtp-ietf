@@ -187,8 +187,8 @@ The discovery architecture for AGTP is layered:
   and preload awareness of agents the observed agent is likely to
   need before explicit queries are issued.
 
-This document leaves population awareness undefined; that is the
-responsibility of {{AGTP-PRESENCE}}. This document specifies the
+Population awareness is the responsibility of {{AGTP-PRESENCE}} and
+is outside this document. This document specifies the
 application-layer query and naming interfaces that compose with
 that substrate.
 
@@ -212,8 +212,8 @@ neither use case well.
 ## Design Principles
 
 **Agent-native.** Search, discovery, and naming results return
-Canonical Agent-IDs and Agent Identity Documents rather than web
-pages or proprietary records. The result of a DISCOVER query is
+Canonical Agent-IDs and Agent Identity Documents; no web page or
+proprietary record appears in a result. The result of a DISCOVER query is
 structurally identical to the result of resolving a known agent URI.
 
 **Governed.** ANS servers and DISCOVER endpoints are AGTP-aware
@@ -233,7 +233,7 @@ required to interact with each discovered agent before commitment.
 
 **Layered.** This document leaves population awareness to
 {{AGTP-PRESENCE}}. The DISCOVER method and ANS compose with Presence
-rather than replicating its function.
+and replicate none of its function.
 
 # Terminology
 
@@ -623,7 +623,7 @@ tied to AGTP activation:
 4. The ANS server updates its result index within 60 seconds.
 
 Manual registration is unsupported. ANS registration is a consequence
-of AGTP activation rather than an independent step. This ensures that only
+of AGTP activation and never an independent step. This ensures that only
 Active, registered agents appear in discovery results.
 
 ## ANS Deregistration
@@ -750,7 +750,7 @@ observed pattern.
 
 ## Architectural Position
 
-ADS is an application-layer service rather than a substrate-level mechanism.
+ADS is an application-layer service, above the substrate.
 It composes with the layers specified elsewhere in the AGTP draft
 family:
 
@@ -870,8 +870,8 @@ platform's pre-packaging verification pipeline and embedded in the
 agent's `.agent` or `.nomo` package at issuance time. The score is
 part of the signed manifest and cannot be modified without invalidating
 the package integrity hash. ANS servers **MUST** use the trust score
-from the verified Agent Identity Document rather than from any agent-asserted
-field.
+from the verified Agent Identity Document; agent-asserted fields are
+ignored.
 
 ## Scope Negotiation Abuse
 
@@ -956,7 +956,7 @@ lossy in one direction and incomplete in the other:
 | `methods`, `scopes_accepted` | the record's capability or skill list | as strings; the AGTP semantics are lost |
 | `status` (lifecycle state) | none | lost; a DAWN record cannot say an agent is suspended |
 | issuer signature, `agent_public_key` | none | lost; a DAWN record is self-asserted |
-| attachment (current location) | the record's endpoint URL | yes, as a URL rather than a signed attachment |
+| attachment (current location) | the record's endpoint URL | yes, as a bare URL; the signature is lost |
 {: title="Identity Document to DAWN Record"}
 
 An AGTP agent that publishes a DAWN record **MUST** place its
@@ -964,7 +964,7 @@ Canonical Agent-ID in the record so that a DAWN resolver's result can
 be discovered (in the sense of {{vocabulary}}) through AGTP to the
 signed Identity Document. A DAWN record with no Agent-ID maps to an
 Identity Document at Level 1 of {{AGTP}} only, with no issuer, and
-AGTP treats it as a search result rather than a discovered identity.
+AGTP treats it as a search result, short of a discovered identity.
 The reverse mapping, from a DAWN record to an Identity Document, is
 therefore never a substitute for registration.
 
@@ -980,8 +980,8 @@ representation of the requester's current attachment (site, VPN,
 tenant, slice, edge region). The motivating failure is a discovery
 system that keeps returning an instance that has been withdrawn or
 is unreachable from where the requester now is. AGTP meets the same
-need with one publish event and one verified identity rather than
-two feeds, and the mapping is worth stating for readers coming from
+need with one publish event and one verified identity in place of
+two feeds, and the mapping is stated here for readers coming from
 that work.
 
 The Resource Publication Hook is ACTIVATE. A successful ACTIVATE is
@@ -1010,8 +1010,8 @@ requester's own presence: the overlays it has joined and the
 attachment record it has itself announced per {{AGTP-PRESENCE}},
 whose `region` partition dimension carries exactly the site and edge
 granularity the use case needs. In both cases the context arrives
-signed and bound to the requester rather than inferred by a
-middlebox, which is the integrity, origin, and freshness protection
+signed and bound to the requester, with no middlebox inferring it,
+which is the integrity, origin, and freshness protection
 {{DAWN-INFRA}} asks for in its security considerations, and the
 underlying network detail (UPF, DNN, slice, serving gateway) stays
 with the network, since the abstract context is all the requester's
@@ -1096,7 +1096,7 @@ The following substantive changes were made in v01:
 
 3. **ANS reframed as name resolution.** The Agent Name Service section
    now positions ANS as a governed name-to-Agent-ID resolution layer
-   analogous to DNS, complementing rather than duplicating the
+   analogous to DNS, complementing the
    population awareness provided by AGTP-Presence. A new "Relationship
    to Presence" subsection makes the layered composition explicit.
 
@@ -1118,5 +1118,5 @@ The following substantive changes were made in v01:
 The DISCOVER method wire format is unchanged. Implementations
 conforming to v00 of this document continue to interoperate with v01.
 The architectural reframing affects how the document describes the
-relationships between layers; it leaves unchanged the protocol behavior
-that v00 implementations have shipped.
+relationships between layers; the protocol behavior that v00
+implementations have shipped is the same.

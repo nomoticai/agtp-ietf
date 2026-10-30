@@ -259,7 +259,7 @@ Additional packaging formats **MAY** be defined by third parties,
 provided they can produce conformant `.agtp` Identity Documents when
 queried. Such formats **MUST** implement the integrity verification
 requirement: the Identity Document **MUST** be derived from a verified
-package rather than from an independently stored or editable file.
+package, never from an independently stored or editable file.
 
 ## Agent Identity Document Schema
 
@@ -473,7 +473,7 @@ The following fields are **RECOMMENDED**:
   PURCHASE and verified per {{AGTP-MERCHANT}}; `agent` is
   the default capability posture for all other agents.
   `role` is a capability attribute carried on the Agent
-  Identity Document rather than on the Agent Genesis: capability
+  Identity Document and absent from the Agent Genesis: capability
   may change over an agent's lifetime without changing
   identity. Operators **MAY** add or remove the `merchant`
   role without re-issuing the Agent Genesis or rotating

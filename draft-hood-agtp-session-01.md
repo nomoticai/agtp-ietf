@@ -103,7 +103,8 @@ specifies the session identifier format, the ESTABLISH, RESUME, and
 TERMINATE methods and their wire format, and resumption after
 transport loss, in which a session is bound to its participants by a
 signed session token and to the live sender by the per-request
-signature of base AGTP rather than to any transport connection.
+signature of base AGTP; no transport connection is part of the
+binding.
 
 --- middle
 
@@ -145,8 +146,8 @@ Session:
 : A logical context shared between AGTP participants under which
   multiple method invocations are correlated, identity and authority
   remain consistent, and shared state evolves across the lifetime of
-  the session. Sessions are agent-level abstractions rather than
-  transport-level constructs.
+  the session. Sessions are agent-level abstractions and exist
+  above any transport-level construct.
 
 Bounded Session:
 : A session with an explicit termination condition: a time limit, an
@@ -251,7 +252,7 @@ primary mechanism. Explicit establishment provides:
   governance platform unavailability)
 - Predictable enforcement boundaries for governance platforms and
   Scope-Enforcement Points, which can recognize session establishment
-  as a distinct event rather than inferring it from method context
+  as a distinct event with no inference from method context
 
 ## ESTABLISH Wire Format {#establish}
 
@@ -309,8 +310,8 @@ the same key in the response; a responder that fails to recognize a
 key **MUST** ignore it and **MUST** omit it from the response, so
 that the absence of the key in the response tells the initiator the
 extension went unnegotiated. An initiator for which the extension
-is essential **MUST** then TERMINATE the session rather than use it
-without the extension. The first registered extension is
+is essential **MUST** then TERMINATE the session; using it without
+the extension is prohibited. The first registered extension is
 `communication`, defined by {{AGTP-COMMUNICATION}}.
 
 A successful response is `200 OK` with the `Session-ID` response
@@ -469,7 +470,7 @@ that the token's signature verifies under its own key and its `sid`
 equals the `Session-ID` header; that the request's `Agent-ID` equals
 the token's `initiator`; that `exp` is in the future and the resume
 window is still open; and that the session is in
-`Suspended-by-transport` rather than terminated. On success the
+`Suspended-by-transport`, short of terminated. On success the
 responder returns `200 OK` with the `Session-ID` header and a body
 carrying `last_response_id` and `session_root` as seen on its side,
 so the initiator can detect a response lost in transit and
@@ -530,8 +531,8 @@ companion.
 
 AGTP-SESSION inherits all base AGTP properties:
 
-- Agent-only at the wire level. Sessions exist between agents rather
-  than between general-purpose actors.
+- Agent-only at the wire level. Sessions exist between agents;
+  general-purpose actors have no session.
 - Agent-ID present on every method invocation, including invocations
   within a session, with Owner-ID resolved from the agent identity
   document the Agent-ID references.
@@ -703,8 +704,8 @@ deliberate scope expansion attempts.
 Mitigation: Authority-Scope is enforced on every invocation
 regardless of session context. A scope violation **MUST** trigger
 455 Scope Violation per base AGTP. Receiving parties **MAY** elect
-to terminate the session on first scope violation rather than
-continuing to accept further invocations. Termination on scope
+to terminate the session on first scope violation instead of
+accepting further invocations. Termination on scope
 violation is **RECOMMENDED** for bounded sessions where the violation
 suggests the session boundary has been compromised.
 
@@ -739,7 +740,7 @@ termination reason. Mid-session revocation of
 either participant's Agent Genesis or Agent Certificate **MUST**
 result in session termination. Time-based expiry of bounded sessions
 **MUST** be enforced against the establishing governance platform's
-authoritative time rather than participant-local clocks.
+authoritative time; participant-local clocks are advisory.
 
 # IANA Considerations {#iana}
 
@@ -773,8 +774,8 @@ Required, with one initial entry:
 # Open Questions
 
 - Should the session root be carried as a periodic checkpoint on
-  responses within the session, and at what interval, rather than
-  only on RESUME and TERMINATE?
+  responses within the session, and at what interval, beyond its
+  carriage on RESUME and TERMINATE?
 - How are persistent sessions migrated across governance platform
   changes (e.g., merchant changes governance providers mid-session)?
 - Should AGTP define an agent type system (Agent Content-Type)
@@ -798,7 +799,7 @@ shipped changes.
   responder-assigned, uncorrelated with Agent-IDs
 - ESTABLISH body extensions ({{body-extensions}}) and their
   registry, so companions such as {{AGTP-COMMUNICATION}} negotiate
-  through the one ESTABLISH grammar rather than through headers
+  through the one ESTABLISH grammar with no headers of their own
   ({{session-identifier}}).
 - ESTABLISH wire format specified, with RESUME and TERMINATE added
   and all three registered ({{establish}}, {{resumption}}, {{iana}}).
@@ -823,11 +824,11 @@ shipped changes.
 - Status code for scope violation at ESTABLISH corrected from 451 to
   455, matching the base renumbering.
 - `Principal-ID` references replaced. Base AGTP records Owner-ID in
-  the agent identity document referenced by Agent-ID rather than as
+  the agent identity document referenced by Agent-ID and never in
   a request header; the ESTABLISH field list and the inheritance
   section now say so.
 - QUIC 0-RTT guidance defers to the replay-safety profile and
-  early-data eligibility list in {{AGTP-BINDINGS}} rather than
+  early-data eligibility list in {{AGTP-BINDINGS}} without
   restating the rule.
 - Real-time voice, video, and multi-modal exchange now points to
   {{AGTP-COMMUNICATION}}, which builds on ESTABLISH.

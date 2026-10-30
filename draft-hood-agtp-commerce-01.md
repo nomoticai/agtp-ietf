@@ -169,8 +169,8 @@ existing payment infrastructure operated by entities with the
 appropriate licenses, regulatory standing, and operational
 relationships. This separation of concerns is intentional and
 structurally important: it positions AGTP-Commerce as a messaging
-specification analogous to {{ISO20022}} rather than as a money
-transmitter or payment processor.
+specification analogous to {{ISO20022}}, outside the categories of
+money transmitter and payment processor.
 
 The analogy is worth being explicit about. ISO 20022 is the global
 standard for inter-bank payment messaging. SWIFT is migrating to it.
@@ -266,9 +266,10 @@ This document specifies seven things:
 7. The negotiated tier mechanism for trusted-partnership pricing
    outside public manifests ({{negotiated-tiers}}).
 
-## What This Document Leaves Unspecified
+## What This Document Leaves to Others
 
-This document deliberately leaves unspecified:
+This document deliberately leaves to other specifications and to
+the parties themselves:
 
 - **Payment processing.** How a payment provider executes financial
   settlement through its infrastructure. This is the payment
@@ -300,8 +301,8 @@ This document deliberately leaves unspecified:
   identifiers without specifying internal formats.
 
 This narrow scope is what makes AGTP-Commerce defensible as a
-protocol specification. The document specifies messaging structures
-and leaves payment infrastructure operation unspecified.
+protocol specification. The document specifies messaging structures;
+payment infrastructure operation is outside it.
 
 # Pricing Manifest {#pricing-manifest}
 
@@ -316,8 +317,8 @@ DESCRIBE method per {{AGTP}} or via dedicated discovery paths per
 The manifest declares the agent's pricing tiers, accepted settlement
 rails, refund policy, dispute window, trust threshold requirements,
 and related commerce metadata. The manifest is a static document
-updated at the agent operator's discretion. It is fixed rather than
-negotiated at request time; negotiated tiers are addressed separately in
+updated at the agent operator's discretion. It is fixed before any
+request arrives; negotiated tiers are addressed separately in
 {{negotiated-tiers}}.
 
 ## Manifest Schema
@@ -452,7 +453,7 @@ dispute_window:
 
 partnership_tier:
 : **OPTIONAL**. Indicates a tier is available only through
-  pre-established partnership rather than public advertisement. See
+  pre-established partnership, with no public advertisement. See
   {{negotiated-tiers}}.
 
 ## Manifest Discovery
@@ -487,7 +488,7 @@ manifest. The Agent Name Service of {{AGTP-DISCOVERY}} therefore
 the manifest URI and the per-capability price of its public tiers,
 refreshed on each manifest update. The index is advisory: the signed
 manifest is the authoritative price, a DISCOVER result filtered by
-`max_cost` is a candidate rather than a quote, and a requesting agent
+`max_cost` is a candidate and no quote, and a requesting agent
 **MUST** fetch and verify the manifest before relying on a price. A
 manifest whose fetched price exceeds the indexed price is stale on
 the ANS side; the requesting agent treats the candidate as outside
@@ -781,7 +782,7 @@ no provider category.
 
 Every committed Transaction Record **MUST** be committed to AGTP-LOG
 as a `commerce-transaction-committed` statement ({{log-entry}}). The
-statement carries the record's digest and the parties rather than
+statement carries the record's digest and the parties and omits
 the record itself, since {{AGTP-LOG}} statements are public; the
 full record is held by both parties and disclosed to the payment
 provider or a dispute service against the committed digest. The log
@@ -991,8 +992,8 @@ dispute evidence rely on AGTP-LOG integrity.
 ## AGTP-MERCHANT-IDENTITY
 
 {{AGTP-MERCHANT-IDENTITY}} and AGTP-Commerce cover related but
-distinct concerns and compose together rather than substituting for
-one another. The relationship is intentional and load-bearing:
+distinct concerns and compose together; neither substitutes for the
+other. The relationship is intentional:
 
 **AGTP-MERCHANT-IDENTITY** specifies the merchant-side identity model
 for agents transacting through payment networks. It defines
@@ -1278,14 +1279,14 @@ cryptocurrency rail operators, specialized agent-economy service
 entrepreneurs, and institutional adopters of agent infrastructure.
 
 The specification is designed to compose with existing payment
-infrastructure rather than to compete with it. Feedback from payment
+infrastructure, which it extends and leaves in place. Feedback from payment
 processors on the integration surface, from banks on settlement
 mechanics, from regulators on positioning, and from agent operators
 on operational viability is welcome.
 
 The agent economy is emerging. AGTP-Commerce provides the protocol-
 level specification that allows that economy to develop on open,
-vendor-neutral infrastructure rather than on proprietary platforms
+vendor-neutral infrastructure, free of proprietary platforms
 controlled by single providers. This document is the architectural
 contribution to that goal; the operational ecosystem develops through
 the work of payment infrastructure operators, agent operators, and
@@ -1327,9 +1328,9 @@ endpoints, and dispute composition are unchanged.
   field.
 - **Transaction Records in AGTP-LOG** as a registered
   `commerce-transaction-committed` statement carrying the digest and
-  parties rather than the full record, since the log is public.
-- **TRANSACT registered through the AGTP-METHODS catalog** rather
-  than the base method registry, which holds the floor only.
+  parties and omitting the full record, since the log is public.
+- **TRANSACT registered through the AGTP-METHODS catalog**; the base
+  method registry holds the floor only.
 - **458 versus 462** noted.
 - References made explicit and pinned: base -10, AGTP-IDENTIFIERS
   -03, AGTP-TRUST -03, AGTP-CERT -04, AGTP-LOG -03,
