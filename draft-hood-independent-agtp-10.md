@@ -1698,7 +1698,7 @@ without affecting the wire contract.
 
 AGTP identity is agent-first. Every agent is identified by a canonical
 Agent-ID: a 256-bit cryptographic identifier derived from the agent's
-Agent Genesis hash at ACTIVATE time. The canonical Agent-ID is the
+Agent Genesis hash at registration. The canonical Agent-ID is the
 authoritative identifier in every AGTP protocol operation. It appears
 in the `Agent-ID` header of every request, is the key in the registry,
 and is the cross-layer reference linking the AGTP Agent Certificate
@@ -2099,7 +2099,7 @@ The Agent Genesis carries a `trust_tier` field (one of `1`
 Verified, `2` Org-Asserted, `3` Experimental) and a
 `verification_path` field (one of `dns-anchored`, `log-anchored`,
 `hybrid`, or `org-asserted`) recording how the agent's identity
-was anchored at ACTIVATE time. These fields are surfaced in the
+was anchored at registration. These fields are surfaced in the
 Agent Identity Document and consulted by Scope-Enforcement Points,
 governance gateways, and peer agents during runtime authority
 decisions.
@@ -2108,7 +2108,8 @@ Tier 1 agents are eligible for the full Authority-Scope vocabulary,
 delegation chains, financial transactions, and multi-organization
 collaboration. Tier 1 verification requires exactly one of three
 verification paths (`dns-anchored`, `log-anchored`, `hybrid`) to
-succeed at ACTIVATE time, each backed by distinct evidence (DNS
+succeed at registration, before ACTIVATE, each backed by distinct
+evidence (DNS
 TXT record, transparency log inclusion proof, or DNS + blockchain
 signature combination). All Tier 1 paths produce identity
 attestations of equivalent strength.
@@ -2300,10 +2301,13 @@ on:
 
 ### Overview
 
-An agent cannot participate in AGTP until it has been issued an Agent
+An agent cannot participate in AGTP until it has been issued an
 Agent Genesis by a governance platform and assigned a canonical
-Agent-ID derived from that certificate. Canonical Agent-IDs are issued
-through the ACTIVATE transaction; they are never self-declared.
+Agent-ID derived from that document. Canonical Agent-IDs are issued
+at registration, when the Genesis is signed; they are never
+self-declared, and ACTIVATE ({{methods-activate}}) is the later
+lifecycle transition that makes an already-issued Agent-ID
+reachable.
 
 The Agent Genesis is the genesis record of an agent's legal
 existence within the AGTP ecosystem. Its relationship to the canonical
@@ -2321,7 +2325,7 @@ an Active lifecycle state in a reachable registry.
 ### Agent Genesis Contents {#agent-genesis-contents}
 
 The Agent Genesis is issued by the governance platform at
-ACTIVATE time and contains the following fields:
+registration and contains the following fields:
 
 | Field | Required | Description |
 |---|---|---|
@@ -4658,7 +4662,9 @@ normative mechanism.
     org-asserted Genesis documents whose field is absent are
     unaffected, and a document that carried the field as `null`
     **MUST** be re-hashed by its issuer under the v10 rule before it
-    is served as v10.
+    is served as v10. The registration section's remaining
+    references to issuance "at ACTIVATE time" are corrected to
+    registration, matching the ACTIVATE definition.
 
 24. **Planned-header table relabeled** in the status vocabulary of
     {{conventions}}: `Budget-Limit` is specified in
