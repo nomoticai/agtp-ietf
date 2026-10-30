@@ -134,7 +134,7 @@ provides cryptographic verification of that institutional identity,
 and the vLEI Role Credentials provide the authorization chain from
 the legal entity through human officers to the agent. This document
 positions financial institutions, regulated entities, and other LEI
-holders to deploy agents with structurally verifiable institutional
+holders to deploy agents with verifiable institutional
 identity from day one.
 
 --- middle
@@ -342,7 +342,7 @@ a secondary operational identifier:
 ~~~
 
 Verifiers resolving the primary identifier against GLEIF can verify
-the institutional identity. Verifiers operating purely against
+the institutional identity. Verifiers operating only against
 domain-anchored identifiers can use the secondary form. The two
 identifiers refer to the same legal entity but provide different
 verification paths.

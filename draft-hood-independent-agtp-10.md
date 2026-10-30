@@ -296,7 +296,7 @@ the fundamental model of HTTP being stateless, resource-oriented,
 human-initiated request/response, creates specific failures when applied
 to agentic systems at scale:
 
-- Traffic indistinguishability: Agent-generated requests are structurally
+- Traffic indistinguishability: Agent-generated requests are
   identical to human-initiated requests on the wire. Operators
   cannot identify, route, or govern agent traffic without application-layer
   instrumentation.
@@ -311,7 +311,7 @@ to agentic systems at scale:
   accountable for an agent's actions.
 
 - Session semantics mismatch: HTTP's stateless model is optimized for
-  isolated request/response cycles. Agent workflows are inherently stateful
+  isolated request/response cycles. Agent workflows are stateful
   sequences.
 
 ## Why Not Evolve HTTP? {#why-not-http}
@@ -726,8 +726,9 @@ self-asserted, unsigned, and carries no lifecycle state or enforced
 scope. An Agent Identity Document maps to an Agent Card for
 interchange with a loss of those properties ({{AGTP-DISCOVERY}}
 specifies the mapping); an Agent Card maps to an Identity Document
-only at Level 1, with no issuer. The two are different objects and
-this family uses neither name for the other.
+only at Level 1, with no issuer. An Agent Card and an Identity
+Document are different objects, and this family uses neither name for
+the other.
 
 # Architectural Principles {#architectural-principles}
 
@@ -751,7 +752,7 @@ AGTP provides substrate primitives. Adjacent layers (Agent Group
 Messaging Protocols, external identity providers, HTTP gateways,
 agent application logic) compose over the substrate. The substrate
 **MUST NOT** rely on application-layer cooperation for properties it
-provides; it **MUST** enforce them structurally at the transport
+provides; it **MUST** enforce them itself at the transport
 boundary.
 
 This principle has direct consequences:
@@ -774,7 +775,7 @@ The substrate's correctness is independent of the application
 implementing required behaviors. Vulnerabilities of the form
 "middleware was supposed to check X but checked Y instead" cannot
 arise in the substrate layer because the substrate enforces X
-structurally, before any middleware runs.
+itself, before any middleware runs.
 
 ## Identity at the Wire
 
@@ -824,8 +825,7 @@ and leaves the obligations to the owner and the governance platform.
 
 Agents lack autonomy in the strong sense. Every agent has a
 creator, an owner, and a governance context established outside the
-agent's own operation. AGTP's identity primitives reflect this fact
-structurally.
+agent's own operation. AGTP's identity primitives reflect this fact.
 
 - The Agent Genesis is signed by a registrar before any agent traffic
   exists. The Agent Genesis is the permanent governance-layer record
@@ -861,8 +861,8 @@ substantial. An agent operating outside its granted authority is
 a governance failure (the protocol structurally prevents the
 out-of-scope action, so the protocol itself has held) traceable to the
 principal who granted the authority, the registrar who recorded it,
-or the operator who deployed the agent. Each is identified at the
-wire layer.
+or the operator who deployed the agent, each of whom the wire
+identifies.
 
 ## Structural Enforcement, Not Policy Enforcement
 
@@ -883,7 +883,7 @@ the architecture allows.
 **Defense in depth vs defense by configuration.** AGTP composes with
 application-layer security (input validation, application-specific
 authorization, business logic enforcement). AGTP leaves in place
-these. AGTP provides structural primitives that compose cleanly with
+these. AGTP provides primitives that compose with
 application-layer security so that the combined system is stronger
 than either layer alone.
 
@@ -938,7 +938,7 @@ The principle has economic and operational consequences:
 Adjacent layers benefit from substrate properties without needing to
 implement them. Composition works because the substrate carries
 identity, authority, attribution, and audit;
-adjacent layers focus on what they actually contribute (tool
+adjacent layers focus on what they contribute (tool
 semantics, conversational structure, authorization framework, REST
 translation).
 
@@ -1442,7 +1442,7 @@ requests that carry them:
 AGTP defines its own status code space. Codes 261 through 263,
 455 through 465, and 550 through 555 are AGTP-specific with no HTTP
 equivalent and are registered in the IANA AGTP Status Code Registry
-(see {{iana-status}}). AGTP-specific code numbers are deliberately
+(see {{iana-status}}). AGTP-specific code numbers are
 chosen from ranges unassigned in the IANA HTTP Status Code Registry
 to avoid semantic collision with HTTP status codes that may appear
 in payloads carried by AGTP method invocations.
@@ -1872,7 +1872,9 @@ The syntactic distinction between Form 2 (any RFC 3986 host,
 possibly with port) and Form 2a (bare DNS domain) corresponds to a
 semantic distinction. Form 2 addresses a specific reachable
 server; Form 2a addresses whichever server the organization's DNS
-currently points at. Both are valid; they differ in caller intent.
+currently points at. Both forms are valid; a caller chooses by
+whether it means that server or whichever server the organization
+designates.
 
 #### Forms 3 and 4: Domain-Anchored Agents
 
@@ -2050,8 +2052,8 @@ When an AGTP resolver receives a URI of the form
    format specified by the query parameter.
 
 Form 1 resolution requires no prior knowledge of an organization
-domain, a DNS record, or a Web3 naming anchor. The canonical Agent-ID
-is sufficient input.
+domain, a DNS record, or a Web3 naming anchor; the canonical Agent-ID
+is the only input.
 
 #### Forms 2 and 2a Resolution (Server and Organization Discovery)
 
@@ -3499,9 +3501,9 @@ authority from a delegating agent to a sub-agent before the
 sub-agent's request is accepted. The post-execution side, specified
 in {{AGTP-IDENTIFIERS}}, is the attribution of a completed action to
 the sequence of agents that caused it, through the `prior_actions`
-chain in the Attribution-Record. The two compose: the Delegation
-Sequence a request carries is the same sequence its Attribution-Record
-later records.
+chain in the Attribution-Record. The Delegation Sequence a request
+carries is the same sequence its Attribution-Record later records,
+so the two sides compose.
 
 ## The Delegation Sequence
 
@@ -4329,7 +4331,7 @@ Registry name:
 Registration procedure:
 : Expert Review + published specification required.
 
-AGTP-specific status code numbers are deliberately chosen from
+AGTP-specific status code numbers are chosen from
 ranges unassigned in the IANA HTTP Status Code Registry to avoid
 semantic collision with HTTP status codes that may appear in
 payloads carried by AGTP method invocations.

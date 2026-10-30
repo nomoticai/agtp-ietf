@@ -585,7 +585,7 @@ agent-aware substrate. Under this model, a session is, by definition,
 an agent session. The protocol carries identity, authority, and
 attribution at the wire level for every method invocation within the
 session, because the substrate beneath the session already commits to
-carrying agent traffic structurally.
+carrying agent traffic and nothing else.
 
 The two architectures can coexist in deployment. MOQT-style
 relay-based pub/sub patterns and real-time media streaming address
@@ -621,7 +621,7 @@ specification.
 
 # Out of Scope for v01
 
-The following are deliberately out of scope for this version:
+The following are out of scope for this version:
 
 - Real-time voice and barge-time interruption semantics
   ({{AGTP-COMMUNICATION}})

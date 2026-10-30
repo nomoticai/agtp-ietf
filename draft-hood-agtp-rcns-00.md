@@ -257,7 +257,7 @@ under the contract.
 
 RCNS synthesis fires only when **all four** of the following
 locks are open at the moment of an unregistered request.
-The locks are deliberately distributed across actors: server
+The locks are distributed across actors: server
 operator, requesting agent's invoker, requesting agent's
 identity, and requesting agent's posture. No single party
 can unilaterally activate RCNS.
@@ -531,7 +531,7 @@ different configuration formats apply equivalent semantics.
 | `on_policy_change` | `grandfather` | Default behavior of the operator-fired stale-contract sweep ({{stale-contract-sweep}}). One of `grandfather` (report drifted contracts but leave them running) or `invalidate` (evict drifted contracts and emit `rcns_release` events with `reason: policy-change-invalidation`). The sweep is operator-fired; this knob sets its default mode, which operators **MAY** override per invocation. |
 {: title="RCNS Configuration Knobs"}
 
-The default posture is deliberately conservative: a
+The default posture is conservative: a
 freshly-installed AGTP server has RCNS disabled and, when
 enabled, defaults to confirm-first delivery at the
 strictest trust tier with a low rate ceiling. Operators

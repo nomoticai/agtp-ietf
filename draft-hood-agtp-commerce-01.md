@@ -163,12 +163,12 @@ structures are agent-native and substrate-aware, composing with the
 existing AGTP specifications for identity, trust, certificates, and
 logging.
 
-What AGTP-Commerce deliberately leaves to others is the execution of
+What AGTP-Commerce leaves to others is the execution of
 the financial transaction itself. Money movement remains the responsibility of
 existing payment infrastructure operated by entities with the
 appropriate licenses, regulatory standing, and operational
-relationships. This separation of concerns is intentional and
-structurally important: it positions AGTP-Commerce as a messaging
+relationships. This separation of concerns is intentional: it
+positions AGTP-Commerce as a messaging
 specification analogous to {{ISO20022}}, outside the categories of
 money transmitter and payment processor.
 
@@ -218,7 +218,7 @@ Settlement Endpoint:
   established independently. Carries no banking information.
 
 Transaction Record:
-: The structurally signed record of a commerce agreement between two
+: The dual-signed record of a commerce agreement between two
   agents. Created by the TRANSACT method, logged through AGTP-LOG.
 
 Payment Provider:
@@ -268,7 +268,7 @@ This document specifies seven things:
 
 ## What This Document Leaves to Others
 
-This document deliberately leaves to other specifications and to
+This document leaves to other specifications and to
 the parties themselves:
 
 - **Payment processing.** How a payment provider executes financial
@@ -1016,7 +1016,7 @@ Agents transacting agent-to-agent without a payment network
 intermediary use the TRANSACT method and the settlement endpoints
 that the receiving agent's operator has independently configured.
 
-The two compose: agents transacting through payment networks **MAY**
+The documents compose: agents transacting through payment networks **MAY**
 use both AGTP-MERCHANT-IDENTITY (for the payment-network-side
 identity and PURCHASE flow) and AGTP-Commerce (for pricing manifests,
 budget signaling, and audit-trail receipts). The PURCHASE method
@@ -1045,7 +1045,7 @@ requires institutional verification.
 Pricing-aware discovery composes with the Presence layer in
 {{AGTP-PRESENCE}}. Agents can be discovered with capability matching
 plus pricing constraints in a single query. The capability partition
-dimension in Presence overlays composes naturally with the scope-based
+dimension in Presence overlays composes with the scope-based
 pricing tiers in commerce manifests.
 
 ## AGTP-DISCOVERY
@@ -1243,7 +1243,7 @@ roughly this path:
 
 6. Operate within existing regulatory framework.
 
-The integration is structurally simple because AGTP-Commerce requires
+The integration is simple because AGTP-Commerce requires
 no change to the payment provider's underlying operations.
 Only the integration surface (Transaction Record consumption,
 settlement endpoint issuance) is new.

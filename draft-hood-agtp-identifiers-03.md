@@ -190,7 +190,8 @@ This document introduces no new transparency log. The
 identity-lifecycle transparency log defined in {{AGTP-LOG}}
 records Agent Genesis issuance and lifecycle events; this document
 operates against the per-response Attribution-Record envelope of
-{{AGTP}}. The two are complementary records of different concerns.
+{{AGTP}}. The log records identity events; the envelope records
+actions. Each concern has its own record.
 
 ## Identifier Layers
 
@@ -911,7 +912,8 @@ from a recording agent's Attribution-Record to the upstream
 Audit-IDs its action depended on, verified after the fact,
 establishing who caused what.
 
-The two compose and are checked against each other. When a request
+The sequence and the record compose and are checked against each
+other. When a request
 carried a `Delegation-Chain`, the Attribution-Record its response
 produces **MUST** carry `delegation_sequence_digest`: the SHA-256 of
 the `Delegation-Chain` header value as verified. A verifier that

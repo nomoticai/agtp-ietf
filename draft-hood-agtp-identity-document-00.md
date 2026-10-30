@@ -636,7 +636,7 @@ verification model in {{AGTP}}):
    with its own key, so a relying party can rely on the recorded
    issuer being the actual signer.
 
-The two mechanisms are complementary: the package integrity hash
+The mechanisms are complementary: the package integrity hash
 protects against post-extraction modification of bundled assets;
 the inline signature protects against in-flight modification of
 the served document. An Identity Document that fails either

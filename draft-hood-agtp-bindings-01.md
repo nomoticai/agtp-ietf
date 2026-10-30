@@ -119,8 +119,8 @@ The Agent Transfer Protocol {{AGTP}} is a transfer protocol for AI
 agent traffic: it defines the semantics of an exchange, and the
 transport delivers the bytes. The base specification defines AGTP
 methods, headers, status codes, identity model, and the wire format
-for requests and responses. The base specification is intentionally
-transport-neutral: AGTP semantics are independent of which transport
+for requests and responses. The base specification is
+transport-neutral by design: AGTP semantics are independent of which transport
 carries them.
 
 This document specifies three transport bindings: TCP with TLS 1.3,
@@ -143,7 +143,7 @@ that follow the same pattern as this one.
 
 ## Why Transport Bindings Are Separate
 
-The base AGTP specification deliberately separates protocol semantics
+The base AGTP specification separates protocol semantics
 from transport mechanics. This separation has three benefits:
 
 **Transport neutrality.** AGTP semantics stay the same when the
@@ -449,8 +449,7 @@ cannot distinguish a replay from the original.
 AGTP requests carry authority-scoped actions. A replayed EXECUTE,
 DELEGATE, PURCHASE, or other action method could re-trigger
 authorized work, transfer funds, modify state, or produce duplicate
-side effects. This is a real security concern with deployed
-precedent.
+side effects.
 
 This document defines an AGTP-specific replay-safety profile
 governing early data use.
@@ -468,7 +467,7 @@ methods of {{AGTP}}. The methods eligible for early data are:
   equivalent results and touch no agent state.
 
 DESCRIBE, INSPECT, SUMMARIZE, and PLAN are safe per {{AGTP}} and are
-excluded here deliberately: INSPECT reads audit records whose access
+excluded here for cause: INSPECT reads audit records whose access
 is scoped and logged, SUMMARIZE and PLAN invoke model inference whose
 cost a replay multiplies, and DESCRIBE is cheap but gains nothing from
 0-RTT a cached result cannot give. Any of them **MAY** become eligible
@@ -749,7 +748,7 @@ management.
 
 Default idle timeouts (60 seconds for AGTP sessions) **MAY** be
 adjusted by deployment. For interactive agent workloads where
-sessions naturally pause between requests, longer idle timeouts
+sessions pause between requests, longer idle timeouts
 reduce reconnection overhead. For high-throughput batch workloads,
 shorter idle timeouts free server resources more quickly.
 
@@ -759,7 +758,7 @@ patterns.
 
 ## Connection Multiplexing
 
-QUIC's stream multiplexing naturally supports concurrent AGTP
+QUIC's stream multiplexing supports concurrent AGTP
 requests within a session without head-of-line blocking. TCP/TLS
 deployments needing concurrency **MAY** open multiple TCP/TLS
 connections; head-of-line blocking on a single TCP/TLS connection
@@ -914,8 +913,8 @@ specific method taxonomy.
   ({{early-signature}}), with the identity section restated around
   it.
 - Eligibility list kept at QUERY and DISCOVER with the reason stated;
-  the four other safe methods of {{AGTP}} are excluded deliberately
-  ({{eligible}}). ESTABLISH, RESUME, and TERMINATE added to the
+  the four other safe methods of {{AGTP}} are excluded, with the
+  reason for each ({{eligible}}). ESTABLISH, RESUME, and TERMINATE added to the
   prohibited list.
 - HTTP/3 and WebTransport binding added ({{h3-binding}}): extended
   CONNECT framing, WebTransport for browsers, early data under the
@@ -926,6 +925,6 @@ specific method taxonomy.
 - Transfer-protocol wording; house style pass.
 
 Wire format compatibility: the TCP/TLS and QUIC framing is unchanged.
-A v00 client that treats connection close as session end will simply
+A v00 client that treats connection close as session end will
 never RESUME, which is permitted. The HTTP/3 binding is new and
 optional.

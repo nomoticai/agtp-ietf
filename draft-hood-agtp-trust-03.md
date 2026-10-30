@@ -212,8 +212,8 @@ Freshness:
 
 # Credit Rating Analogy and Composable Trust Providers {#credit-rating}
 
-The architectural pattern this document specifies is structurally
-analogous to the credit rating infrastructure that operates for
+The architectural pattern this document specifies follows the
+credit rating infrastructure that operates for
 human and institutional entities today. Understanding this analogy
 clarifies what AGTP-TRUST defines, what it leaves to others, and how
 existing credit bureaus and new entrants can compose as trust
@@ -239,7 +239,7 @@ institutions in other jurisdictions operate on a consistent pattern:
   of credit scores select which bureau to trust for which decisions.
 
 The credit scoring algorithms used by FICO, VantageScore, and the
-bureaus themselves are proprietary and deliberately left
+bureaus themselves are proprietary and left
 unstandardized at the data-exchange layer. What is standardized is the identifier
 infrastructure, the evidence-collection mechanisms, and the format in
 which scores are exchanged.
@@ -260,7 +260,7 @@ architectural decomposition is:
 
 AGTP-TRUST normatively defines the identifier infrastructure, the
 evidence primitives, the score format, the freshness model, the
-signature binding, and the consumer behavior. AGTP-TRUST deliberately
+signature binding, and the consumer behavior. AGTP-TRUST
 leaves the score computation algorithm to the issuer, just as the
 credit bureau infrastructure leaves the FICO formula to FICO. Score
 computation is the trust provider's intellectual property and
@@ -272,7 +272,7 @@ This document explicitly invites existing credit bureaus and new
 entrants to operate as agent trust providers. The operational and
 regulatory infrastructure that Experian, Equifax, TransUnion, and
 similar institutions have built over decades for human and business
-credit scoring transfers naturally to agent trust scoring:
+credit scoring transfers to agent trust scoring:
 
 - Data aggregation pipelines that ingest behavioral evidence at scale
 - Algorithmic scoring infrastructure with operational maturity
@@ -313,11 +313,11 @@ without deploying AGTP infrastructure. They need to
 ingest AGTP-formatted evidence, run their existing scoring pipelines
 adapted for agent-specific data, and publish scores in the format
 this document specifies. The substrate-level evidence and the
-application-layer scoring compose cleanly.
+application-layer scoring compose.
 
 ## Forward-Looking Composability
 
-This document is intentionally forward-looking about composable trust
+This document is forward-looking about composable trust
 provision. The agent population is going to grow rapidly. Agent-driven
 economic activity is going to outpace human-driven activity in many
 domains. Existing credit infrastructure has the operational maturity
@@ -608,10 +608,10 @@ The OIDC-federated path lets enterprise deployments bottom
 the Genesis-issuer trust path out in their existing identity
 infrastructure, with no separate trusted-registrars list to
 maintain. The Genesis schema is unchanged;
-the change is purely in the resolution path the verifier
+the change is confined to the resolution path the verifier
 uses to decide whether a recorded issuer key is trusted.
 
-The two pattern types coexist: a
+The pattern types coexist: a
 verifier **MAY** maintain a mixed list with both `key` and
 `oidc` entries and consider an issuer trusted if any entry
 matches.
@@ -922,7 +922,7 @@ the freshness section above. Issuer key rotation is specified in
 
 ## What This Document Leaves to the Issuer
 
-AGTP-TRUST is deliberately silent on the specific algorithm an
+AGTP-TRUST is silent on the specific algorithm an
 issuer uses to compute a composite trust score. Computation
 methodology is governance-policy and issuer-specific. Two issuers
 operating under different governance frameworks may legitimately
@@ -1272,7 +1272,7 @@ The following substantive changes were made in v01:
    OIDC-federated trust anchors (OIDC discovery + JWKS
    lookup, letting enterprise deployments bottom Tier 1
    trust out in their existing identity infrastructure).
-   The two patterns compose: a verifier **MAY** maintain a
+   The patterns compose: a verifier **MAY** maintain a
    mixed list with both entry types. The Genesis schema
    is unchanged; only the resolution path the verifier
    uses to decide whether a recorded issuer key is trusted.

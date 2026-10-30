@@ -81,7 +81,7 @@ The Agent Transfer Protocol (AGTP) {{AGTP}} is a transfer protocol
 for agent-to-agent and agent-to-API communication, the dedicated
 substrate on which agent traffic runs. AGTP carries agent identity, authority scope,
 attribution records, and intent-aligned methods at the wire level,
-with traffic structurally identified as agent traffic by the
+with traffic identified as agent traffic by the
 protocol itself.
 
 Agent communication is increasingly multi-modal. Agents communicate

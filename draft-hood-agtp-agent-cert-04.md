@@ -216,8 +216,8 @@ Certificate Transparency:
 
 # SSL Certificate Analogy and Composable Certificate Authorities {#ssl-analogy}
 
-The architectural pattern this document specifies is structurally
-analogous to the SSL/TLS certificate infrastructure that operates for
+The architectural pattern this document specifies follows the
+SSL/TLS certificate infrastructure that operates for
 websites and services today. Understanding this analogy clarifies
 what AGTP Agent Certificates are, how existing Certificate Authorities
 can extend their infrastructure to serve agents, and what the
@@ -280,7 +280,7 @@ This document explicitly invites existing Certificate Authorities to
 operate as Agent Certificate Authorities. The operational and
 regulatory infrastructure that DigiCert, Sectigo, GlobalSign, Entrust,
 Let's Encrypt, and similar institutions have built for SSL/TLS
-certificates transfers naturally to agent certificates:
+certificates transfers to agent certificates:
 
 - Validation pipelines that confirm identifier control (extended from
   DNS-based validation to Genesis-based validation per {{AGTP-TRUST}})
@@ -619,7 +619,7 @@ and **MUST** be logged.
 Base AGTP proves key possession per request through
 `Request-Signature`, verified against the `agent_public_key` of the
 Identity Document. The certificate proves possession of its own
-subject key at the handshake. The two compose in one of two ways:
+subject key at the handshake. The proofs compose in one of two ways:
 
 - **Same key** (RECOMMENDED). The certificate's subject public key
   is the agent's `agent_public_key` (Ed25519, per {{AGTP-IDDOC}}).
@@ -678,7 +678,7 @@ application-layer parsing.
 A certificate that lacks the AGTP-specific extensions is a valid
 TLS client certificate but carries no SEP-enforceable governance
 metadata. SEP enforcement of `authority-scope-commitment` and
-`governance-zone` is purely additive: in the absence of those
+`governance-zone` is additive: in the absence of those
 extensions, scope and zone are enforced through application-layer
 checks against the agent's Agent Identity Document per {{AGTP}}.
 Deployments **MAY** mix certificates with and without AGTP
@@ -1185,7 +1185,7 @@ substantive changes were made in v01:
 
 ## Wire Format Compatibility
 
-The v03 changes are entirely framing additions and cross-reference
+The v03 changes are framing additions and cross-reference
 updates. There are no wire-format-visible changes in this revision.
 Implementations conforming to v02 continue to interoperate with v03.
 

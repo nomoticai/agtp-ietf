@@ -201,7 +201,7 @@ and inherit HTTP's constraints for agent traffic.
 **External identity providers.** OAuth {{RFC6749}}, OIDC, SPIFFE,
 enterprise IdPs, and similar services issue credentials that answer
 "on whose behalf is the agent acting." AGTP identity answers "which
-agent is making this call." The two axes are orthogonal and require
+agent is making this call." The axes are orthogonal and require
 explicit composition rules so that they compose without conflict.
 
 **HTTP gateways.** Many existing clients communicate over HTTP/REST
@@ -888,7 +888,7 @@ and **MUST** be treated as orthogonal axes:
   identity in an enterprise identity stack. The trust root is the
   IdP.
 
-The two axes compose. AGTP places no constraints on how external
+The axes compose. AGTP places no constraints on how external
 credentials are validated; servers **MAY** require external
 credentials on specific methods, **MAY** lift a named claim from the
 validated credential into the Attribution-Record, and **MUST** treat
@@ -1003,7 +1003,8 @@ IdP, lifts the `sub` claim as `principal_id`, and stamps it on the
 Attribution-Record. The Identity Document that `agt-loan-evaluator`
 resolves to records the bank as owner (`owner_id` carrying an
 LEI-anchored institutional identity per {{AGTP-LEI}}); the bearer
-token identifies the customer. The two are independent axes.
+token identifies the customer. Owner and customer are independent
+axes.
 
 # HTTP Gateway Composition {#gateway-section}
 
@@ -1236,7 +1237,7 @@ composes both the External IdP profile and the HTTP Gateway profile:
    (on whose behalf the call was made).
 
 The gateway is the agent at the AGTP layer; the bearer token's
-subject is the principal. Both compose cleanly into the existing
+subject is the principal. Both fit the existing
 two-axis model.
 
 # Security Considerations
@@ -1511,7 +1512,7 @@ Thank you to Anthropic, Linux Foundation A2A team, and IBM ACP.
 The External Identity Provider composition profile builds on the
 foundational work of the OAuth and OIDC communities. The composition
 treats AGTP identity and external IdP credentials as orthogonal axes
-that compose cleanly without modification to either.
+that compose without modification to either.
 
 The HTTP Gateway composition profile addresses the practical reality
 that many existing clients communicate over HTTP. The translation

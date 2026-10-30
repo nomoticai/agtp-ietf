@@ -108,7 +108,8 @@ agentic transaction: agent identity, Authority-Scope enforcement, Budget-
 Limit declaration, and a signed Attribution-Record on every method
 invocation. The receiving side of a PURCHASE transaction -- the merchant
 or service provider -- has no equivalent protocol-level identity or
-verification mechanism. This is the merchant identity gap.
+verification mechanism. That asymmetry is the gap this document
+closes.
 
 This document specifies the AGTP Merchant Identity and Agentic
 Commerce Binding. It defines a merchant in AGTP as an agent whose
@@ -154,7 +155,7 @@ network acceptance, or dispute policy. An agent with `payments:
 purchase` scope will transact with any endpoint its principal
 (or the upstream orchestration logic) directs it toward. There is no
 protocol-level signal distinguishing a verified merchant of record
-from an endpoint that merely answers on the expected port.
+from an endpoint that answers on the expected port and nothing more.
 
 This gap has direct operational consequences as agent-driven commerce
 scales:
@@ -172,7 +173,7 @@ scales:
   surface in the absence of a governed merchant directory.
 
 - Agents cannot distinguish a merchant whose identity has been
-  verified from one that has merely published a service endpoint.
+  verified from one that has published a service endpoint and nothing more.
 
 This document closes the gap by introducing a merchant-side identity
 structure that mirrors the agent-side identity structure already
@@ -623,7 +624,7 @@ authorization and transaction execution.
 
 ## Forwarding to Payment Networks
 
-The Intent Assertion is structured as a standalone JWT precisely so
+The Intent Assertion is structured as a standalone JWT so
 that it can be forwarded. A payment network receiving a merchant's
 authorization request **MAY** require the merchant to forward the
 Intent Assertion alongside the standard payment message. The payment
@@ -1220,7 +1221,7 @@ the transaction flow is untouched.
 A governance platform operating an AGTP registry **MAY** extend its
 registry to cover both agents and merchants, or it **MAY** operate
 separate agent and merchant registries under the same governance
-zone. The registry schema for merchants is structurally parallel to
+zone. The registry schema for merchants is parallel to
 the agent registry schema, reducing implementation effort.
 
 ## MNS Co-location

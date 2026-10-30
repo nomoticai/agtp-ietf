@@ -205,8 +205,8 @@ documentation, OpenAPI specs, or framework conventions. Operational
 concerns (rate limiting, observability, caching, custom
 authentication strategies, request transformation, deployment
 topology) remain middleware territory because they are operational
-decisions specific to a deployment. The protocol governs contracts;
-middleware governs operations.
+decisions specific to a deployment. Contracts belong to the
+protocol and operations to middleware.
 
 ## Document Lineage
 
@@ -444,7 +444,7 @@ The catalog is a versioned JSON document with five top-level keys:
   (`deprecated_in`, `removed_in`, `successor`).
 
 The catalog is published in machine-readable form at the URL above
-and is intentionally maintained as an open living artifact, in
+and is maintained as an open living artifact, in
 contrast to a closed IANA registry. Curation is performed by the AGTP-METHODS
 maintainers in public; the version of the catalog in effect at any
 given moment is declared in the `catalog_version` field of every
@@ -453,8 +453,8 @@ vocabulary at the cadence of IETF process; AGTP-METHODS verbs need to
 evolve at the cadence of agent deployments. The IANA registries
 that AGTP-METHODS does request ({{iana-considerations}}) cover the
 structural status codes, the media types, and the response headers
-all of which benefit from IANA's conservative cadence. The
-catalog itself carries none.
+all of which benefit from IANA's conservative cadence; the catalog
+itself is outside IANA.
 
 ## Method Rules {#verb-rules}
 
@@ -1502,7 +1502,7 @@ intent-expressing semantic metadata is documented in {{HOOD2026}}.
 The server manifest is the machine-readable document an AGTP server
 publishes to declare its identity, version posture, endpoint
 catalog, hosted agents, hosted protocols, and operational policies.
-It is the authoritative answer to "what does this server offer."
+It is the authoritative statement of what the server offers.
 
 ## Manifest Structure
 
@@ -2509,7 +2509,7 @@ traffic from generic JSON.
 
 This document does **NOT** request establishment of an IANA AGTP-METHODS
 Verb List Registry. As specified in {{list-maintenance}}, the verb
-list is intentionally maintained as an open living artifact at
+list is maintained as an open living artifact at
 `https://agtp.io/api/methods.json`, in contrast to a closed IANA
 registry, so that the catalog can evolve at the cadence of agent
 deployment, which outpaces the cadence of IETF process. The structural
@@ -2782,8 +2782,8 @@ or is retained only for legacy clients that have yet to migrate.
 
 The conversion tool generates endpoint declarations and handler
 stubs from the existing OpenAPI specification, leaving the
-organization to fill in the business logic. The work is conversion;
-nothing is built from scratch.
+organization to fill in the business logic. The work is conversion
+of an existing API.
 
 Translate-and-rehost deployments leave the `apis` array empty once
 the HTTP layer retires; during transition, the array continues to

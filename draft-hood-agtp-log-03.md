@@ -222,7 +222,7 @@ relative to:
 *Pre-commitment intent declaration:* {{IDP}} defines intent
 declaration committed to a tamper-evident log before policy
 evaluation executes. The ordering guarantee (declaration <
-evaluation < execution) is structurally different from AGTP-LOG's
+evaluation < execution) is a different problem from AGTP-LOG's
 post-hoc recording. AGTP-LOG and pre-commitment intent declaration
 are complementary: both can operate against the same governance
 platform, recording different categories of agent events.
@@ -969,7 +969,7 @@ independent monitors that surface inconsistency evidence.
 
 In a future revision incorporating witnesses, two or more witnesses
 colluding with a malicious log operator could countersign
-inconsistent STHs. This threat is structurally identical to log
+inconsistent STHs. This threat is the same as log
 operator compromise from the verifier's perspective: the verifier
 trusts the witness set, and a colluding witness set is no better
 than a colluding operator. Mitigations are deferred to a future revision along

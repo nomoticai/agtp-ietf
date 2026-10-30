@@ -108,7 +108,7 @@ layer for the Agent Transfer Protocol (AGTP). Existing agent discovery
 proposals are pull-based: an agent must know where to look (a catalog URL,
 a registry endpoint, a DNS name) before a query can begin. AGTP Presence
 inverts this model. When an agent joins the AGTP substrate, it becomes
-structurally addressable and visible to the relevant scope of other agents
+addressable and visible to the relevant scope of other agents
 immediately, without requiring registration with a central directory.
 In the vocabulary this family adopts from RFC 6763, Presence is the
 discovery layer: it resolves a known Canonical Agent-ID to the agent's
@@ -121,7 +121,7 @@ The architecture combines three proven patterns: a Distributed Hash Table
 gossip-based protocol for presence announcement and convergence, and
 trust-tier-scoped overlay partitioning for visibility control. Per-agent
 visibility is cryptographically declared in AGTP-CERT certificate
-extensions and enforced structurally, with three orthogonal axes of
+extensions and enforced by the protocol, with three orthogonal axes of
 control: presence visibility, disclosure visibility, and audience scoping.
 
 This document defines three new lifecycle methods (ANNOUNCE, WITHDRAW,
@@ -280,7 +280,7 @@ the AGTP substrate.
 
 Canonical Agent-IDs as defined in {{AGTP-IDENTIFIERS}} are 256-bit
 SHA-256 hashes of Agent Genesis documents. This makes them
-content-addressable identifiers structurally compatible with
+content-addressable identifiers compatible with
 distributed hash table addressing.
 
 AGTP Presence specifies a Kademlia-style DHT {{KADEMLIA}} keyed by
@@ -382,7 +382,7 @@ Presence in AGTP is a scoped property. Visibility is partitioned
 across overlapping scopes determined by the trust tiers and verification
 paths defined in {{AGTP-TRUST}}, the visibility posture declared by
 each agent's certificate, and the operational dimensions agents
-actually use for search: capability, industry, region.
+use for search: capability, industry, region.
 
 This document specifies a federation-of-scoped-overlays model. A
 flat global DHT containing all agents would impose unnecessary
@@ -491,11 +491,10 @@ scope has split rejoin the appropriate sub-scope based on their
 current posture. Agents discovering that their scope has merged
 transition to the broader scope without manual intervention.
 
-Adaptive partition refinement is structurally similar to DNS zone
+Adaptive partition refinement resembles DNS zone
 delegation (when a zone grows too large, it delegates subdomains)
 and to Kademlia k-bucket splitting (when a bucket overflows, it
-splits along the next bit of the keyspace). The pattern is well
-understood in distributed systems practice.
+splits along the next bit of the keyspace).
 
 ### Cross-Scope Resolution
 
@@ -650,8 +649,8 @@ checking agent availability.
 PROBE responses are filtered by the responding agent's visibility
 posture. An agent whose visibility posture excludes the requesting
 agent **MUST** return a 404 response, indistinguishable from a response
-indicating the agent is unknown. This is the structural enforcement
-mechanism for the `invisible` presence mode.
+indicating the agent is unknown. This refusal enforces the `invisible`
+presence mode.
 
 Request semantics:
 
@@ -663,7 +662,7 @@ Request semantics:
 # Visibility Model {#visibility}
 
 AGTP Presence specifies three orthogonal axes of visibility control.
-The visibility model is structurally analogous to operating system
+The visibility model resembles operating system
 file permissions, gaming platform privacy controls, and similar
 well-understood mechanisms. Visibility is declared via AGTP-CERT
 certificate extensions and is cryptographically bound to the agent's
@@ -904,7 +903,7 @@ implementations conform; the cryptographic declaration prevents
 visibility claims from being falsified; a non-conforming actor can
 still observe what it chooses to observe.
 
-This is structurally similar to TLS certificate validation: a server's
+The situation is the same as TLS certificate validation: a server's
 certificate declares its identity verifiably, but a non-conforming
 client may choose to ignore validation failures.
 
@@ -955,7 +954,7 @@ in a system whose value proposition includes decentralization.
 Mitigations:
 
 - The capability axis is governed by the method library, which is
-  itself a structurally constrained vocabulary tied to AGTP method
+  itself a constrained vocabulary tied to AGTP method
   definitions. This avoids introducing a new governance body for the
   capability axis specifically.
 - Industry and region axes use established external registries with
@@ -1043,7 +1042,7 @@ contains the full population. Most agents participate in scoped views
 of thousands to tens of thousands of relevant peers. Cross-tier and
 cross-domain search proceeds through controlled federation points.
 
-This is structurally analogous to how the internet scales through BGP:
+The internet scales the same way through BGP:
 the internet is a federation of
 independently operated systems with controlled inter-AS routing,
 with no single flat network anywhere in it. AGTP Presence

@@ -112,7 +112,7 @@ distinct but related problems:
 3. **Name resolution**: given a human-readable name (such as
    `concierge.acme.com`), what is its Canonical Agent-ID?
 
-These three problems are architecturally distinct and benefit from
+These three problems are distinct and benefit from
 distinct mechanisms. Conflating them produces designs that are
 either too narrow (a single query interface that handles all three
 poorly) or too broad (a single registry that tries to be all things
@@ -198,7 +198,7 @@ The internet has DNS for naming and presence systems (XMPP, Matrix)
 for population awareness as separate layers, because they answer
 different questions. DNS answers "what is the address for this
 name?" Presence systems answer "who is here right now?" These are
-genuinely different functions with different governance models,
+different functions with different governance models,
 different update cadences, and different consumer use cases.
 
 AGTP follows the same pattern. ANS is the naming layer, providing
@@ -214,7 +214,7 @@ neither use case well.
 **Agent-native.** Search, discovery, and naming results return
 Canonical Agent-IDs and Agent Identity Documents; no web page or
 proprietary record appears in a result. The result of a DISCOVER query is
-structurally identical to the result of resolving a known agent URI.
+the same shape as the result of resolving a known agent URI.
 
 **Governed.** ANS servers and DISCOVER endpoints are AGTP-aware
 infrastructure. They enforce trust tier requirements, behavioral
@@ -548,7 +548,7 @@ deterministic for identical inputs.
 
 The Agent Name Service provides governed resolution of human-readable
 names to Canonical Agent-IDs. ANS is the naming layer for AGTP,
-architecturally analogous to DNS for the web. ANS leaves to Presence
+analogous to DNS for the web. ANS leaves to Presence
 the population awareness functionality provided by {{AGTP-PRESENCE}};
 it provides the stable name-to-identifier mapping that complements
 ambient discovery in the sense of {{vocabulary}}.
@@ -654,7 +654,7 @@ An agent in one naming authority may need to resolve names registered
 in a different authority. Organization-scoped ANS servers lack
 visibility into other organizations' naming records.
 
-Naming federation in ANS is architecturally analogous to DNS root and
+Naming federation in ANS follows the DNS root and
 TLD hierarchy. Cross-organizational name resolution proceeds through
 established federation patterns at the naming authority layer.
 Population federation across organizations is handled separately by
@@ -1036,7 +1036,7 @@ method, the ANS protocol, federation, and the ADS pattern are
 unchanged on the wire.
 
 - **Search, discover, resolve** ({{vocabulary}}). The three
-  operations the document already separated architecturally are now
+  operations the document already separated are now
   named distinctly, following {{RFC6763}}: search (criteria to
   candidates), discover (identity to attachment), resolve (name to
   identity). Applied through the introduction, design principles,
