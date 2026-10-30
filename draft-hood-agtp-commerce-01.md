@@ -90,7 +90,7 @@ informative:
       Internet-Draft: draft-hood-agtp-merchant-identity-03
     date: 2026
   AGTP-LEI:
-    title: "AGTP-LEI: Binding the Agent Transfer Protocol to the Verifiable Legal Entity Identifier"
+    title: "AGTP Binding to the Legal Entity Identifier (LEI and vLEI)"
     author:
       fullname: Chris Hood
     seriesinfo:

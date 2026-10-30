@@ -64,7 +64,7 @@ informative:
       Internet-Draft: draft-hood-agtp-rcns-00
     date: 2026
   AGTP-COMPOSITION:
-    title: "AGTP Composition Profiles: Agent Group Messaging Protocols, External Identity Providers, and HTTP Gateways"
+    title: "AGTP Composition Profiles"
     author:
       fullname: Chris Hood
     seriesinfo:

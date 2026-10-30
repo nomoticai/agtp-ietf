@@ -142,7 +142,7 @@ informative:
       Internet-Draft: draft-hood-agtp-discovery-02
     date: 2026
   AGTP-COMPOSITION:
-    title: "AGTP Composition Profiles: Agent Group Messaging Protocols, External Identity Providers, and HTTP Gateways"
+    title: "AGTP Composition Profiles"
     author:
       fullname: Chris Hood
     seriesinfo:
@@ -184,7 +184,7 @@ informative:
       Internet-Draft: draft-hood-agtp-presence-01
     date: 2026
   AGTP-LEI:
-    title: "AGTP-LEI: Binding the Agent Transfer Protocol to the Verifiable Legal Entity Identifier"
+    title: "AGTP Binding to the Legal Entity Identifier (LEI and vLEI)"
     author:
       fullname: Chris Hood
     seriesinfo:

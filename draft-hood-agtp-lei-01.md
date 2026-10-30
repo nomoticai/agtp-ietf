@@ -1,5 +1,5 @@
 ---
-title: "AGTP-LEI: Binding the Agent Transfer Protocol to the Verifiable Legal Entity Identifier"
+title: "AGTP Binding to the Legal Entity Identifier (LEI and vLEI)"
 abbrev: "AGTP-LEI"
 docname: draft-hood-agtp-lei-01
 category: info
@@ -916,6 +916,8 @@ role credential chain are unchanged.
 - **Verification ladder** ({{ladder}}): out-of-band KYB, LEI in
   `owner_id`, vLEI binding, each with what it proves and how it
   fails; GLEIF-unavailable case added to Security Considerations.
+- Title changed to "AGTP Binding to the Legal Entity Identifier (LEI
+  and vLEI)".
 - References made explicit and pinned: base -10, AGTP-IDENTIFIERS
   -03, AGTP-TRUST -03, AGTP-CERT -04, AGTP-MERCHANT-IDENTITY -03;
   AGTP-IDDOC added. House style pass.

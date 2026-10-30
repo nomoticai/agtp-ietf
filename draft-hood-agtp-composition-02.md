@@ -1,5 +1,5 @@
 ---
-title: "AGTP Composition Profiles: Agent Group Messaging Protocols, External Identity Providers, and HTTP Gateways"
+title: "AGTP Composition Profiles"
 abbrev: "AGTP-COMPOSITION"
 docname: draft-hood-agtp-composition-02
 category: info
@@ -138,7 +138,7 @@ informative:
       Internet-Draft: draft-hood-agtp-presence-01
     date: 2026
   AGTP-LEI:
-    title: "AGTP-LEI: Binding the Agent Transfer Protocol to the Verifiable Legal Entity Identifier"
+    title: "AGTP Binding to the Legal Entity Identifier (LEI and vLEI)"
     author:
       fullname: Chris Hood
     seriesinfo:
@@ -1395,7 +1395,10 @@ their structure are unchanged.
 7. **AGMP wire-example appendix** from base v09 absorbed; the base
    document now summarizes and points here.
 
-8. References: base to -10; AGTP-API split into AGTP-METHODS and
+8. **Title shortened** to "AGTP Composition Profiles"; the three
+   families remain the first sentence of the abstract.
+
+9. References: base to -10; AGTP-API split into AGTP-METHODS and
    AGTP-RCNS; AGTP-IDENTIFIERS -03, AGTP-LOG -03, AGTP-DISCOVERY -02,
    AGTP-PRESENCE -01, AGTP-LEI -01, AGTP-COMMERCE -01; AGTP-IDDOC and
    AGTP-SESSION added. Transfer-protocol wording in place of
