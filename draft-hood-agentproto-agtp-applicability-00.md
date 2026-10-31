@@ -197,8 +197,8 @@ independently of the users they represent:
 : `Agent-ID` names the agent and `Request-Signature` proves per
   request that the sender holds the agent's key; the user or
   principal is a validated external credential in `Authorization`,
-  recorded as `principal_id`. The two are specified as independent
-  axes. {{AGTP}}, Request Signature and Proof of Possession;
+  recorded as `principal_id`. Agent identity and principal identity
+  are specified as independent axes. {{AGTP}}, Request Signature and Proof of Possession;
   {{AGTP-COMPOSITION}}, External Identity Provider Composition.
 
 Long-lived and low-latency dialogs:
